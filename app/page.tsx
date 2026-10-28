@@ -1,69 +1,71 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+// app/page.tsx — Giftia 検索画面（1周目・穴埋め版）
+// 【穴1】〜【穴5】を、対応表と公式ドキュメントを頼りに自分で埋める。
+// 答えは 配布コード/答え合わせ/page.tsx（自分で埋めてから見る）。
+"use client"; // ← ブラウザで動く合図。useState や onClick を使う画面に必要
+
+import { useState } from "react";
+import ResultCard from "./ResultCard";
+import { searchGifts, type Gift } from "@/lib/sampleGifts";
 
 export default function Home() {
+  // ① 状態（変化するデータ）を覚える箱
+  const [mode, setMode] = useState<"standard" | "business">("standard"); // どのタブか
+  const [keyword, setKeyword] = useState(""); // 入力した言葉
+  const [category, setCategory] = useState("");                           // 選んだカテゴリー
+  const [results, setResults] = useState<Gift[] | null>(null);            // 検索結果
+
+  // ② 検索ボタンの処理
+  function onSearch(e: React.FormEvent) {
+    e.preventDefault();
+    setResults(searchGifts()); // 2週目でここを FastAPI に差し替える。いまはサンプルを出すだけ
+  }
+
+  // ③ 画面
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.tsx</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <main className="page">
+      <header className="header"><h1>Giftia</h1></header>
+
+      {/* タブ：state(mode)＋条件で出し分ける */}
+      <nav className="modes">
+        <button className={mode === "standard" ? "on" : ""} onClick={() => { setMode("standard"); setResults(null); }}>いまの検索</button>
+        <button className={mode === "business" ? "on" : ""} onClick={() => { setMode("business"); setResults(null); }}>取引先へのお礼</button>
+      </nav>
+
+      <p className="summary">※いまはサンプル表示です。入力は2週目から効きます。</p>
+
+      <form className="form" onSubmit={onSearch}>
+        {mode === "standard" ? (
+          <>
+            <input className="q" value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="キーワード（例：送別 お菓子）" />
+            <select value={category} onChange={(e) => setCategory(e.target.value)}>
+              <option value="">すべてのカテゴリー</option>
+              <option value="コスメ">コスメ</option>
+              <option value="食品">食品</option>
+              <option value="生活雑貨">生活雑貨</option>
+            </select>
+          </>
+        ) : (
+          <>
+            <label className="chk"><input type="checkbox" /> 個包装</label>
+            <select>
+              <option value="">すべての価格帯</option>
+              <option value="3000">3,000〜5,000円</option>
+              <option value="5000">5,000〜10,000円</option>
+            </select>
+          </>
+        )}
+        <button type="submit">検索</button>
+      </form>
+
+      {/* 結果：同じ ResultCard を map で並べる（使い回し） */}
+      {results && (
+        <section>
+          <p className="summary">上位 {results.length} 件（サンプル）</p>
+          <div className="grid">
+            {results.map((g, i) => <ResultCard key={g.id} gift={g} rank={i + 1} />)}
+          </div>
+        </section>
+      )}
+    </main>
   );
 }
