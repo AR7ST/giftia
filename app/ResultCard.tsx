@@ -1,6 +1,5 @@
-// app/ResultCard.tsx
-// 結果カード（部品）。1つ作れば、.map() で何枚でも並べられる＝使い回せる。
-import type { Gift } from "@/lib/sampleGifts";
+// app/ResultCard.tsx — 結果カード（部品）。2週目の変更は import の1行だけ（Gift 型の置き場所が lib/api.ts に変わった）
+import type { Gift } from "@/lib/api";
 
 export default function ResultCard({ gift, rank }: { gift: Gift; rank: number }) {
   return (
