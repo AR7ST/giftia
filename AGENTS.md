@@ -3,6 +3,12 @@
 Claude Code などの AI ツールは、作業を始める前にこのファイルを読み、ここに書いたルールを守ること。
 班のルール全体は `README.md` の2章を参照する。このファイルと README がちがうときは、README を優先する。
 
+このリポジトリはモノレポ（画面と API を1つのリポジトリに入れた形）。
+
+- `giftia-frontend/` … 画面（Next.js）。Next.js のコードを書く前に `giftia-frontend/AGENTS.md` も読む
+- `backend/` … 検索 API（FastAPI）
+- コマンドは、そのフォルダに `cd` してから実行する（`npm` は `giftia-frontend/`、`uvicorn`・`pip` は `backend/`）
+
 ## 1. 秘密の情報を扱わない
 
 - `.env`（DB のホスト名・ユーザー名・パスワード）は読まない。中身を表示しない。どこにも貼らない
@@ -21,22 +27,12 @@ Claude Code などの AI ツールは、作業を始める前にこのファイ�
 ## 3. コードを書くとき
 
 - 1回の作業は1つの変更だけにする（1つの Issue・1つの PR）
-- 画面と API のつなぎ目（`lib/api.ts` の `Gift` 型と `searchGifts()`）を変えるときは、`giftia-backend` もセットで変える必要があるかを先に伝える
-- SQL に入れる値は `%s` と `params` で渡す。文字列に直接つなげない（SQL インジェクション対策）
-- 変えたあと、`npm run dev` で画面が今までどおり動くかを確かめる方法を伝える
+- 画面と API のつなぎ目（`giftia-frontend/lib/api.ts` の `Gift` 型と `searchGifts()`）を変えるときは、`backend/main.py` もセットで（同じ PR で）変える必要があるかを先に伝える
+- SQL に入れる値は（`backend/main.py` で）`%s` と `params` で渡す。文字列に直接つなげない（SQL インジェクション対策）
+- 変えたあと、`npm run dev`（giftia-frontend/）と `uvicorn main:app --reload`（backend/）で、今までどおり動くかを確かめる方法を伝える
 
 ## 4. 説明のしかた
 
 - 説明は日本語で、専門用語には一言の言い換えを付ける
 - 提案したコードは、使う人が理解してから取り入れる。分からない点は質問してよい
 - AI の提案が正しいかは、公式ドキュメントや実際の動作で人が確かめる
-
-<!-- BEGIN:nextjs-agent-rules -->
-
-## This is NOT the Next.js you know
-
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
-
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
-
-<!-- END:nextjs-agent-rules -->

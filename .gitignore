@@ -1,46 +1,18 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# リポジトリ全体の .gitignore（モノレポの一番上）
+# 各フォルダの .gitignore（giftia-frontend/.gitignore・backend/.gitignore）も効いている。これは念のための二重の守り。
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+# 秘密の情報（どのフォルダにあっても GitHub に上げない）
+.env
+.env.local
+.env.*.local
 
-# testing
-/coverage
+# 機械が作るもの
+node_modules/
+.next/
+.venv/
+__pycache__/
 
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-
-# personal notes and course material (not shared)
-1周目_Nextjs超Starter_Giftia.pdf
+# 個人のメモ・教材（Tech0 の Confidential 資料は上げない）
+*.pdf
 261025_作業ログ.md
 CLAUDE.md
