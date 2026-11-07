@@ -1,6 +1,7 @@
-# giftia-backend（Giftia 検索 API・FastAPI）
+# backend（Giftia 検索 API・FastAPI）
 
-Giftia の検索画面（[AR7ST/giftia-frontend](https://github.com/AR7ST/giftia-frontend)）から呼ばれる検索 API です。
+Giftia の検索画面（同じリポジトリの [`giftia-frontend/`](../giftia-frontend)）から呼ばれる検索 API です。
+班のルールと全体の起動手順は、リポジトリの一番上の [README.md](../README.md) を見てください。
 画面から条件を受け取り、班の DB（Azure Database for MySQL）を検索して、結果を JSON で返します。
 
 ```
@@ -18,9 +19,9 @@ Giftia の検索画面（[AR7ST/giftia-frontend](https://github.com/AR7ST/giftia
 
 ## はじめて動かすとき（Windows / PowerShell）
 
-1. フォルダに移動する
+1. フォルダに移動する（リポジトリの一番上から）
    ```
-   cd giftia-backend
+   cd backend
    ```
 2. 仮想環境（このフォルダ専用の部品箱）を作る
    ```

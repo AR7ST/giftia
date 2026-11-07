@@ -1,6 +1,6 @@
-# Giftia（班のリポジトリ：画面 Next.js）
+# Giftia（班のリポジトリ：画面 Next.js ＋ 検索 API FastAPI）
 
-Giftia のギフト検索画面です。班で**できる日に1回**、少しずつ改善していきます（毎日でなくて OK）。
+Giftia のギフト検索アプリです。画面（Next.js）と検索 API（FastAPI）を、この1つのリポジトリにまとめています（モノレポ）。班で**できる日に1回**、少しずつ改善していきます（毎日でなくて OK）。
 進捗は **[Giftia 改善ボード](https://github.com/users/AR7ST/projects/1)**（GitHub Projects）と、**[ハブページ](https://ar7st.github.io/giftia-hub/)**（giftia-hub）の2つで管理します（→ 4章）。
 **作業を始める前に、このファイルを最後まで読んでください。Claude Code を使う人は、最初に「README.md を読んで、ルールを守って作業して」と伝えてください（→ 8章）。**
 
@@ -10,31 +10,44 @@ Giftia のギフト検索画面です。班で**できる日に1回**、少し�
 
 ```
 画面（Next.js・3000番）  →  検索 API（FastAPI・8000番）  →  班の DB（Azure MySQL）
-  このリポジトリ               giftia-backend                    Tech0 から配布
+  giftia-frontend/             backend/                          Tech0 から配布
+```
+
+このリポジトリは**モノレポ**（画面と API を、1つのリポジトリの中にフォルダを分けて入れた形）です。
+
+```
+giftia/（このリポジトリ）
+├── giftia-frontend/   ← 画面（Next.js）。npm のコマンドはここで打つ
+├── backend/           ← 検索 API（FastAPI）。uvicorn・pip のコマンドはここで打つ
+├── README.md          ← このファイル（班の案内とルール）
+├── AGENTS.md          ← 班の AI の使い方ルール
+└── .gitignore         ← GitHub に上げないファイル（.env など）
 ```
 
 | リポジトリ | 中身 | URL |
 | --- | --- | --- |
-| **giftia-frontend**（ここ） | 画面（Next.js）。1週目の検索画面＋2週目の変更 | https://github.com/AR7ST/giftia-frontend |
-| **giftia-backend** | 検索 API（FastAPI）。起動の手順は giftia-backend の README | https://github.com/AR7ST/giftia-backend |
+| **giftia**（ここ。Private） | 画面と検索 API | https://github.com/AR7ST/giftia |
 | **giftia-hub**（公開） | 班のハブページ（入口・改善ログ）。GitHub Pages で公開 | https://github.com/AR7ST/giftia-hub → https://ar7st.github.io/giftia-hub/ |
 
-- giftia-frontend と giftia-backend は **Private**（招待されたメンバーだけが見られる）。giftia-hub だけ **Public**（だれでも見られる）なので、秘密は置かない。
-- 2週目の変更の内容は PR #1 にまとめてある：https://github.com/AR7ST/giftia-frontend/pull/1
+- giftia は **Private**（招待されたメンバーだけが見られる）。giftia-hub だけ **Public**（だれでも見られる）なので、秘密は置かない。
+- 2週目の変更の内容は PR #1 にまとめてある：https://github.com/AR7ST/giftia/pull/1
+- 前は画面（giftia-frontend）と API（giftia-backend）を別々のリポジトリにしていた。講師の指摘を受けて、モノレポに組みかえた（Issue #5）。giftia-backend はアーカイブ（読み取り専用）にして残している。
 
 ### 主なファイル
 
 | ファイル | 役割 |
 | --- | --- |
-| `app/page.tsx` | 検索画面の本体（タブ・入力欄・検索ボタン・結果） |
-| `app/ResultCard.tsx` | 結果カード1枚の部品 |
-| `lib/api.ts` | 検索 API を呼ぶ（`searchGifts()`）。`Gift` 型もここ |
-| `app/globals.css` | 見た目 |
+| `giftia-frontend/app/page.tsx` | 検索画面の本体（タブ・入力欄・検索ボタン・結果） |
+| `giftia-frontend/app/ResultCard.tsx` | 結果カード1枚の部品 |
+| `giftia-frontend/lib/api.ts` | 検索 API を呼ぶ（`searchGifts()`）。`Gift` 型もここ |
+| `giftia-frontend/app/globals.css` | 見た目 |
+| `backend/main.py` | 検索 API の窓口（`/api/search`）。条件から SQL を組み立てる |
+| `backend/database.py` | `.env` を読んで班の DB につなぐ |
 
-### リポジトリを2つに分けた理由
-- 教材のフォルダ構成が「giftia-frontend と backend を横に並べる」形。backend を画面のリポジトリの中に入れると、フォルダを移して仮想環境（.venv）を作り直す必要があった。
-- 教材と同じ形のまま使えるように、API 用に giftia-backend を別に作った。
-- 「**画面を変えるなら frontend、検索の中身（SQL）を変えるなら backend**」と、役割と名前がそろう。
+### モノレポにした理由
+- 課題「班の開発環境を GitHub で共有する」は、Next.js と FastAPI のフォルダを1つのリポジトリに push する形。教材のフォルダ構成（giftia-frontend と backend を横に並べる）とも同じ。
+- clone が1回で済み、画面と API の両方がそろう。
+- 画面と API をセットで変えるときも、**PR 1つ**で済む（つなぎ目がずれにくい）。
 
 ---
 
@@ -53,11 +66,11 @@ Giftia のギフト検索画面です。班で**できる日に1回**、少し�
 8. **1つの PR には、1つの変更だけ**（1回の改善の単位）。
 9. PR には、**変更前／変更後のスクリーンショット**を貼る（→ 5章）。本文に `Closes #Issue番号` を書く（→ 4-5）。
 10. PR は、**班のだれか1人以上が見て OK してから** `main` に取りこむ（merge）。
-11. 画面を変えるときは、API とのつなぎ目（`lib/api.ts` の `Gift` 型・`searchGifts()`）を壊さないように注意する。API の項目を増やすときは、giftia-backend と**セットで**変える。
+11. 画面を変えるときは、API とのつなぎ目（`giftia-frontend/lib/api.ts` の `Gift` 型・`searchGifts()`）を壊さないように注意する。API の項目を増やすときは、`backend/` と**セットで（同じ PR で）**変える。
 
 ### コード
-12. SQL に入れる値は、giftia-backend で `%s` と `params` で渡す（文字列に直接つなげない。SQL インジェクション対策）。
-13. この Next.js は新しいバージョンなので、書き方が古い情報とちがうことがある（`AGENTS.md` を参照）。
+12. SQL に入れる値は、`backend/main.py` で `%s` と `params` で渡す（文字列に直接つなげない。SQL インジェクション対策）。
+13. この Next.js は新しいバージョンなので、書き方が古い情報とちがうことがある（`giftia-frontend/AGENTS.md` を参照）。
 
 ---
 
@@ -66,8 +79,8 @@ Giftia のギフト検索画面です。班で**できる日に1回**、少し�
 ### 3-1. コードを自分の PC にコピーする（最初に1回だけ）
 ```
 cd C:\Services
-git clone https://github.com/AR7ST/giftia-frontend.git
-git clone https://github.com/AR7ST/giftia-backend.git
+git clone https://github.com/AR7ST/giftia.git
+cd giftia
 ```
 - 置き場所は `C:\Services` などのローカルにする。**デスクトップ（OneDrive）や Google Drive の中は避ける**（npm install が失敗しやすい）。
 - これで、GitHub のコードが**まるごと**自分の PC にコピーされる（これまでの記録も全部入っている）。
@@ -76,14 +89,14 @@ git clone https://github.com/AR7ST/giftia-backend.git
 
 | もの | 作り方 |
 | --- | --- |
-| `giftia-backend/.env` | giftia-backend の README の手順。配布のシートから**自分で**書く |
-| `giftia-backend/.venv` | `python -m venv .venv` → `pip install -r requirements.txt` |
+| `backend/.env` | `backend/README.md` の手順。配布のシートから**自分で**書く |
+| `backend/.venv` | `backend` で `python -m venv .venv` → `pip install -r requirements.txt` |
 | `giftia-frontend/.env.local` | 下の 3-3 |
 | `giftia-frontend/node_modules` | `npm install` |
 
 ### 3-3. 画面の準備
 ```
-cd C:\Services\giftia-frontend
+cd C:\Services\giftia\giftia-frontend
 npm install
 Set-Content .env.local "NEXT_PUBLIC_API_URL=http://localhost:8000" -Encoding ascii
 ```
@@ -92,16 +105,16 @@ Set-Content .env.local "NEXT_PUBLIC_API_URL=http://localhost:8000" -Encoding asc
 
 **ターミナル1：検索 API（8000番）**
 ```
-cd C:\Services\giftia-backend
+cd C:\Services\giftia\backend
 .venv\Scripts\Activate.ps1
 uvicorn main:app --reload
 ```
 - `.venv\Scripts\Activate.ps1` は、**ターミナルを開き直すたびに必要**（行の左に `(.venv)` が付けば OK）。
-- giftia-backend の `.env` に `CORS_ORIGINS=http://localhost:3000` を入れておく。
+- `backend/.env` に `CORS_ORIGINS=http://localhost:3000` を入れておく。
 
 **ターミナル2：画面（3000番）**
 ```
-cd C:\Services\giftia-frontend
+cd C:\Services\giftia\giftia-frontend
 npm run dev
 ```
 - ブラウザで http://localhost:3000 を開き、「タオル」で検索して、本物の商品が並べば OK。
@@ -112,9 +125,9 @@ npm run dev
 | 症状 | 原因と対処 |
 | --- | --- |
 | 画面に「APIにつながりません：Failed to fetch」 | ターミナル1（API）が起動しているか確かめる |
-| Console（F12）に `blocked by CORS policy` | API は動いている。giftia-backend の `.env` の `CORS_ORIGINS` に `http://localhost:3000` を書いて、API を起動し直す |
+| Console（F12）に `blocked by CORS policy` | API は動いている。`backend/.env` の `CORS_ORIGINS` に `http://localhost:3000` を書いて、API を起動し直す |
 | ターミナルに `>>` が出て止まる | コマンドを貼り付けたときに改行が入った。もう一度 Enter |
-| そのほか API 側のエラー | giftia-backend の README の「つまずいたら」 |
+| そのほか API 側のエラー | `backend/README.md` の「つまずいたら」 |
 
 ---
 
@@ -128,8 +141,8 @@ npm run dev
 | --- | --- | --- | --- |
 | **ハブページ** | 班の**玄関**（毎日ここから） | https://ar7st.github.io/giftia-hub/ | URL を知っている人はだれでも（公開） |
 | **Giftia 改善ボード**（GitHub Projects） | 付せんを貼る**ホワイトボード** | https://github.com/users/AR7ST/projects/1 | 班のメンバーだけ |
-| **Issue** | 付せん1枚＝**やることカード** | [frontend](https://github.com/AR7ST/giftia-frontend/issues) / [backend](https://github.com/AR7ST/giftia-backend/issues) | 班のメンバーだけ |
-| **PR**（プルリクエスト） | 「清書に入れていい？」の**申請** | [frontend](https://github.com/AR7ST/giftia-frontend/pulls) / [backend](https://github.com/AR7ST/giftia-backend/pulls) | 班のメンバーだけ |
+| **Issue** | 付せん1枚＝**やることカード** | https://github.com/AR7ST/giftia/issues | 班のメンバーだけ |
+| **PR**（プルリクエスト） | 「清書に入れていい？」の**申請** | https://github.com/AR7ST/giftia/pulls | 班のメンバーだけ |
 
 ### 4-2. 1回の改善の流れ（全体図）
 
@@ -147,10 +160,8 @@ npm run dev
 
 ### 4-3. Issue（やることカード）の作り方
 
-**どちらのリポジトリに作る？**
-- 画面（見た目・ボタン・表示）を変える → **giftia-frontend**
-- 検索の中身（SQL・API）を変える → **giftia-backend**
-- 両方を変える → 主に変える方に **Issue を1枚だけ**作り、本文に「backend も変える」と書く（→ 4-5）
+**どこに作る？**
+- 画面も API も、Issue は**このリポジトリ（giftia）に1枚**。本文の「変えそうなファイル」に、`giftia-frontend/…` か `backend/…` かを書く
 
 **作り方（ブラウザ。スマホでもできる）**
 1. リポジトリの **Issues** タブ → **New issue**
@@ -172,7 +183,7 @@ npm run dev
 （例）カードに ★★★★☆ のように出る
 
 ## 変えそうなファイル
-（例）app/ResultCard.tsx
+（例）giftia-frontend/app/ResultCard.tsx
 ```
 
 **コツ**
@@ -192,7 +203,7 @@ npm run dev
 - カードは**ドラッグ**で別の列へ動かす（スマホは、カードを開いて Status を変える）。
 - **作業中は1人1枚まで。** 終わってから次を取る。
 - カードを押すと、Issue の本文やコメントが横に開く。
-- **自動で「完了」へ動くしくみ**：PR の本文に `Closes #番号` と書いておくと、PR を merge したときに Issue が自動で閉じ、カードが「完了」に動く。（Issue と PR が**同じリポジトリ**のときに使える。別のときは手で動かす）
+- **自動で「完了」へ動くしくみ**：PR の本文に `Closes #番号` と書いておくと、PR を merge したときに Issue が自動で閉じ、カードが「完了」に動く。（Issue も PR も giftia にあるので、いつも使える）
 - ボードの「+ Add item」で直接メモ（Draft）も書ける。作業するときは、カードの「⋯」→ **Convert to issue** で Issue にする。
 - 見方を変える：上の **New view → Table** で一覧表にもできる。上の検索欄に `assignee:@me` と入れると、自分のカードだけになる。
 
@@ -228,11 +239,9 @@ Closes #12
 - OK が1人以上ついたら、**Merge pull request** → **Confirm merge**。そのあと出る **Delete branch** は押してよい（下書きノートの片付け）。
 - 自分の PC も片付ける：`git switch main` → `git pull`
 
-**frontend と backend をセットで変えるとき**
-- Issue は1枚。PR は2つ（それぞれのリポジトリに1つずつ）。
-- 両方の PR 本文に、もう一方の PR のリンクを書く。
-- **backend を先に merge** する（API が先にないと、画面が困る）。
-- Issue のあるリポジトリの PR に `Closes #番号` を書く。もう一方には「関連：（Issue の URL）」と書く。
+**画面（giftia-frontend）と API（backend）をセットで変えるとき**
+- モノレポなので、**Issue 1枚・PR 1つ**で、両方のフォルダをまとめて変えられる。
+- PR の「確かめたこと」に、画面（`npm run dev`）と API（`/docs`）の両方で確かめたことを書く。
 
 ### 4-6. ハブページの更新（改善ログを1行足す）
 
@@ -242,7 +251,7 @@ merge した人が、ハブの「改善ログ」に1行足す。**ブラウザ�
 2. 右上の **鉛筆マーク**（Edit this file）を押す
 3. 「改善ログ」の表（`<table>` の中）の**最後の行の下**に、1行足す
    ```
-       <tr><td>2026-11-05</td><td>結果カードに星の評価を表示した</td><td>frontend #3</td></tr>
+       <tr><td>2026-11-05</td><td>結果カードに星の評価を表示した</td><td>giftia #3</td></tr>
    ```
    （日付・変えたこと・PR 番号。**名前は書かない**）
 4. 右上の **Commit changes...** → **Create a new branch for this commit and start a pull request** を選ぶ → **Propose changes** → **Create pull request**
@@ -275,7 +284,7 @@ merge した人が、ハブの「改善ログ」に1行足す。**ブラウザ�
 
 | 場所 | 班のメンバー（招待済み） | 持ち主だけ | 班の外の人 |
 | --- | --- | --- | --- |
-| giftia-frontend / backend | ブランチ・PR・レビュー・merge・Issue | 招待・設定・削除 | 見られない |
+| giftia（画面と API） | ブランチ・PR・レビュー・merge・Issue | 招待・設定・削除 | 見られない |
 | Giftia 改善ボード | カードを足す・動かす・Archive | メンバーの追加・列や自動の設定 | 見られない |
 | giftia-hub | ページを直す（改善ログなど） | Pages の設定・招待 | **見るだけ** |
 
@@ -286,7 +295,7 @@ merge した人が、ハブの「改善ログ」に1行足す。**ブラウザ�
 
 | こまりごと | 対処 |
 | --- | --- |
-| merge したのに、カードが「完了」に動かない | PR 本文に `Closes #番号` がない、または Issue が別のリポジトリ。カードを手で「完了」へ動かす |
+| merge したのに、カードが「完了」に動かない | PR 本文に `Closes #番号` がない。カードを手で「完了」へ動かす |
 | Issue を作ったのに、ボードに出ない | Issue の右側の **Projects** で「Giftia 改善ボード」を選ぶ |
 | ハブを直したのに、ページが変わらない | 1〜2分待って `Ctrl + F5`。giftia-hub の **Actions** タブで赤い × が出ていたら持ち主に連絡 |
 | 2人が同じところを変えそう | Slack で相談して、どちらかが先に merge。あとの人は `git pull` してから続ける |
@@ -332,7 +341,7 @@ git switch main       ← 元に戻す
 
 | git の言葉 | たとえ | 意味 |
 | --- | --- | --- |
-| フォルダ（`giftia-frontend`） | **作業机** | 自分の PC の中の作業場所 |
+| フォルダ（`giftia`） | **作業机** | 自分の PC の中の作業場所 |
 | ブランチ | **ノート** | `main` ＝ 班の**清書ノート**。変更は**下書きノート**で作る |
 | コミット | ノートの**1ページ** | 変更を1まとまりで記録する。**前のページも全部残る**ので、どの時点にも戻れる |
 | GitHub | **班の共有本棚** | みんなのノートを置く場所 |
@@ -367,5 +376,5 @@ Claude Code に守ってもらうこと：
 - `main` に直接 push しない。ブランチを作って PR で出す（2章のルール5）。
 - ファイルの削除・移動・上書きの前に、何をするかを説明して、使う人の OK をもらう。
 - GitHub への push や PR の作成・merge は、使う人の OK が出てから。
-- コードを書く前に `AGENTS.md` を読む（この Next.js は新しいバージョン）。
+- コードを書く前に `AGENTS.md`（一番上）と `giftia-frontend/AGENTS.md`（Next.js の注意）を読む。
 - 説明は日本語で、専門用語には一言の言い換えを付ける。

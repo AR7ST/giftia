@@ -1,0 +1,18 @@
+# リポジトリ全体の .gitignore（モノレポの一番上）
+# 各フォルダの .gitignore（giftia-frontend/.gitignore・backend/.gitignore）も効いている。これは念のための二重の守り。
+
+# 秘密の情報（どのフォルダにあっても GitHub に上げない）
+.env
+.env.local
+.env.*.local
+
+# 機械が作るもの
+node_modules/
+.next/
+.venv/
+__pycache__/
+
+# 個人のメモ・教材（Tech0 の Confidential 資料は上げない）
+*.pdf
+261025_作業ログ.md
+CLAUDE.md
