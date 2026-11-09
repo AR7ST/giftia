@@ -10,7 +10,8 @@ export type Gift = {
   brand: string;       // ブランド・店名
   name: string;        // 商品名
   price: number;       // 価格（円）
-  rating: number;      // レビューの平均
+  rating: number; | null
+      // レビューの平均
   reviewCount: number; // レビュー件数
 };
 
