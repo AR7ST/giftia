@@ -23,7 +23,7 @@
   <h1><span class="p">画面の地図</span></h1>
   <p class="lead">左（スマホでは上）の Giftia の画面は、本当に入力・選択・検索ができます（商品は例）。さわると、右の「メモ帳」と「操作の記録」が動きます。ピンクの番号を押すと、その部品の説明とコードの場所が出ます。</p>
 
-  <h2 class="sec-title">1. 画面マップ（完全版） <small>12か所</small></h2>
+  <h2 class="sec-title">1. 画面マップ（完全版） <small>13か所</small></h2>
   <div class="grid2">
     <div>
       <div class="gscreen" id="gs">
@@ -110,6 +110,7 @@ const P = {
   10: ["価格帯の選択", "「3,000〜5,000円」を、伝書鳩が下限と上限の2つの数に言いかえて送る。受付はそれで price をしぼる。", ["sPrice", "priceSel", "pPrice", "wPrice"]],
   11: ["つながらないときの表示", "伝書鳩が帰ってこられないと（API が止まっている・CORS で止められた）、catch に入り、<b>メモ帳</b>（error）に文を書いて表示する。くわしい原因はブラウザの Console。", ["catchErr", "errorShow", "sError"]],
   12: ["0件のとき", "条件に合う商品がないと、受付は空の配列を返す。画面は「上位 0 件」と出して、カードは並ばない。エラーではない。", ["summary", "where"]],
+  13: ["評価（レビュー）", "DB にレビューがない商品は、<b>受付</b>（to_gift）が rating を null で返す。カード側は <code>?? \" 不明\"</code> で「評価 不明」と見せる（0点にはしない）。2026-11-09 PR #12 で、以前の「レビューなしは0」から変更した。", ["tgRating", "cardRating"]],
 };
 let st = { mode: "standard", keyword: "", category: "", indivWrap: false, priceBand: "", results: null, error: "" };
 let sel = 5;

@@ -1,6 +1,6 @@
 /* コードの地図 共通の部品。
    行番号はこの LINES の表1か所にまとめる。giftia のコードが変わったら、ここだけ直す。
-   （2026-11-07 時点の main：Merge pull request #6 で確認） */
+   （2026-11-12 時点の main：Merge pull request #12（評価なし→null化）・#10（AGENTS.md改訂）・#8（Issue/PRテンプレート）まで確認済み） */
 const REPO = "https://github.com/AR7ST/giftia/blob/main/";
 const F = {
   page: "giftia-frontend/app/page.tsx",
@@ -36,7 +36,7 @@ const LINES = {
   route: ["main", 37, 45], aQ: ["main", 39, 39], aCat: ["main", 40, 40], aIndiv: ["main", 41, 41], aPrice: ["main", 42, 43], aLimit: ["main", 44, 44],
   where: ["main", 48, 64], whereInit: ["main", 48, 48], wQ: ["main", 49, 51], wCat: ["main", 52, 54], wIndiv: ["main", 55, 57], wPrice: ["main", 58, 63], join: ["main", 64, 64],
   count: ["main", 67, 67], sqlSelect: ["main", 68, 74], orderBy: ["main", 71, 71], limitSql: ["main", 72, 72], ret: ["main", 76, 76],
-  toGift: ["main", 79, 89], tgName: ["main", 85, 85], tgPrice: ["main", 86, 86],
+  toGift: ["main", 79, 89], tgName: ["main", 85, 85], tgPrice: ["main", 86, 86], tgRating: ["main", 87, 87],
   // database.py（倉庫係）
   conn: ["db", 19, 39], fetchAll: ["db", 42, 51], execute: ["db", 48, 48],
 };
@@ -74,6 +74,7 @@ const SAMPLE = [
   { id: "EX08", category: "生活雑貨", brand: "ふわり織", name: "バスタオル 1枚", price: 5500, rating: 4.8, reviewCount: 19, sales: 300, wrap: false, words: "タオル バスタオル" },
   { id: "EX09", category: "食品", brand: "みなと製菓", name: "ひとくちバウムクーヘン 10個", price: 4320, rating: 4.3, reviewCount: 95, sales: 540, wrap: true, words: "お菓子 個包装 送別 お礼" },
   { id: "EX10", category: "生活雑貨", brand: "TOKIO", name: "ガーゼタオルセット", price: 6200, rating: 4.6, reviewCount: 58, sales: 260, wrap: false, words: "タオル ガーゼ" },
+  { id: "EX11", category: "食品", brand: "夜景珈琲", name: "新作ドリップバッグ お試し5袋", price: 1680, rating: null, reviewCount: 0, sales: 40, wrap: true, words: "コーヒー 新商品 個包装" },
 ];
 
 /* 例の商品で、本物と同じ考え方の検索をする（在庫あり・キーワードは全部を含む・人気順） */
@@ -89,13 +90,13 @@ function searchSample(c, opt = {}) {
     if (c.priceBand === "5000" && !(g.price >= 5000 && g.price <= 9999)) return false;
     return true;
   });
-  const by = { sales: (x, y) => y.sales - x.sales, price: (x, y) => x.price - y.price, rating: (x, y) => y.rating - x.rating, reviews: (x, y) => y.reviewCount - x.reviewCount }[order];
+  const by = { sales: (x, y) => y.sales - x.sales, price: (x, y) => x.price - y.price, rating: (x, y) => (y.rating ?? -1) - (x.rating ?? -1), reviews: (x, y) => y.reviewCount - x.reviewCount }[order];
   return { total: r.length, results: r.sort(by).slice(0, limit) };
 }
 
 function cardHTML(g, i, opt = {}) {
   const yen = opt.price === "plain" ? g.price + "円" : opt.price === "yen" ? "¥" + g.price.toLocaleString() : g.price.toLocaleString() + "円";
-  return `<div class="gc"><p class="gmeta">${i + 1}位・${esc(g.category)}・${esc(g.brand)}</p><p class="gn">${esc(g.name)}</p><p class="gp">${yen}</p><p class="gmeta">評価${g.rating}（${g.reviewCount}件）</p>${opt.extra ? opt.extra(g) : ""}</div>`;
+  return `<div class="gc"><p class="gmeta">${i + 1}位・${esc(g.category)}・${esc(g.brand)}</p><p class="gn">${esc(g.name)}</p><p class="gp">${yen}</p><p class="gmeta">評価${g.rating ?? " 不明"}（${g.reviewCount}件）</p>${opt.extra ? opt.extra(g) : ""}</div>`;
 }
 
 /* ページ下の地図ナビ */

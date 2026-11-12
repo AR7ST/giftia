@@ -90,7 +90,7 @@ const R = [
   ["brand", '"brand": r["brand"]', "brand: string", "1行目の最後（ブランド・店名）", 84, 10, 7, G.brand, "brand"],
   ["product_name", '"name": r["product_name"]', "name: string", "2行目（太い商品名）【穴4】", 85, 11, 8, G.name, "name"],
   ["price", '"price": r["price"]', "price: number", "3行目（値段。カンマを付けて表示）", 86, 12, 9, G.price, "price"],
-  ["rating", '"rating": float(…) or 0', "rating: number", "4行目「評価◯」（レビューなしは 0）", 87, 13, 10, G.rating, "rating"],
+  ["rating", '"rating": float(…) or null', "rating: number | null", "4行目「評価◯」（レビューなしは「不明」。PR #12で0点にしない方針に変更）", 87, 13, 10, G.rating, "rating"],
   ["review_count", '"reviewCount": r["review_count"]', "reviewCount: number", "4行目のかっこの中「（◯件）」", 88, 14, 10, G.reviewCount, "rev"],
 ];
 let ri = 3;
