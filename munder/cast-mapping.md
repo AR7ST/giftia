@@ -10,18 +10,36 @@
 
 ## 編成（全8体）
 
-| 班員 | エージェント | provider | モデル | 備考 |
-|---|---|---|---|---|
-| タケ（班長） | boss | `claude` | Claude Sonnet 5 | 統括・Issue整理・PRレビュー補助・ハブ保守 |
-| タケ（班長） | genemi | `gemini` | 最新版（Munder起動時に選択） | 開発作業全般 |
-| タケ（班長） | take-codex | `codex` | 最新版（Munder起動時に選択） | 開発作業全般（容量分散） |
-| タケ（班長） | take-claude | `claude` | Claude Sonnet 5 | 開発作業全般（容量分散。bossとClaude枠を共有） |
-| むっちゃん | mutchan-claude | `claude` | Claude Sonnet 5 | 開発作業全般 |
-| むっちゃん | mutchan-codex | `codex` | 最新版（Munder起動時に選択） | 開発作業全般（容量分散） |
-| まいまい | maimai-codex | `codex` | 最新版（Munder起動時に選択） | 開発作業全般 |
-| まいまい | maimai-claude | `claude` | Claude Sonnet 5 | 開発作業全般（容量分散） |
+司令塔（boss）は全員共通。それ以外は「メイン／サブ1／サブ2」として、空いているAIへ作業を振り分けるための同格の開発担当です（仕事内容はどれも同じ。AIエンジンだけが違います）。
 
-**タケは4体、むっちゃん・まいまいは各2体**です（タケだけ3プロバイダー全部使えるため1体多い）。
+### タケ（班長）
+
+| | エージェント | AI | provider | モデル |
+|---|---|---|---|---|
+| 司令塔 | boss | クロード | `claude` | Claude Sonnet 5 |
+| メイン | genemi | Gemini | `gemini` | Gemini 2.5 Pro系（要確認） |
+| サブ1 | take-claude | クロード | `claude` | Claude Sonnet 5 |
+| サブ2 | take-codex | Codex | `codex` | GPT-5.1 Codex系（要確認） |
+
+### むっちゃん
+
+| | エージェント | AI | provider | モデル |
+|---|---|---|---|---|
+| 司令塔 | boss | クロード | `claude` | Claude Sonnet 5 |
+| メイン | mutchan-claude | クロード | `claude` | Claude Sonnet 5 |
+| サブ1 | mutchan-codex | Codex | `codex` | GPT-5.1 Codex系（要確認） |
+
+### まいまい
+
+| | エージェント | AI | provider | モデル |
+|---|---|---|---|---|
+| 司令塔 | boss | クロード | `claude` | Claude Sonnet 5 |
+| メイン | maimai-codex | Codex | `codex` | GPT-5.1 Codex系（要確認） |
+| サブ1 | maimai-claude | クロード | `claude` | Claude Sonnet 5 |
+
+**タケは4体（司令塔＋3）、むっちゃん・まいまいは各3体（司令塔＋2）**です（タケだけ3プロバイダー全部使えるため1体多い）。
+
+**モデル名について**：Claude Sonnet 5は確実な現行モデルです。Gemini・Codexの「2.5 Pro」「GPT-5.1」は、2026年11月時点で実在するか確証が持てないため、**Munder導入時にアプリ側のモデル一覧を見て、実際にある最新のものを選んでください**（`hire.json`には`model`を決め打ちしていません）。
 
 ## import するファイル
 
