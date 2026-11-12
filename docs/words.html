@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ことばの地図 ｜ コードの地図</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css">
+<style>
+  .town { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+  .who { text-align: left; font: inherit; color: inherit; cursor: pointer; padding: 12px; border-radius: 16px; border: 1px solid var(--line); background: var(--card); }
+  .who .ic { font-size: 1.8rem; line-height: 1; }
+  .who b { display: block; margin-top: 6px; }
+  .who small { color: var(--muted); font-family: var(--mono); }
+  .who[aria-pressed="true"] { border-color: var(--yellow); box-shadow: 0 0 14px rgba(255,210,63,.35); }
+  .street { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 14px 0 4px; font-size: .85rem; color: var(--muted); }
+  .street span { padding: 3px 10px; border-radius: 999px; background: var(--card2); color: var(--text); }
+  .search { font: inherit; width: 100%; max-width: 360px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line); background: #0b0f2a; color: var(--text); margin-bottom: 10px; }
+  .terms { display: grid; gap: 8px; }
+  .term { padding: 10px 12px; border-radius: 12px; background: var(--card2); }
+  .term h4 { margin: 0; font-family: var(--mono); color: var(--cyan); font-size: .95rem; display: flex; gap: 8px; flex-wrap: wrap; align-items: baseline; }
+  .term h4 small { font-family: inherit; color: var(--muted); font-size: .8rem; }
+  .term p { margin: 4px 0; }
+  .q { padding: 12px 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
+  .q h3 { font-size: .98rem; margin: 0 0 8px; }
+  .opts { display: grid; gap: 6px; }
+  .opt { text-align: left; font: inherit; color: inherit; cursor: pointer; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--card2); }
+  .opt.ok { border-color: var(--green); color: var(--green); } .opt.ng { border-color: var(--red); color: var(--red); }
+  .qs { display: grid; gap: 12px; }
+  .score { font-weight: 800; color: var(--yellow); font-size: 1.2rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="kicker">CODE MAP ・ ことばの地図</span><a href="map.html">← 地図の入口</a></div>
+  <h1><span class="p">ことばの地図</span></h1>
+  <p class="lead">2周目で使った「お店のたとえ」と、コードに出てくることばを、コードの場所に結びつけます。最後のクイズで、ここまでを確かめます。</p>
+
+  <h2 class="sec-title">1. お店のたとえマップ</h2>
+  <div class="card">
+    <div class="street"><span>お客さん（ブラウザ）</span>→<span>町のお店（画面 3000番）</span>→ 門番 →<span>ギルドの受付（API 8000番）</span>→<span>倉庫（DB）</span></div>
+    <div class="town" id="town"></div>
+    <div id="who" aria-live="polite" style="margin-top:12px"></div>
+  </div>
+
+  <h2 class="sec-title">2. 用語 → コードの場所</h2>
+  <div class="card">
+    <input class="search" id="q" type="search" placeholder="ことばでしぼる（例：await、CORS）" aria-label="用語をしぼる">
+    <div class="terms" id="terms"></div>
+  </div>
+
+  <h2 class="sec-title">3. クイズ <small>10問</small></h2>
+  <p class="muted">答えると説明とコードの場所が出ます。<span class="score" id="score"></span></p>
+  <div class="qs" id="qs"></div>
+  <p><button class="btn" id="again">もう一度</button></p>
+
+  <div style="margin-top:24px" id="mapnav"></div>
+  <footer>説明はすべて自分たちの言葉です。</footer>
+</div>
+<script src="assets/map.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const TOWN = [
+  ["🪧", "看板", "タイトル Giftia", "お店の名前。いつも同じ場所にある。", ["title", "cssH1"]],
+  ["📒", "メモ帳", "useState", "お店が覚えておく7枚のメモ。書きかえると、お店の見た目（画面）がすぐ変わる。", ["sMode", "sKeyword", "sResults"]],
+  ["🎟", "注文票", "フォーム（form）", "お客さんが書く欄。検索ボタンで受付に出す。", ["form", "input", "button"]],
+  ["🕊", "伝書鳩", "searchGifts / fetch", "注文を封筒に入れて受付まで飛び、返事を持ち帰る。", ["searchGifts", "fetch"]],
+  ["✉️", "封筒", "URLSearchParams", "鳩が運ぶ条件。空の条件は書かない。", ["params"]],
+  ["🍜", "引換券", "await", "返事ができるまで待つ券。外すと、品物ではなく券だけが手元に残る。", ["awaitSearch", "json"]],
+  ["💂", "門番", "ブラウザ（CORS）", "別のお店（別のポート）への通信を止める。受付の許可証があれば通す。", ["cors"]],
+  ["📜", "通行許可証", "CORS_ORIGINS", "受付が「この画面からは受け付ける」と書いた許可。値は .env に書く。", ["cors", "dotenv"]],
+  ["🏛", "ギルドの受付", "main.py / FastAPI", "注文票を受け取り、倉庫係に注文書を出し、品物を名札付きで返す。", ["route", "ret"]],
+  ["📝", "2枚組の注文書", "where と params", "条件の紙（空欄 %s）と、値の紙を分けて書く。悪い命令がまぎれても動かない。", ["where", "sqlSelect"]],
+  ["🃏", "ジョーカー", "% （LIKE）", "「何文字でもよい」の印。前後に付けると「どこかに含む」。", ["wQ", "wIndiv"]],
+  ["🧑‍🔧", "倉庫係", "database.py", "鍵で倉庫を開け、注文書どおりに品物を出し、最後に扉を閉める。", ["conn", "fetchAll"]],
+  ["🔑", "金庫の鍵", ".env", "倉庫の場所とパスワード。各自の PC だけに置き、だれにも見せない。", ["dotenv", "conn"]],
+  ["🏷", "名札の付け替え係", "to_gift", "倉庫の札（product_name）を、お店の札（name）に付け替える。", ["toGift"]],
+  ["🖨", "カードの型紙", "ResultCard", "同じ形のカードを、品物の数だけ刷る。", ["card", "mapCards"]],
+];
+let tw = 3;
+function town() {
+  $("#town").innerHTML = TOWN.map((t, i) => `<button class="who" data-i="${i}" aria-pressed="${i === tw}"><span class="ic">${t[0]}</span><b>${t[1]}</b><small>${esc(t[2])}</small></button>`).join("");
+  document.querySelectorAll(".who").forEach(b => b.onclick = () => { tw = +b.dataset.i; town(); });
+  const t = TOWN[tw];
+  $("#who").innerHTML = `<div class="say"><b>${t[0]} ${t[1]}</b> ＝ <span class="mono">${esc(t[2])}</span>：${t[3]}</div><div class="refs">${t[4].map(k => ref(k)).join("")}</div>`;
+}
+town();
+
+const TERMS = [
+  ["use client", "ユーズ クライアント", "この画面はブラウザで動く、という合図。useState やクリックを使うときに必要。", ["useClient"]],
+  ["useState", "ユーズステート", "変わるデータを覚える箱（メモ帳）。[中身, 書きかえる関数] の2つがもらえる。", ["sMode", "sResults"]],
+  ["onChange / onClick / onSubmit", "イベント", "入力した・押した・送信した、ときに動く関数をつなぐしかけ。", ["input", "tabs", "form"]],
+  ["async / await", "アシンク / アウェイト", "時間がかかる処理を待つしくみ。async の関数の中で await が使える。", ["onSearch", "awaitSearch", "json"]],
+  ["fetch", "フェッチ", "ブラウザから別のお店（API）に通信する道具。", ["fetch"]],
+  ["URLSearchParams", "", "URL の ? のうしろ（q=…&category=…）を作る道具。", ["params"]],
+  ["JSON", "ジェイソン", "データを文字で運ぶ形。{ 名前: 値 } と [ 並び ] でできている。", ["json", "ret"]],
+  ["map", "マップ", "並び（配列）の1つずつに同じことをして、新しい並びを作る。カードを並べるのに使う。", ["mapCards"]],
+  ["props", "プロップス", "部品に外から渡すもの。ResultCard は gift と rank を受け取る。", ["card"]],
+  ["type（型）", "タイプ", "データの形の約束。Gift は7項目で、price は数、name は文字。", ["giftType", "condType"]],
+  ["NEXT_PUBLIC_", "", "この名前で始まる値はブラウザに配られる。だから秘密は置かない。", ["apiUrl"]],
+  ["CORS", "コルス", "別のお店への通信をブラウザが止めるしくみと、それを受付が許可する設定。", ["cors"]],
+  ["FastAPI / @app.get", "", "Python で受付（API）を作る道具。@app.get が窓口の住所を決める。", ["app", "route"]],
+  ["Query（引数）", "クエリ", "URL の ? のうしろの値を、同じ名前の引数で受け取る。初期値や範囲も決められる。", ["route", "aLimit"]],
+  ["SQL", "エスキューエル", "倉庫（DB）への注文書のことば。SELECT・FROM・WHERE・ORDER BY・LIMIT。", ["sqlSelect"]],
+  ["WHERE / AND", "", "しぼる条件。AND は「かつ」。", ["where", "join"]],
+  ["LIKE と %", "ライク", "あいまいに探す。% は何文字でもよい印。", ["wQ", "wIndiv"]],
+  ["%s と params", "", "値を空欄にして別に渡す書き方。SQL インジェクション（悪い命令をまぎれこませる攻撃）を防ぐ。", ["where", "execute"]],
+  ["ORDER BY / DESC", "オーダー バイ", "並べ方。DESC は大きい順、ASC は小さい順。", ["orderBy"]],
+  ["LIMIT", "リミット", "何件まで取るか。", ["limitSql", "aLimit"]],
+  [".env / load_dotenv", "ドットエンブ", "秘密の設定を書くファイルと、それを読む道具。GitHub に上げない。", ["dotenv"]],
+  ["try / finally", "", "うまくいってもいかなくても、最後に必ずやること（接続を閉じる）を書く形。", ["fetchAll"]],
+];
+function terms() {
+  const w = $("#q").value.trim().toLowerCase();
+  const list = TERMS.filter(t => !w || (t[0] + t[1] + t[2]).toLowerCase().includes(w));
+  $("#terms").innerHTML = list.map(t => `<div class="term"><h4>${esc(t[0])} ${t[1] ? `<small>${t[1]}</small>` : ""}</h4><p>${t[2]}</p><div class="refs">${t[3].map(k => ref(k)).join("")}</div></div>`).join("") || `<p class="muted">見つかりません。ことばを短くしてみてください。</p>`;
+}
+$("#q").oninput = terms; terms();
+
+const QUIZ = [
+  ["検索ボタンの文字を変えたい。どのファイル？", ["page.tsx", "api.ts", "main.py", "database.py"], 0, "画面に出る文字は画面のファイル。", "button"],
+  ["「上位 20 件」の 20 を決めているのは？", ["page.tsx の件数の行", "main.py の limit", "ResultCard.tsx", "globals.css"], 1, "受付が返す件数。画面は数えて出すだけ。", "aLimit"],
+  ["await を外すと、どうなる？", ["速くなるだけ", "引換券（Promise）だけが手元に残り、カードが並ばない", "CORS エラーになる", "何も変わらない"], 1, "await は返事を待つしくみ。", "awaitSearch"],
+  ["CORS でブラウザの通信を「止める」のはだれ？", ["FastAPI", "ブラウザ（門番）", "MySQL", "npm"], 1, "止めるのはブラウザ。許可を出すのは受付（API）。", "cors"],
+  ["CORS の「許可」を書くのは？", ["page.tsx", ".env.local", "backend の .env（CORS_ORIGINS）", "README"], 2, "受付が読む .env に、許可する画面の URL を書く。", "cors"],
+  ["SQL の値を %s と params で渡すのはなぜ？", ["速いから", "見た目がきれいだから", "悪い命令がまぎれても動かないようにするため", "件数を数えるため"], 2, "SQL インジェクション対策。", "where"],
+  ["DB の列名 product_name を、画面の name にしているのは？", ["ResultCard.tsx", "main.py の to_gift", "api.ts の fetch", "database.py"], 1, "名札の付け替え係。", "toGift"],
+  ["カードを結果の数だけ並べているのは？", ["for 文", "map", "fetch", "useState"], 1, "配列の1つずつに同じ型紙を当てる。", "mapCards"],
+  ["NEXT_PUBLIC_ で始まる値に、パスワードを置いてよい？", ["よい", "だめ（ブラウザに配られる）", "暗号化すればよい", "README に書けばよい"], 1, "ブラウザに配られるので、見ようと思えばだれでも見られる。", "apiUrl"],
+  ["キーワード「送別 お菓子」は、注文書でいくつの条件になる？（在庫ありを除く）", ["1つ", "2つ（1語ずつ）", "3つ", "0（条件にならない）"], 1, "空白で区切った1語ずつが、それぞれ条件になる。", "wQ"],
+];
+let ans = {};
+function quiz() {
+  const ok = Object.entries(ans).filter(([i, v]) => QUIZ[i][2] === v).length;
+  $("#score").textContent = Object.keys(ans).length ? `${ok} / ${QUIZ.length}` : "";
+  $("#qs").innerHTML = QUIZ.map((q, i) => {
+    const p = ans[i];
+    return `<div class="q"><h3>Q${i + 1}. ${q[0]}</h3><div class="opts">${q[1].map((o, j) => `<button class="opt ${p === undefined ? "" : j === q[2] ? "ok" : j === p ? "ng" : ""}" data-q="${i}" data-o="${j}">${esc(o)}</button>`).join("")}</div>${p === undefined ? "" : `<div class="say" style="margin-top:8px">${p === q[2] ? "○ 正解。" : "△ おしい。"}${q[3]}<div class="refs">${ref(q[4])}</div></div>`}</div>`;
+  }).join("");
+  document.querySelectorAll(".opt").forEach(b => b.onclick = () => { ans[b.dataset.q] = +b.dataset.o; quiz(); });
+}
+$("#again").onclick = () => { ans = {}; quiz(); };
+quiz();
+</script>
+</body>
+</html>

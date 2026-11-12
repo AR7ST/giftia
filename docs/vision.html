@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>目指すアプリの姿 ｜ 東京 Drinking Party</title>
+<meta name="description" content="共同の送別ギフトを仲間と納得して決めるために、Giftiaでこれから作る体験と機能をまとめます。">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css">
+<link rel="stylesheet" href="assets/vision.css">
+</head>
+<body>
+<main class="wrap">
+<div class="top"><span class="kicker">GIFTIA ・ PRODUCT VISION</span><a href="./">← ハブにもどる</a></div>
+<h1><span class="p">目指すアプリの姿</span></h1>
+<p class="lead">共同の送別ギフトを、仲間と納得して決められるように。これから作る体験と、そのために必要な機能をまとめました。</p>
+<div class="vision-banner"><span class="vision-tag">これから作る設計・Phase1</span>
+<p><strong>「検索して終わり」から、「理由を持って相談できる」へ。</strong></p>
+<p>相手の好みを詳しく知らない人でも、共同予算に合う候補と判断材料をそろえ、同僚に説明しながら選べる状態を目指します。相談そのものをなくすことが目的ではありません。</p>
+<p class="muted">2026年11月7日版の要求・要件定義書に基づく計画です。実装済みを示すページではありません。今後の検証や打合せで更新します。</p></div>
+<nav class="vision-actions" aria-label="現在とこれからを見比べる"><a class="btn pink" href="#future-flow">これからの利用の流れを見る</a><a class="btn" href="overview.html">現在の検索の仕組みを見る</a><a class="btn" href="#requirements">作る機能を確認する</a></nav>
+
+<h2 class="sec-title" id="future-flow">利用者は、こう使う</h2>
+<p>①から⑥へたどってください。④〜⑥は「候補を見つけたあと、どう決めるか」を支える体験です。</p>
+<ol class="vision-flow">
+<li class="vision-step"><h3>1. 共同予算を決める</h3><p>人数と1人あたりの予算を入力。かけ合わせた金額を、商品を探す上限にします。</p></li>
+<li class="vision-step"><h3>2. 予算内の候補を探す</h3><p>在庫のある候補を検索し、決めた並び順で複数の商品を見ます。</p></li>
+<li class="vision-step"><h3>3. 特徴と不明な点を比べる</h3><p>商品名・価格・説明・評価を確認。分からない情報は「不明」として判断します。</p></li>
+<li class="vision-step"><h3>4. 1〜3件を選び、理由を整理する</h3><p>同僚に説明したい候補を最大3件選び、なぜよいと思ったかをまとめます。</p></li>
+<li class="vision-step"><h3>5. 相談文を作ってコピーする</h3><p>選んだ候補と理由を、決まった型の相談文にまとめます。AIによる文章生成は使いません。</p></li>
+<li class="vision-step"><h3>6. 自分で送り、仲間と相談する</h3><p>コピーした文を利用者がLINEなどへ貼って送ります。仲間の反応を聞きながら選びます。</p></li>
+</ol>
+<p class="vision-note">ここで選ぶ1〜3件は、相談のための「代わりの候補」です。3件すべてをまとめて買う買い物かごとしては設計していません。</p>
+
+<h2 class="sec-title" id="requirements">Phase1で作る3つの機能</h2>
+<div class="vision-cards">
+<section class="card"><span class="pill be">FR-01</span><h3>共同予算で探す</h3>
+<p>人数 × 1人あたり予算を検索上限にし、在庫のある商品を複数表示します。</p>
+<p>暫定の並び順は、販売数の多い順 → 評価の高い順 → 商品ID順です。</p>
+<p class="vision-check"><b>できたかの確認：</b>予算外・在庫切れの商品が出ず、並び順がルールと合っていること。</p></section>
+<section class="card"><span class="pill fe">FR-02</span><h3>比べる材料をそろえる</h3>
+<p>候補の商品名・価格・説明・評価を表示します。ない情報は「不明」と伝え、評価なしを0点に置き換えません。</p>
+<p class="vision-check"><b>できたかの確認：</b>表示を元の情報と照合し、空の説明や評価を誤解させずに示せること。</p></section>
+<section class="card"><span class="pill css">FR-03</span><h3>理由つきで相談する</h3>
+<p>選んだ1〜3件と理由から、定型の相談文を作ってコピーできるようにします。送信するのは利用者です。</p>
+<p class="vision-check"><b>できたかの確認：</b>選んだ候補と理由が相談文に入り、表示・コピーできること。</p></section>
+</div>
+
+<h2 class="sec-title" id="code-trace">いまのコードの、どこを変える？</h2>
+<p>要件を、いまの giftia のコードの場所に結びつけた下調べです。行のリンクは GitHub（非公開）のその行を開きます。<b>すでにあるもの</b>と<b>足すもの</b>を分けると、作業の大きさが見えます。</p>
+<div class="vision-cards" id="trace"></div>
+<p class="muted">行番号は2026年11月7日の giftia（PR #6 のあと）。コードを変えたら <span class="mono">assets/map.js</span> の表を直します。どの順で作るかは班で決めます。</p>
+
+<h2 class="sec-title">現在から、何が変わる？</h2>
+<p class="muted vision-scroll-hint">表は横にスクロールできます →</p>
+<div class="vision-table"><table class="t"><thead><tr><th scope="col">見るところ</th><th scope="col">現在の検索</th><th scope="col">これからの計画</th></tr></thead><tbody>
+<tr><th scope="row">予算</th><td>価格帯を選ぶ</td><td>人数と1人あたり予算から上限を計算</td></tr>
+<tr><th scope="row">並び順</th><td>販売数 → 商品ID</td><td>販売数 → 評価 → 商品ID（暫定）</td></tr>
+<tr><th scope="row">商品情報</th><td>名前・価格・評価などをカード表示</td><td>説明も比較に使い、不明な情報を明示</td></tr>
+<tr><th scope="row">評価なし</th><td>APIで0に置き換えている</td><td>欠けている情報として扱い「不明」と表示</td></tr>
+<tr><th scope="row">候補を見たあと</th><td>検索結果を見る</td><td>候補選択 → 理由の整理 → 相談文のコピー</td></tr>
+</tbody></table></div>
+
+<h2 class="sec-title">何がどこを担当する？</h2>
+<div class="vision-cards">
+<section class="card"><h3>画面：入力・比較・相談の準備</h3><p>人数と予算を入力し、候補を比較します。選んだ候補と理由を扱い、相談文の表示・コピーにつなぎます。</p><p class="muted">相談文を組み立てる処理の配置や、選んだ内容の保存方法は、詳細設計で決めます。</p></section>
+<section class="card"><h3>API：条件検索と情報の受け渡し</h3><p>予算上限・在庫・並び順を検索に反映し、説明や評価の不足を失わずに画面へ渡します。</p><p class="muted">画面側での予算計算だけで十分か、APIで何を検証するかも詳細設計の確認事項です。</p></section>
+<section class="card"><h3>DB：まずは今ある情報を使う</h3><p>Phase1では既存の商品情報を使い、列は追加しません。不足が分かったときに、対象商品を絞って情報の追加を検討します。</p></section>
+</div>
+
+<h2 class="sec-title">今回の範囲と、確認が必要なこと</h2>
+<div class="vision-cards">
+<section class="card"><h3>Phase1の範囲に含めない</h3><ul><li>LLMとの対話や、LLMによる相談文の生成</li><li>LINEなどへの自動送信</li><li>新しいDB列の追加</li></ul><p class="muted">投票、共有ルーム、注文・決済までの機能は、今回の文書には要件として記載されていません。</p></section>
+<section class="card"><h3>詳細設計で決める</h3><ul><li>人数・予算の入力範囲と不正入力の扱い</li><li>送料・包装料を予算に含めるか</li><li>評価がない商品の並び位置</li><li>理由の入力方法・相談文の書式</li><li>候補や理由をどこまで保存するか</li></ul><p class="muted">ここは未決定事項の整理であり、決定済みの要件ではありません。</p></section>
+<section class="card"><span class="pill db">VR-01：効果の検証</span><h3>作れたことと、役に立つことを分ける</h3><p>試用で「理由を説明しやすいか」「同僚と相談しやすいか」「必要な商品情報が足りるか」を確かめます。</p><p>購入率への効果は将来の実測で確認します。このページの公開や機能完成だけで、改善が証明されたことにはしません。</p></section>
+</div>
+
+<h2 class="sec-title">設計の原本</h2>
+<div class="card vision-source"><p>このページは、班の設計を自分たちの言葉で要約した案内です。細かな要件・変更履歴は原本を確認してください。原本はアクセス権のある人だけが開けます。</p>
+<ul><li><a href="https://docs.google.com/document/d/1UKN-KzgEEkWoMsWDvMRQA5dOFL4MDbLSt47nyfW7B3U/edit" target="_blank" rel="noopener">要求定義書：誰の何を解決するか ↗</a></li><li><a href="https://docs.google.com/document/d/17cbMGdWMRYxOWZusGtCB7o-_m6KvIX5pXz1pSerIDG4/edit" target="_blank" rel="noopener">要件定義書：どんな機能・データで作るか ↗</a></li></ul>
+<p class="muted">教材の事業数値、顧客事例の原文、コード本体、実DBのデータ、秘密情報は転載していません。</p></div>
+<nav id="mapnav" aria-label="コードの地図の一覧"></nav>
+<footer>Giftia 班（クラス5・東京 Drinking Party）</footer>
+</main>
+<script src="assets/map.js"></script>
+<script>
+(function () {
+  const T = [
+    ["FR-01", "be", "共同予算で探す", [
+      ["ある", "在庫ありだけにしぼる", ["whereInit"]],
+      ["ある", "値段の上限でしぼる（API はもう price_max を受け取れる）", ["aPrice", "wPrice"]],
+      ["足す", "画面に「人数」と「1人あたり予算」の入力欄。かけ算して上限にする", ["form", "condType"]],
+      ["足す", "伝書鳩が上限を price_max として送る", ["params"]],
+      ["変える", "並び順に「評価の高い順」を2番目に入れる", ["orderBy"]],
+    ]],
+    ["FR-02", "fe", "比べる材料をそろえる", [
+      ["ある", "商品名・価格・評価をカードに出す", ["card"]],
+      ["足す", "説明（description）を取る列に入れ、名札を付け替えて渡す", ["sqlSelect", "toGift", "giftType"]],
+      ["変える", "評価なしを 0 にしている所を、「ない（不明）」として渡す", ["toGift"]],
+      ["足す", "カードに説明と「不明」の表示", ["card"]],
+    ]],
+    ["FR-03", "css", "理由つきで相談する", [
+      ["足す", "カードに「候補に入れる」（最大3件）と理由の入力", ["card", "mapCards"]],
+      ["足す", "結果の下に相談文の表示と「コピー」ボタン（API は変えない）", ["resultsArea"]],
+    ]],
+  ];
+  const tag = { "ある": "pill be", "足す": "pill fe", "変える": "pill db" };
+  const el = document.getElementById("trace");
+  if (!el || typeof ref !== "function") return;
+  el.innerHTML = T.map(([id, kind, name, rows]) => `<section class="card"><span class="pill ${kind}">${id}</span><h3>${name}</h3><ul class="trace-list">${rows.map(([st, txt, keys]) => `<li><span class="${tag[st]}">${st}</span> ${txt}<div class="refs">${keys.map(k => k === "toGift" && txt.includes("0 に") ? refL("main", 87, 87, "評価なし") : ref(k)).join("")}</div></li>`).join("")}</ul></section>`).join("");
+})();
+</script>
+</body>
+</html>

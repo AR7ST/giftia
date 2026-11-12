@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>動きの地図 ｜ コードの地図</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css">
+<style>
+  .stepper { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0; }
+  .timeline { position: relative; height: 70px; margin: 18px 6px 6px; }
+  .tl-bar { position: absolute; left: 0; right: 0; top: 30px; height: 6px; border-radius: 999px; background: rgba(255,255,255,.15); }
+  .tl-fill { position: absolute; left: 0; top: 30px; height: 6px; border-radius: 999px; background: linear-gradient(90deg, var(--cyan), var(--pink)); width: 0; }
+  .tl-pt { position: absolute; top: 22px; width: 22px; height: 22px; margin-left: -11px; border-radius: 50%; background: var(--night1); border: 3px solid #fff; }
+  .tl-pt.on { border-color: var(--yellow); background: var(--yellow); }
+  .tl-lb { position: absolute; top: 50px; transform: translateX(-50%); font-size: .7rem; color: var(--muted); white-space: nowrap; }
+  .tl-lb.up { top: 0; }
+  .tl-lb.first { transform: none; } .tl-lb.last { transform: translateX(-100%); }
+  .ctrl { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin: 6px 0 10px; }
+  .ctrl label { font-size: .8rem; color: var(--muted); display: grid; gap: 2px; }
+  .ctrl input[type=text], .ctrl select { width: 100%; min-width: 0; font: inherit; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: #0b0f2a; color: var(--text); }
+  .urlbar { font-family: var(--mono); font-size: .85rem; padding: 10px 12px; background: #0b0f2a; border-radius: 12px; border: 1px solid var(--line); word-break: break-all; line-height: 2; }
+  .urlbar .u { color: var(--muted); }
+  .urlbar button { font: inherit; border: 1px solid var(--pink); color: #fff; background: rgba(255,79,163,.2); border-radius: 6px; padding: 0 6px; cursor: pointer; }
+  .urlbar button.on { background: var(--yellow); color: #1b1035; border-color: var(--yellow); }
+  .shape { display: grid; gap: 8px; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  @media (max-width: 780px) { .shape { grid-template-columns: minmax(0, 1fr); } }
+  .shape .col { background: var(--card2); border-radius: 12px; padding: 10px; min-width: 0; }
+  .shape .col h4 { margin: 0 0 4px; font-size: .9rem; }
+  .shape .col pre { margin: 6px 0 0; font-family: var(--mono); font-size: .75rem; white-space: pre-wrap; word-break: break-all; color: #ffe9a3; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="kicker">CODE MAP ・ 動きの地図</span><a href="map.html">← 地図の入口</a></div>
+  <h1><span class="p">動きの地図</span></h1>
+  <p class="lead">検索ボタンを押してから、カードが並ぶまでに、どのファイルのどこを、どんなデータが通るのかを追いかけます。</p>
+
+  <h2 class="sec-title">1. 検索の旅 <small>12ステップ</small></h2>
+  <div class="lanes" id="lanes">
+    <div class="lane" data-l="page"><b>画面</b>page.tsx</div>
+    <div class="lane" data-l="api"><b>伝書鳩</b>api.ts</div>
+    <div class="lane" data-l="main"><b>受付</b>main.py</div>
+    <div class="lane" data-l="db"><b>倉庫</b>MySQL</div>
+  </div>
+  <div class="card" id="trip" style="margin-top:10px" aria-live="polite"></div>
+
+  <h2 class="sec-title">2. 待ち時間（async / await）</h2>
+  <div class="card">
+    <p class="muted">伝書鳩（fetch）が受付から帰ってくるまで、少し時間がかかります。await は<b style="color:var(--cyan)">ラーメンの引換券</b>。券をもらって、できあがるまで待ってから受け取ります。</p>
+    <div class="chips"><button class="chip" id="wA" aria-pressed="true">await あり（いまのコード）</button><button class="chip" id="wN" aria-pressed="false">await なし（もし外したら）</button></div>
+    <div class="timeline" id="tl"><div class="tl-bar"></div><div class="tl-fill" id="tlf"></div></div>
+    <div class="stepper"><button class="btn pink" id="play">▶ 押してみる</button><span class="muted" id="tlmsg">ボタンを押すと、時間の流れが動きます。</span></div>
+    <div class="refs" id="awaitRefs"></div>
+  </div>
+
+  <h2 class="sec-title">3. URL の部品と 4. 条件の形</h2>
+  <div class="card">
+    <p class="muted">条件を変えると、画面の箱 → 伝書鳩の封筒（URL）→ 受付の引数 → 注文書の条件、と形が変わっていく様子が見えます。URL の色つきの部品を押すと、どこから来てどこへ行くかが出ます。</p>
+    <div class="ctrl">
+      <label>タブ<select id="cTab"><option value="standard">いまの検索</option><option value="business">取引先へのお礼</option></select></label>
+      <label>キーワード<input type="text" id="cKw" value="タオル"></label>
+      <label>カテゴリー<select id="cCat"><option value="">すべて</option><option>コスメ</option><option>食品</option><option selected>生活雑貨</option></select></label>
+      <label>個包装<select id="cWrap"><option value="">なし</option><option value="1">あり</option></select></label>
+      <label>価格帯<select id="cBand"><option value="">すべて</option><option value="3000">3,000〜5,000円</option><option value="5000">5,000〜10,000円</option></select></label>
+    </div>
+    <div class="urlbar" id="urlbar"></div>
+    <div id="partInfo" class="say" style="display:none"></div>
+    <h3 style="margin-top:16px">条件の形が変わっていく</h3>
+    <div class="shape" id="shape"></div>
+  </div>
+
+  <div style="margin-top:24px" id="mapnav"></div>
+  <footer>データはすべて説明用の例です。班の DB のデータではありません。</footer>
+</div>
+<script src="assets/map.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+/* ---------- 1. 検索の旅 ---------- */
+const TRIP = [
+  ["page", "① キーワードを打つ", "「タオル」と打つと、1文字ごとに onChange が動き、メモ帳 keyword が「タオル」になる。カテゴリーも同じしくみで category に入る。", ["input", "sKeyword"], 'keyword  = "タオル"\ncategory = "生活雑貨"'],
+  ["page", "② 検索ボタンを押す", "ボタンは送信用（submit）。押すとフォームの onSubmit から onSearch が呼ばれる。", ["button", "form"], "onSearch が動き出す"],
+  ["page", "③ 再読みこみを止めて、条件をまとめる", "ふつうのフォームは送るとページを読みこみ直すので、preventDefault で止める。いま開いているタブの条件だけを condition にまとめる。", ["prevent", "condition"], 'condition = { keyword: "タオル", category: "生活雑貨",\n              indivWrap: false, priceBand: "" }'],
+  ["page", "④ 伝書鳩を飛ばして待つ", "searchGifts（伝書鳩）に condition を持たせる。await で、帰ってくるまで待つ。", ["awaitSearch", "searchGifts"], "searchGifts(condition) … 待っている"],
+  ["api", "⑤ 封筒（URL のクエリ）に書く", "空でない条件だけを params に入れる。日本語は自動で %E3%82… の形にされる。", ["params", "pQ", "pCat"], "q=タオル&category=生活雑貨"],
+  ["api", "⑥ fetch で受付へ飛ばす", "API の場所（.env.local の NEXT_PUBLIC_API_URL）に /api/search?… を付けて送る。ここでブラウザ（門番）が CORS の許可を確かめる。", ["apiUrl", "fetch"], "GET http://localhost:8000/api/search?q=タオル&category=生活雑貨"],
+  ["main", "⑦ 受付が引数で受け取る", "URL の ? のうしろの名前と、関数の引数の名前がそろうと、FastAPI が自動で入れてくれる。書いていない条件は初期値。", ["route", "aQ", "aCat", "aLimit"], 'q = "タオル"   category = "生活雑貨"\nindiv_wrap = False   price_min = None\nprice_max = None   limit = 20'],
+  ["main", "⑧ 注文書の条件を作る", "条件を1つずつ足していく。値は空欄（%s）にして、別の紙（params）で渡す。こうすると、入力に悪い命令がまぎれても命令として動かない（SQL インジェクション対策）。", ["whereInit", "wQ", "wCat", "join"], '条件1：在庫がある\n条件2：名前・ブランド・説明のどれかに「タオル」\n条件3：カテゴリーが「生活雑貨」\nparams = ["%タオル%", "%タオル%", "%タオル%", "生活雑貨"]'],
+  ["db", "⑨ 倉庫係に頼む", "件数（COUNT）と、販売数の多い順の上位 limit 件を取る。fetch_all が DB につないで実行し、行を {列名: 値} の形で返す。", ["count", "sqlSelect", "orderBy", "fetchAll"], "total = 条件に合う件数\nrows  = 上位20行（販売数の多い順）"],
+  ["main", "⑩ 名札を付け替えて返す", "DB の列名（product_name など）を、画面の名前（name など）に詰め替えて、JSON で返す。", ["toGift", "tgName", "ret"], '{ "total": （件数）,\n  "results": [ { "id": "…", "name": "今治のフェイスタオル 2枚", "price": 3850, … }, … ] }'],
+  ["api", "⑪ 返事の筒を開ける", "ok か確かめてから res.json() で JSON を読み、results（商品の配列）だけを画面に返す。", ["okCheck", "json"], "[ 商品, 商品, … ]（20件）"],
+  ["page", "⑫ 箱に入れると、画面が描き直される", "setResults で results の箱が変わると、React が画面を描き直す。map で、同じカードの型紙を20枚並べる。", ["awaitSearch", "summary", "mapCards", "card"], "「上位 20 件」＋ カード20枚"],
+];
+let ti = 0;
+function trip() {
+  const [l, t, s, keys, d] = TRIP[ti];
+  document.querySelectorAll(".lane").forEach(x => x.classList.toggle("on", x.dataset.l === l));
+  $("#trip").innerHTML = `<span class="badge">ステップ ${ti + 1} / ${TRIP.length}</span><h3 style="margin-top:6px">${t}</h3>
+    <div class="stepper"><button class="btn" id="tp" ${ti === 0 ? "disabled" : ""}>← 前へ</button><button class="btn pink" id="tn" ${ti === TRIP.length - 1 ? "disabled" : ""}>次へ →</button>
+    <span class="dots">${TRIP.map((_, i) => `<button class="${i === ti ? "on" : ""}" data-i="${i}" aria-label="ステップ${i + 1}"></button>`).join("")}</span></div>
+    <div class="say">${s}</div><div class="refs">${keys.map(k => ref(k)).join("")}</div><div class="bubble">${esc(d)}</div>`;
+  $("#tp").onclick = () => { ti--; trip(); }; $("#tn").onclick = () => { ti++; trip(); };
+  document.querySelectorAll("#trip .dots button").forEach(b => b.onclick = () => { ti = +b.dataset.i; trip(); });
+}
+trip();
+
+/* ---------- 2. 待ち時間 ---------- */
+const PTS = [[0, "押す"], [12, "鳩が出発"], [40, "受付に着く"], [65, "倉庫から返事"], [88, "鳩が帰る"], [100, "描き直す"]];
+let useAwait = true, timer = null;
+const tl = $("#tl");
+PTS.forEach(([p, t], i) => tl.insertAdjacentHTML("beforeend", `<div class="tl-pt" style="left:${p}%" data-i="${i}"></div><div class="tl-lb${i % 2 ? " up" : ""}${i === 0 ? " first" : i === PTS.length - 1 ? " last" : ""}" style="left:${p}%">${t}</div>`));
+function setW(a) { useAwait = a; $("#wA").setAttribute("aria-pressed", a); $("#wN").setAttribute("aria-pressed", !a); $("#tlmsg").textContent = "ボタンを押すと、時間の流れが動きます。"; reset(); }
+function reset() { clearInterval(timer); $("#tlf").style.width = "0"; document.querySelectorAll(".tl-pt").forEach(p => p.classList.remove("on")); }
+$("#wA").onclick = () => setW(true); $("#wN").onclick = () => setW(false);
+$("#play").onclick = () => {
+  reset(); let x = 0;
+  if (!useAwait) {
+    document.querySelectorAll(".tl-pt")[0].classList.add("on"); document.querySelectorAll(".tl-pt")[1].classList.add("on");
+    $("#tlf").style.width = "12%";
+    $("#tlmsg").innerHTML = "待たずに次の行へ進んでしまう。手元にあるのは<b>引換券（Promise）だけ</b>で、商品の配列ではない → カードが並ばない・エラーになる。";
+    return;
+  }
+  timer = setInterval(() => {
+    x += 2; $("#tlf").style.width = x + "%";
+    PTS.forEach(([p], i) => { if (x >= p) document.querySelectorAll(".tl-pt")[i].classList.add("on"); });
+    $("#tlmsg").textContent = x < 88 ? "await：伝書鳩が帰るまで、ここで待っている…" : "帰ってきた！ 結果を箱に入れて、画面を描き直す。";
+    if (x >= 100) clearInterval(timer);
+  }, 40);
+};
+$("#awaitRefs").innerHTML = ref("onSearch", "async の関数") + ref("awaitSearch", "await で待つ") + ref("fetch", "fetch も await") + ref("json", "json() も await");
+
+/* ---------- 3・4. URL と条件の形 ---------- */
+let partSel = null;
+function cond() {
+  const tab = $("#cTab").value;
+  return tab === "standard"
+    ? { tab, keyword: $("#cKw").value.trim(), category: $("#cCat").value, indivWrap: false, priceBand: "" }
+    : { tab, keyword: "", category: "", indivWrap: $("#cWrap").value === "1", priceBand: $("#cBand").value };
+}
+const PART = {
+  q: ["キーワード", "sKeyword", "pQ", "aQ", "wQ", "空白で区切った1語ずつが、名前・ブランド・説明のどれかに入っている商品"],
+  category: ["カテゴリー", "sCategory", "pCat", "aCat", "wCat", "カテゴリーがぴったり同じ商品"],
+  indiv_wrap: ["個包装", "sIndiv", "pIndiv", "aIndiv", "wIndiv", "説明文に「個包装」がある商品"],
+  price_min: ["価格帯（下限）", "sPrice", "pPrice", "aPrice", "wPrice", "値段が下限以上"],
+  price_max: ["価格帯（上限）", "sPrice", "pPrice", "aPrice", "wPrice", "値段が上限以下"],
+};
+function draw() {
+  const c = cond();
+  const ps = [];
+  if (c.keyword) ps.push(["q", c.keyword]);
+  if (c.category) ps.push(["category", c.category]);
+  if (c.indivWrap) ps.push(["indiv_wrap", "true"]);
+  if (c.priceBand === "3000") ps.push(["price_min", "3000"], ["price_max", "4999"]);
+  if (c.priceBand === "5000") ps.push(["price_min", "5000"], ["price_max", "9999"]);
+  $("#urlbar").innerHTML = `<span class="u">http://localhost:8000/api/search</span>${ps.length ? "?" : ""}` + ps.map(([k, v], i) => `${i ? "&amp;" : ""}<button data-k="${k}" class="${partSel === k ? "on" : ""}">${k}=${esc(v)}</button>`).join("") + (ps.length ? "" : `<span class="u">　（条件なし：全部から人気順）</span>`);
+  document.querySelectorAll("#urlbar button").forEach(b => b.onclick = () => { partSel = b.dataset.k; draw(); });
+  const info = $("#partInfo");
+  if (partSel && PART[partSel] && ps.some(p => p[0] === partSel)) {
+    const [n, s1, s2, s3, s4, w] = PART[partSel];
+    info.style.display = "block";
+    info.innerHTML = `<b>${partSel}</b>（${n}）の道のり：画面の箱 → 伝書鳩が封筒に書く → 受付の引数 → 注文書の条件「${w}」<div class="refs">${ref(s1, "箱")}${ref(s2, "封筒")}${ref(s3, "引数")}${ref(s4, "条件")}</div>`;
+  } else info.style.display = "none";
+  const box = c.tab === "standard" ? `mode: "standard"\nkeyword: "${c.keyword}"\ncategory: "${c.category}"` : `mode: "business"\nindivWrap: ${c.indivWrap}\npriceBand: "${c.priceBand}"`;
+  const cobj = `keyword: "${c.keyword}"\ncategory: "${c.category}"\nindivWrap: ${c.indivWrap}\npriceBand: "${c.priceBand}"`;
+  const args = `q = "${c.keyword}"\ncategory = "${c.category}"\nindiv_wrap = ${c.indivWrap ? "True" : "False"}\nprice_min = ${ps.find(p => p[0] === "price_min")?.[1] ?? "None"}\nprice_max = ${ps.find(p => p[0] === "price_max")?.[1] ?? "None"}\nlimit = 20`;
+  const conds = ["在庫がある"];
+  c.keyword.split(/\s+/).filter(Boolean).forEach(w => conds.push(`名前などに「${w}」`));
+  if (c.category) conds.push(`カテゴリーが「${c.category}」`);
+  if (c.indivWrap) conds.push("説明文に「個包装」");
+  if (c.priceBand === "3000") conds.push("値段が 3000 以上", "値段が 4999 以下");
+  if (c.priceBand === "5000") conds.push("値段が 5000 以上", "値段が 9999 以下");
+  const r = searchSample(c);
+  const cols = [
+    ["① 画面の箱", "page.tsx", box, "condition"],
+    ["② まとめた条件", "page.tsx", cobj, "condition"],
+    ["③ 封筒（URL）", "api.ts", ps.map(([k, v]) => `${k}=${v}`).join("\n") || "（なし）", "params"],
+    ["④ 受付の引数", "main.py", args, "route"],
+    ["⑤ 注文書の条件", "main.py", conds.map((x, i) => `${i + 1}. ${x}`).join("\n") + `\n→ 例の商品で ${r.total}件`, "where"],
+  ];
+  $("#shape").innerHTML = cols.map(([t, f, body, k]) => `<div class="col"><h4>${t}</h4><a class="ref" href="${url(k)}" target="_blank" rel="noopener">${f} ↗</a><pre>${esc(body)}</pre></div>`).join("");
+}
+["#cTab", "#cKw", "#cCat", "#cWrap", "#cBand"].forEach(s => { $(s).addEventListener("input", draw); $(s).addEventListener("change", draw); });
+draw();
+</script>
+</body>
+</html>

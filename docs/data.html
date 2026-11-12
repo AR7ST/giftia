@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>データの地図 ｜ コードの地図</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css">
+<style>
+  .tag3 { display: grid; gap: 6px; }
+  .row3 { display: grid; grid-template-columns: minmax(0, 1fr) 1.4em minmax(0, 1fr) 1.4em minmax(0, 1fr); gap: 4px; align-items: center; padding: 6px; border-radius: 12px; border: 1px solid transparent; cursor: pointer; background: none; color: inherit; font: inherit; text-align: left; width: 100%; }
+  .row3:hover, .row3.on { border-color: var(--yellow); background: rgba(255,210,63,.06); }
+  .row3 .c { font-family: var(--mono); font-size: .8rem; padding: 4px 8px; border-radius: 8px; background: var(--card2); word-break: break-all; }
+  .row3 .c.db { color: var(--yellow); } .row3 .c.py { color: var(--green); } .row3 .c.ts { color: var(--pink); }
+  .row3 .ar { color: var(--muted); text-align: center; }
+  .head3 { font-size: .75rem; color: var(--muted); }
+  @media (max-width: 560px) {
+    .row3 { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+    .row3 .ar { transform: rotate(90deg); line-height: 1; }
+    .head3 { display: none !important; }
+    .row3 .c.db::before { content: "倉庫の列："; color: var(--muted); font-family: system-ui, sans-serif; }
+    .row3 .c.py::before { content: "付け替え："; color: var(--muted); font-family: system-ui, sans-serif; }
+    .row3 .c.ts::before { content: "画面の形："; color: var(--muted); font-family: system-ui, sans-serif; }
+  }
+  .gscreen .hl { outline: 2px solid var(--pink); outline-offset: 2px; border-radius: 4px; background: rgba(255,79,163,.12); }
+  .toggles { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin: 8px 0 12px; }
+  .toggles label { display: flex; gap: 6px; align-items: center; font-size: .9rem; padding: 6px 10px; border-radius: 10px; background: var(--card2); }
+  .sql { display: grid; gap: 6px; }
+  .sql .blk { display: grid; grid-template-columns: 6.5em minmax(0, 1fr); gap: 8px; padding: 8px 10px; border-radius: 10px; background: #0b0f2a; border: 1px solid var(--line); }
+  .sql .blk b { color: var(--cyan); font-family: var(--mono); font-size: .85rem; }
+  .sql .blk ol { margin: 0; padding-left: 1.3em; } .sql .blk li.new { color: var(--yellow); }
+  .count { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .count div { padding: 8px 12px; border-radius: 12px; background: var(--card2); font-weight: 800; }
+  .count .ok { color: var(--green); } .count .ng { color: var(--red); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="kicker">CODE MAP ・ データの地図</span><a href="map.html">← 地図の入口</a></div>
+  <h1><span class="p">データの地図</span></h1>
+  <p class="lead">商品のデータは、倉庫（DB）の列名のまま画面に来るわけではありません。受付（main.py）で名札を付け替え、伝書鳩（api.ts）の形にそろえてから、カードに出ます。その道のりを線でたどります。</p>
+
+  <h2 class="sec-title">1. 名札の付け替えマップ <small>DB → 受付 → 画面</small></h2>
+  <div class="grid2">
+    <div>
+      <div class="gscreen" id="card"></div>
+      <p class="muted">右の行を押すと、カードのどこに出るかが光ります。</p>
+    </div>
+    <div class="card">
+      <div class="row3 head3" style="cursor:default"><span>倉庫の列（DB）</span><span></span><span>名札の付け替え（main.py）</span><span></span><span>画面の形（api.ts の Gift）</span></div>
+      <div class="tag3" id="rows"></div>
+      <div id="rowInfo" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <h2 class="sec-title">2. 注文書（SQL）の組み立て</h2>
+  <div class="card">
+    <p class="muted">受付は、条件の数だけ注文書に1行ずつ足していきます。値は空欄（%s）にして、別の紙（params）に順番に書きます。<b style="color:var(--cyan)">空欄の数と、別の紙の数がそろっていないと動きません。</b>条件を切りかえて、数がそろうことを確かめてください（文は説明用に日本語にしています）。</p>
+    <div class="toggles">
+      <label><input type="checkbox" id="k1" checked> キーワード「タオル」</label>
+      <label><input type="checkbox" id="k2"> キーワードをもう1語「今治」</label>
+      <label><input type="checkbox" id="k3" checked> カテゴリー「生活雑貨」</label>
+      <label><input type="checkbox" id="k4"> 個包装だけ</label>
+      <label><input type="checkbox" id="k5"> 価格帯 3,000〜5,000円</label>
+    </div>
+    <div class="sql" id="sql"></div>
+    <div class="count" id="count"></div>
+    <div class="refs" id="sqlRefs"></div>
+  </div>
+
+  <h2 class="sec-title">3. products の列は、どこで使う？</h2>
+  <div class="card scroll">
+    <p class="muted">倉庫の棚（products テーブル）の列のうち、画面に出るのは7つだけ。残りは「探すため」「並べるため」に使われています。</p>
+    <table class="t" id="cols">
+      <tr><th>列</th><th>中身</th><th>しぼる（WHERE）</th><th>並べる（ORDER BY）</th><th>画面に出る</th><th>コード</th></tr>
+    </table>
+  </div>
+
+  <div style="margin-top:24px" id="mapnav"></div>
+  <footer>商品と件数は説明用の例です。班の DB のデータではありません。</footer>
+</div>
+<script src="assets/map.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const G = SAMPLE[1];
+/* [DB の列, 名札の付け替え, 画面の名前, カードの場所, main の行, api の行, card の行, 例の値] */
+const R = [
+  ["product_id", '"id": r["product_id"]', "id: string", "（画面には出ない。カードを見分ける key に使う）", 82, 8, null, G.id, "key"],
+  ["category", '"category": r["category"]', "category: string", "1行目「◯位・カテゴリー・…」", 83, 9, 7, G.category, "cat"],
+  ["brand", '"brand": r["brand"]', "brand: string", "1行目の最後（ブランド・店名）", 84, 10, 7, G.brand, "brand"],
+  ["product_name", '"name": r["product_name"]', "name: string", "2行目（太い商品名）【穴4】", 85, 11, 8, G.name, "name"],
+  ["price", '"price": r["price"]', "price: number", "3行目（値段。カンマを付けて表示）", 86, 12, 9, G.price, "price"],
+  ["rating", '"rating": float(…) or 0', "rating: number", "4行目「評価◯」（レビューなしは 0）", 87, 13, 10, G.rating, "rating"],
+  ["review_count", '"reviewCount": r["review_count"]', "reviewCount: number", "4行目のかっこの中「（◯件）」", 88, 14, 10, G.reviewCount, "rev"],
+];
+let ri = 3;
+function drawCard() {
+  const hl = R[ri][8];
+  const w = (k, t) => `<span class="${hl === k ? "hl" : ""}">${t}</span>`;
+  $("#card").innerHTML = `<span class="ex">例</span><div class="gc" style="margin-top:14px"><p class="gmeta">2位・${w("cat", esc(G.category))}・${w("brand", esc(G.brand))}</p><p class="gn">${w("name", esc(G.name))}</p><p class="gp">${w("price", G.price.toLocaleString() + "円")}</p><p class="gmeta">評価${w("rating", G.rating)}（${w("rev", G.reviewCount)}件）</p></div>${hl === "key" ? `<p class="gsum" style="margin-top:8px">id は画面に出ない。map で並べるときの目印（key）になる。</p>` : ""}`;
+}
+function drawRows() {
+  $("#rows").innerHTML = R.map((r, i) => `<button class="row3${i === ri ? " on" : ""}" data-i="${i}"><span class="c db">${r[0]}</span><span class="ar">→</span><span class="c py">${esc(r[1])}</span><span class="ar">→</span><span class="c ts">${r[2]}</span></button>`).join("");
+  document.querySelectorAll(".row3[data-i]").forEach(b => b.onclick = () => { ri = +b.dataset.i; drawRows(); drawCard(); });
+  const r = R[ri];
+  $("#rowInfo").innerHTML = `<div class="say"><b>${r[0]}</b> → 画面の <b>${r[2].split(":")[0]}</b>：${r[3]}。例の値は「${esc(r[7])}」。</div>
+    <div class="refs">${refL("main", r[4], r[4], "付け替え")}${refL("api", r[5], r[5], "Gift の形")}${r[6] ? refL("card", r[6], r[6], "カード") : ref("mapCards", "key に使う")}</div>`;
+}
+drawRows(); drawCard();
+
+function sql() {
+  const k = n => $("#k" + n).checked;
+  const words = [k(1) && "タオル", k(2) && "今治"].filter(Boolean);
+  const conds = [["在庫がある", [], "whereInit", false]];
+  words.forEach(w => conds.push([`名前・ブランド・説明のどれかに「${w}」（%s が3つ）`, [`%${w}%`, `%${w}%`, `%${w}%`], "wQ", true]));
+  if (k(3)) conds.push(["カテゴリーが %s", ["生活雑貨"], "wCat", true]);
+  if (k(4)) conds.push(["説明文が %s に当てはまる（どこかに個包装）", ["%個包装%"], "wIndiv", true]);
+  if (k(5)) conds.push(["値段が %s 以上", [3000], "wPrice", true], ["値段が %s 以下", [4999], "wPrice", true]);
+  const params = conds.flatMap(c => c[1]);
+  const blanks = conds.reduce((n, c) => n + c[1].length, 0);
+  $("#sql").innerHTML = `
+    <div class="blk"><b>SELECT</b><span>取る列：product_id・category・brand・product_name・price・rating・review_count（7つ）</span></div>
+    <div class="blk"><b>FROM</b><span>products（商品の棚）</span></div>
+    <div class="blk"><b>WHERE</b><ol>${conds.map((c, i) => `<li class="${c[3] ? "new" : ""}">${esc(c[0])}${i < conds.length - 1 ? "　かつ（AND）" : ""}</li>`).join("")}</ol></div>
+    <div class="blk"><b>ORDER BY</b><span>販売数が多い順 → 同じなら商品ID順</span></div>
+    <div class="blk"><b>LIMIT</b><span>%s（20件）</span></div>
+    <div class="blk"><b>params</b><span class="mono" style="word-break:break-all">[ ${params.map(p => typeof p === "number" ? p : `"${esc(p)}"`).join(", ")}${params.length ? ", " : ""}20 ]</span></div>`;
+  $("#count").innerHTML = `<div>空欄（%s）：${blanks + 1}こ</div><div>別の紙（params）：${params.length + 1}こ</div><div class="${blanks === params.length ? "ok" : "ng"}">${blanks === params.length ? "○ そろっている" : "× ずれている"}</div>`;
+}
+document.querySelectorAll(".toggles input").forEach(i => i.onchange = sql);
+sql();
+$("#sqlRefs").innerHTML = ref("where", "条件を足す") + ref("sqlSelect", "注文書") + ref("orderBy", "並べ方") + ref("execute", "空欄に値を入れて実行");
+
+const COLS = [
+  ["product_id", "商品ID", "", "○（2番目の並べ方）", "×（key）", [["main", 82, 82]]],
+  ["product_name", "商品名", "○（キーワード）", "", "○", [["main", 50, 50], ["main", 85, 85]]],
+  ["category", "カテゴリー", "○（カテゴリー）", "", "○", [["main", 53, 53], ["main", 83, 83]]],
+  ["brand", "ブランド・店名", "○（キーワード）", "", "○", [["main", 50, 50], ["main", 84, 84]]],
+  ["price", "値段（円）", "○（価格帯）", "", "○", [["main", 58, 63], ["main", 86, 86]]],
+  ["rating", "レビューの平均", "", "", "○", [["main", 87, 87]]],
+  ["review_count", "レビュー件数", "", "", "○", [["main", 88, 88]]],
+  ["sales_count", "直近1年の販売数", "", "○（人気順）", "×", [["main", 71, 71]]],
+  ["description", "説明文", "○（キーワード・個包装）", "", "×", [["main", 50, 50], ["main", 56, 56]]],
+  ["stock", "在庫数", "○（在庫あり）", "", "×", [["main", 48, 48]]],
+];
+$("#cols").insertAdjacentHTML("beforeend", COLS.map(c => `<tr><td class="mono">${c[0]}</td><td>${c[1]}</td><td>${c[2]}</td><td>${c[3]}</td><td>${c[4]}</td><td><div class="refs">${c[5].map(x => refL(...x)).join("")}</div></td></tr>`).join(""));
+</script>
+</body>
+</html>

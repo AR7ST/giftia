@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>コードの地図 ｜ 東京 Drinking Party</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css">
+<link rel="stylesheet" href="assets/course.css">
+<style>
+  .pages { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .pg { text-decoration: none; display: block; }
+  .pg.off { opacity: .55; pointer-events: none; }
+  .pg h3 { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+  .pg ul { margin: 6px 0 0; padding-left: 1.2em; color: var(--muted); font-size: .9rem; }
+  .pg:hover .card { border-color: var(--pink); }
+  .road { counter-reset: s; list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .road li { counter-increment: s; display: grid; grid-template-columns: 2em minmax(0, 1fr); gap: 8px; align-items: start; }
+  .road li::before { content: counter(s); width: 1.7em; height: 1.7em; border-radius: 50%; background: var(--pink); color: #fff; font-weight: 800; display: grid; place-items: center; font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="kicker">GIFTIA ・ CODE MAP</span><a href="./">← ハブにもどる</a></div>
+  <h1><span class="p">コードの地図</span></h1>
+  <p class="lead">Giftia の「画面のここ」が「コードのどこ」なのかを、地図にしました。コードの中身はここには載せていません。行のリンクを押すと GitHub（非公開。班のメンバーと講師だけ）のその行が開きます。商品は説明用の例です。</p>
+
+  <p class="say">初めての方は、<a href="overview.html"><b>アプリの全体像</b></a>で仕組みをつかんでから進みましょう。</p>
+
+  <h2 class="sec-title" id="course-title">おすすめの読む順番</h2>
+  <section class="card" id="learning-course" aria-labelledby="course-title">
+    <p class="muted">好きな地図から読んでも大丈夫です。読み終わったら、この一覧で「確認した」にチェックして、続きを見つけましょう。</p>
+    <ol class="road course-list">
+      <li><div><p><a href="screen.html"><b>画面の地図</b></a>で、画面を触りながら「メモ帳（状態）」がどう変わるかを見る</p><label class="course-check"><input type="checkbox" data-course-step="screen" aria-label="画面の地図を確認した">確認した</label></div></li>
+      <li><div><p><a href="flow.html"><b>動きの地図</b></a>で、検索ボタンからDBまでの12ステップをたどる</p><label class="course-check"><input type="checkbox" data-course-step="flow" aria-label="動きの地図を確認した">確認した</label></div></li>
+      <li><div><p><a href="change.html"><b>変える地図</b></a>で、変えたいことから、変更する場所を探す</p><label class="course-check"><input type="checkbox" data-course-step="change" aria-label="変える地図を確認した">確認した</label></div></li>
+      <li><div><p><a href="data.html"><b>データの地図</b></a>で、DBの列が画面に出るまでを線でたどる</p><label class="course-check"><input type="checkbox" data-course-step="data" aria-label="データの地図を確認した">確認した</label></div></li>
+      <li><div><p><a href="files.html"><b>ファイルの地図</b></a>で、読むガイドとGitHubのコードを並べて見る</p><label class="course-check"><input type="checkbox" data-course-step="files" aria-label="ファイルの地図を確認した">確認した</label></div></li>
+      <li><div><p><a href="words.html"><b>ことばの地図</b></a>で、クイズで確かめ、分からなかった言葉を復習する</p><label class="course-check"><input type="checkbox" data-course-step="words" aria-label="ことばの地図を確認した">確認した</label></div></li>
+    </ol>
+    <div class="course-summary" data-course-controls hidden>
+      <p data-course-count role="status" aria-live="polite" aria-atomic="true"></p>
+      <progress value="0" max="6" aria-label="学習コースの確認済みステップ数"></progress>
+      <div class="course-actions"><a class="btn pink" href="screen.html" data-course-next>次に読む：画面の地図</a><button class="btn course-reset" type="button" data-course-reset>チェックをすべて外す</button></div>
+      <p class="muted" data-course-storage></p>
+    </div>
+    <noscript><p class="muted">チェックの保存にはJavaScriptが必要です。各地図へのリンクはそのまま利用できます。</p></noscript>
+    <p class="muted">エラーが出たら<a href="trouble.html">困ったときの地図</a>、PRで迷ったら<a href="git.html">GitHubの地図</a>へ。</p>
+  </section>
+
+  <h2 class="sec-title">地図の一覧 <small>10ページ</small></h2>
+  <div class="pages">
+    <a class="pg" href="vision.html"><div class="card"><h3>目指すアプリの姿 <span class="pill css">計画</span></h3><ul><li>これからの利用の流れ</li><li>作る3機能と確認方法</li><li>現状との違い・Phase1の範囲</li></ul></div></a>
+    <a class="pg" href="overview.html"><div class="card"><h3>アプリの全体像 <span class="pill be">全体</span></h3><ul><li>画面 → API → DB → 画面のフロー図</li><li>6つのステップと担当ファイル</li><li>Next.js・CORS・設定の役割</li></ul></div></a>
+    <a class="pg" href="screen.html"><div class="card"><h3>画面の地図 <span class="pill fe">画面</span></h3>
+      <ul><li>画面マップ（完全版・12か所）</li><li>メモ帳（7つの箱）の動き</li><li>操作 → 動く関数</li><li>見た目 → globals.css</li></ul></div></a>
+    <a class="pg" href="flow.html"><div class="card"><h3>動きの地図 <span class="pill be">流れ</span></h3>
+      <ul><li>検索の旅（12ステップ）</li><li>待ち時間（async / await）</li><li>URL の部品マップ</li><li>条件の形が変わっていく様子</li></ul></div></a>
+    <a class="pg" href="change.html"><div class="card"><h3>変える地図 <span class="pill css">変更</span></h3>
+      <ul><li>変えたいこと逆引き（10こ）</li><li>要件定義書 → 変える場所</li><li>1週目 → 2週目で変わったところ</li></ul></div></a>
+    <a class="pg" href="data.html"><div class="card"><h3>データの地図 <span class="pill db">データ</span></h3><ul><li>名札の付け替え（DB → 画面）</li><li>注文書（SQL）の組み立て</li><li>products の列はどこで使う？</li></ul></div></a>
+    <a class="pg" href="files.html"><div class="card"><h3>ファイルの地図 <span class="pill fe">ファイル</span></h3><ul><li>フォルダマップ</li><li>1行ずつ読むガイド（5ファイル）</li><li>穴埋め復習（穴1〜8）</li></ul></div></a>
+    <a class="pg" href="words.html"><div class="card"><h3>ことばの地図 <span class="pill css">ことば</span></h3><ul><li>お店のたとえマップ</li><li>用語 → コードの場所</li><li>クイズ（10問）</li></ul></div></a>
+    <a class="pg" href="trouble.html"><div class="card"><h3>困ったときの地図 <span class="pill be">困った</span></h3><ul><li>エラーマップ（14こ）</li><li>設定マップ</li><li>秘密を守る場所</li><li>開発環境マップ</li></ul></div></a>
+    <a class="pg" href="git.html"><div class="card"><h3>GitHub の地図 <span class="pill db">GitHub</span></h3><ul><li>GitHub の流れ（STEP 0〜9 とボード）</li><li>成長の年表</li></ul></div></a>
+  </div>
+
+  <h2 class="sec-title">行のリンクが 404 になるとき</h2>
+  <div class="card">
+    <p>giftia は非公開なので、<b>GitHub にログインしていないブラウザ</b>で開くと「404（ページがない）」と出ます。</p>
+    <ul>
+      <li>Safari で一度 <a href="https://github.com/login" target="_blank" rel="noopener">github.com にログイン</a>してから、もう一度リンクを押す（いちばん確実）</li>
+      <li>GitHub アプリで開くときは、リンクを長押し →「“GitHub”で開く」</li>
+      <li>班のメンバー（Collaborator）として招待を受けていないアカウントでは開けない</li>
+    </ul>
+  </div>
+
+  <h2 class="sec-title">この地図の約束</h2>
+  <div class="card">
+    <ul>
+      <li>コードの中身・教材の内容・.env・DB のデータは載せない（このページは公開）</li>
+      <li>説明は自分たちの言葉。コードは GitHub で読む</li>
+      <li>行番号は 2026-11-07 の main（PR #6 のあと）。コードを変えたら <span class="mono">assets/map.js</span> の表を直す</li>
+    </ul>
+  </div>
+  <footer>Giftia 班（クラス5・東京 Drinking Party）</footer>
+</div>
+<script src="assets/map.js"></script>
+<script src="assets/course.js"></script>
+</body>
+</html>

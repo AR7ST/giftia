@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>東京 Drinking Party 開発ハブ</title>
+<meta name="description" content="Giftia 班（東京 Drinking Party）の入口ページ">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --night1: #070b1f; --night2: #141a46; --night3: #3a1d5e;
+    --pink: #ff4fa3; --cyan: #38e1ff; --yellow: #ffd23f; --red: #ff3b3b; --green: #3ee59a;
+    --text: #eef1ff; --muted: #a9b0d9; --card: rgba(255,255,255,.06); --line: rgba(255,255,255,.14);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; color: var(--text); line-height: 1.7;
+    font-family: "M PLUS Rounded 1c", system-ui, "Hiragino Sans", "Meiryo", sans-serif;
+    background: var(--night1);
+  }
+  a { color: inherit; }
+
+  /* ===== 夜景のヒーロー ===== */
+  .hero {
+    position: relative; overflow: hidden; padding: 28px 16px 0;
+    background: linear-gradient(180deg, var(--night1) 0%, var(--night2) 45%, var(--night3) 78%, #6b2a6e 100%);
+  }
+  .stars { position: absolute; inset: 0; pointer-events: none; }
+  .star { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #fff; animation: twinkle 3s infinite ease-in-out; }
+  @keyframes twinkle { 0%,100% { opacity: .2 } 50% { opacity: 1 } }
+  .moon { position: absolute; top: 26px; right: 7%; width: 54px; height: 54px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fffbe6, #ffe9a3 60%, #e8c66a);
+    box-shadow: 0 0 40px 12px rgba(255,233,163,.25); }
+  .hero-inner { position: relative; z-index: 2; max-width: 920px; margin: 0 auto; }
+  .kicker { display: inline-block; font-weight: 800; letter-spacing: .2em; font-size: .8rem; color: var(--cyan);
+    border: 1px solid var(--cyan); border-radius: 999px; padding: 2px 12px; text-shadow: 0 0 8px var(--cyan); }
+  .hero h1 { margin: 10px 0 0; font-weight: 800; font-size: clamp(2rem, 8vw, 3.6rem); line-height: 1.15; }
+  .neon-pink { color: #fff; text-shadow: 0 0 6px var(--pink), 0 0 18px var(--pink), 0 0 36px var(--pink); }
+  .neon-cyan { color: #fff; text-shadow: 0 0 6px var(--cyan), 0 0 18px var(--cyan), 0 0 36px var(--cyan); }
+  .hero .sub { margin: 6px 0 0; color: var(--muted); }
+
+  /* 路線図（進み具合） */
+  .line { margin: 26px 0 0; }
+  .line-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .pct { font-weight: 800; font-size: 1.1rem; }
+  .badge { font-weight: 800; font-size: .85rem; color: #1b1035; background: var(--yellow); border-radius: 999px; padding: 2px 12px; box-shadow: 0 0 16px rgba(255,210,63,.6); }
+  .track { position: relative; height: 16px; margin: 22px 8px 0; border-radius: 999px; background: rgba(255,255,255,.12); border: 2px solid rgba(255,255,255,.5); }
+  .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; background: linear-gradient(90deg, var(--yellow), var(--pink)); box-shadow: 0 0 14px var(--pink); }
+  .stn { position: absolute; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; background: var(--night1); border: 4px solid #fff; }
+  .stn.done { border-color: var(--yellow); }
+  .train { position: absolute; top: 50%; margin: -19px 0 0 -19px; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--night2); border: 4px solid var(--yellow); box-shadow: 0 0 18px 4px rgba(255,210,63,.7); font-size: 18px; }
+  .stn-labels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 20px; }
+  .stage { border: 2px solid var(--line); border-radius: 14px; padding: 8px 6px; text-align: center; background: rgba(7,11,31,.45); }
+  .stage b { display: block; font-size: .72rem; letter-spacing: .12em; }
+  .stage span { display: block; font-weight: 800; font-size: .95rem; }
+  .stage small { color: var(--muted); font-size: .72rem; }
+  .stage.now { border-color: var(--yellow); box-shadow: 0 0 14px rgba(255,210,63,.5); }
+  .s1 b { color: var(--yellow) } .s2 b { color: var(--cyan) } .s3 b { color: var(--pink) } .s4 b { color: var(--red) }
+
+  .skyline { position: relative; z-index: 1; display: block; width: 100%; height: 170px; margin-top: 18px; }
+  .win { animation: blink 4s infinite; }
+  @keyframes blink { 0%,100% { opacity: .95 } 50% { opacity: .35 } }
+  .river { height: 26px; background: linear-gradient(180deg, #2a1640, #0b0d24); position: relative; z-index: 1; }
+  .river::after { content: ""; position: absolute; left: 0; right: 0; top: 6px; height: 3px;
+    background: repeating-linear-gradient(90deg, rgba(255,79,163,.6) 0 18px, transparent 18px 40px, rgba(56,225,255,.6) 40px 52px, transparent 52px 80px); filter: blur(1px); }
+
+  /* ===== 本文 ===== */
+  main { max-width: 920px; margin: 0 auto; padding: 8px 16px 24px; }
+  .sec-title { display: inline-flex; align-items: center; gap: 10px; margin: 30px 0 12px; padding: 6px 16px; border-radius: 12px;
+    font-weight: 800; font-size: 1.15rem; background: rgba(255,255,255,.06); border: 1px solid var(--line); box-shadow: 0 4px 0 var(--pink); }
+  .dots i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-left: 4px; }
+  .dots i:nth-child(1) { background: var(--yellow) } .dots i:nth-child(2) { background: var(--cyan) } .dots i:nth-child(3) { background: var(--pink) }
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px 18px;
+    backdrop-filter: blur(6px); box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+  .card h3 { margin: 0 0 6px; font-size: 1.1rem; }
+  .card p { margin: 4px 0; }
+  .muted { color: var(--muted); font-size: .9rem; }
+  .btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .btn { display: inline-block; text-decoration: none; font-weight: 800; font-size: .9rem; padding: 8px 16px; border-radius: 999px;
+    background: #fff; color: #1b1035; }
+  .btn.pink { background: var(--pink); color: #fff; box-shadow: 0 0 14px rgba(255,79,163,.6); }
+  .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
+  .flow-steps { display: flex; justify-content: space-between; position: relative; margin: 14px 4px 4px; }
+  .flow-steps::before { content: ""; position: absolute; left: 10px; right: 10px; top: 9px; height: 3px; background: rgba(255,255,255,.25); }
+  .fs { position: relative; text-align: center; font-size: .75rem; color: var(--muted); width: 20%; }
+  .fs i { display: block; width: 20px; height: 20px; margin: 0 auto 4px; border-radius: 50%; background: var(--night1); border: 3px solid #fff; }
+  .fs.done i { background: var(--green); border-color: var(--green); }
+  .fs.now i { background: var(--pink); border-color: var(--pink); box-shadow: 0 0 12px var(--pink); }
+  .fs.now { color: #fff; font-weight: 800; }
+  .big { font-weight: 800; font-size: 1.05rem; }
+  .big em { font-style: normal; color: var(--yellow); font-size: 1.5rem; }
+  .arch { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-weight: 800; margin-top: 8px; }
+  .arch span { padding: 3px 10px; border-radius: 10px; font-size: .85rem; }
+  .a1 { background: rgba(255,79,163,.2); border: 1px solid var(--pink) } .a2 { background: rgba(62,229,154,.15); border: 1px solid var(--green) } .a3 { background: rgba(255,210,63,.15); border: 1px solid var(--yellow) }
+
+  .bar { height: 12px; border-radius: 999px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.35); overflow: hidden; }
+  .bar > div { height: 100%; background: linear-gradient(90deg, var(--cyan), var(--pink)); }
+  .who { display: grid; grid-template-columns: 6.5em 1fr 3.5em; gap: 10px; align-items: center; margin: 8px 0; font-size: .95rem; }
+  .who b { text-align: right; }
+  .task { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px dashed var(--line); }
+  .task:last-child { border-bottom: 0; }
+  .chip { flex: none; font-size: .78rem; font-weight: 800; padding: 2px 10px; border-radius: 999px; height: fit-content; }
+  .c-done { background: var(--green); color: #062b1a } .c-doing { background: var(--yellow); color: #3a2a00 } .c-todo { background: rgba(255,255,255,.15); color: var(--text) }
+  .links a { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px dashed var(--line); text-decoration: none; font-weight: 800; }
+  .links a:last-child { border-bottom: 0; }
+  .links small { font-weight: 500; color: var(--muted); display: block; }
+
+  .member { text-align: center; }
+  .avatar { width: 64px; height: 64px; margin: 0 auto 6px; border-radius: 50%; display: grid; place-items: center; font-size: 1.6rem; font-weight: 800; color: #fff; }
+  .m1 { background: var(--pink); box-shadow: 0 0 18px var(--pink) } .m2 { background: #1fb7d6; box-shadow: 0 0 18px var(--cyan) } .m3 { background: #e0a400; box-shadow: 0 0 18px var(--yellow) }
+  .member .role { font-size: .8rem; letter-spacing: .1em; color: var(--muted); }
+  .member ul { text-align: left; margin: 8px 0 0; padding-left: 1.1em; font-size: .9rem; }
+
+  ol.steps { margin: 0; padding-left: 1.3em; } ol.steps li { margin: 6px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { border-bottom: 1px solid var(--line); padding: 8px 6px; text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-weight: 800; }
+  .warn { margin-top: 30px; background: rgba(255,59,59,.12); border: 1px solid rgba(255,59,59,.6); border-radius: 14px; padding: 12px 16px; font-size: .9rem; }
+  footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 18px 16px 30px; }
+  @media (max-width: 520px) {
+    .stage span { font-size: .8rem } .stage b { font-size: .62rem; letter-spacing: .05em }
+    .who { grid-template-columns: 5.5em 1fr 3em; }
+  }
+  @media (prefers-reduced-motion: reduce) { .star, .win { animation: none } }
+
+  /* ===== 画面マップ ===== */
+  .map-wrap { display: grid; gap: 14px; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); align-items: start; }
+  @media (max-width: 760px) { .map-wrap { grid-template-columns: minmax(0, 1fr); } }
+  .gscreen { position: relative; background: #fafaf9; color: #1f2933; border-radius: 14px; padding: 12px; font-family: "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif; font-size: 13.5px; line-height: 1.5; box-shadow: 0 0 0 6px #05071a, 0 10px 30px rgba(0,0,0,.5); }
+  .gscreen .ex { position: absolute; top: 8px; right: 10px; font-size: 10.5px; color: #fff; background: #9aa5b1; border-radius: 4px; padding: 0 6px; }
+  .gscreen .gt { font-size: 21px; font-weight: 700; color: #1b3a5c; }
+  .gscreen .gm { display: flex; gap: 6px; }
+  .gscreen .gm span { font-size: 12px; padding: 3px 10px; border: 1px solid #e4e7eb; background: #fff; border-radius: 999px; }
+  .gscreen .gm span.on { background: #1b3a5c; color: #fff; border-color: #1b3a5c; }
+  .gscreen .gf { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 6px; }
+  .gscreen .gq, .gscreen .gs, .gscreen .gb { font-size: 12.5px; padding: 6px 8px; border: 1px solid #e4e7eb; border-radius: 6px; background: #fff; }
+  .gscreen .gq { flex: 1 1 140px; color: #9aa5b1; }
+  .gscreen .gb { background: #1b3a5c; color: #fff; border: none; min-width: 60px; text-align: center; }
+  .gscreen .gsum { color: #616e7c; font-size: 12px; margin: 4px 0; }
+  .gscreen .gc { border: 1px solid #e4e7eb; border-radius: 10px; padding: 8px 10px; background: #fff; margin-top: 8px; }
+  .gscreen .gc p { margin: 1px 0; } .gscreen .gc .gn { font-weight: 700; } .gscreen .gc .gp { font-weight: 700; font-size: 15px; } .gscreen .gc .gmeta { color: #616e7c; font-size: 11.5px; }
+  .hs { position: relative; display: inline-block; border-radius: 8px; outline: 2px dashed transparent; outline-offset: 2px; cursor: pointer; }
+  div.hs { display: block; }
+  .hs:hover, .hs.on { outline-color: var(--pink); }
+  .hs .pin { position: absolute; top: -9px; left: -9px; z-index: 2; width: 19px; height: 19px; border-radius: 50%; background: var(--pink); color: #fff; font: 800 11px/19px system-ui, sans-serif; text-align: center; box-shadow: 0 0 8px rgba(255,79,163,.8); }
+  .hs.on .pin { background: var(--yellow); color: #1b1035; }
+  .hs:focus-visible { outline-color: var(--yellow); }
+  .map-detail h3 { margin: 2px 0 8px; }
+  .map-detail .say { padding: 10px 12px; border-radius: 12px; border: 1px dashed rgba(56,225,255,.6); margin: 8px 0; }
+  .map-detail .say b { color: var(--cyan); }
+  .filelinks { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .filelinks a { text-decoration: none; font-size: .82rem; font-weight: 800; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,.04); font-family: ui-monospace, Menlo, Consolas, monospace; }
+  .filelinks a:hover { border-color: var(--cyan); color: var(--cyan); }
+  .lab-entry { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin-top: 10px; }
+  .lab-entry a { text-decoration: none; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--line); background: rgba(255,255,255,.05); font-weight: 800; }
+  .lab-entry a small { display: block; font-weight: 500; color: var(--muted); font-size: .8rem; }
+  .lab-entry a:hover { border-color: var(--pink); }
+</style>
+</head>
+<body>
+
+<!-- ここの数字を、merge のときに書きかえる（このページは手で更新する） -->
+<script>
+const HUB = {
+  updated: "2026/11/07",
+  presentation: "2026-11-24",
+  start: "2026-10-20",
+  members: [
+    { name: "タケ",       role: "班長",   done: 1, total: 1 },
+    { name: "むっちゃん", role: "コード長", done: 1, total: 1 },
+    { name: "まいまい",   role: "発表長", done: 0, total: 0 }
+  ]
+};
+</script>
+
+<header class="hero">
+  <div class="stars" id="stars"></div>
+  <div class="moon"></div>
+  <div class="hero-inner">
+    <span class="kicker">GIFTIA 開発ハブ</span>
+    <h1><span class="neon-pink">東京</span> <span class="neon-cyan">Drinking Party</span></h1>
+    <p class="sub">送別ギフトを、仲間と納得して決められる Giftia へ。できる日に1回、少しずつ。</p>
+
+    <div class="line">
+      <div class="line-head">
+        <span class="pct">全体 <span id="pct">--</span>%</span>
+        <span class="badge" id="today">今日</span>
+        <span class="muted">発表 11/24 まで あと <b id="left">--</b> 日</span>
+      </div>
+      <div class="track" id="track">
+        <div class="fill" id="fill"></div>
+        <div class="stn" style="left:0%"></div>
+        <div class="stn" id="st2"></div>
+        <div class="stn" id="st3"></div>
+        <div class="stn" style="left:100%"></div>
+        <div class="train" id="train" title="いまここ">🚃</div>
+      </div>
+      <div class="stn-labels">
+        <div class="stage s1" data-from="2026-10-20" data-to="2026-11-09"><b>STAGE 1</b><span>準備・課題</span><small>〜11/9</small></div>
+        <div class="stage s2" data-from="2026-11-10" data-to="2026-11-16"><b>STAGE 2</b><span>制作 前半</span><small>11/10〜</small></div>
+        <div class="stage s3" data-from="2026-11-17" data-to="2026-11-23"><b>STAGE 3</b><span>制作 後半</span><small>11/17〜</small></div>
+        <div class="stage s4" data-from="2026-11-24" data-to="2026-11-24"><b>STAGE 4</b><span>最終発表</span><small>11/24</small></div>
+      </div>
+    </div>
+  </div>
+  <svg class="skyline" id="skyline" viewBox="0 0 1000 170" preserveAspectRatio="none" aria-hidden="true"></svg>
+  <div class="river"></div>
+</header>
+
+<main>
+
+  <h2 class="sec-title">🌃 毎日 <span class="dots"><i></i><i></i><i></i></span></h2>
+  <div class="grid">
+    <div class="card">
+      <h3>開発の全体像</h3>
+      <p class="big">🎁 予算と贈る相手から候補を出し、選んだ理由を仲間と共有して決める</p>
+      <div class="flow-steps">
+        <div class="fs done"><i></i>要件</div>
+        <div class="fs now"><i></i>共有</div>
+        <div class="fs"><i></i>AI 活用</div>
+        <div class="fs"><i></i>更新</div>
+        <div class="fs"><i></i>発表</div>
+      </div>
+      <p class="big">発表 11/24 まで あと <em id="left2">--</em> 日</p>
+      <p class="muted" id="next">次の節目：</p>
+      <div class="arch"><span class="a1">🖥 画面 Next.js</span>→<span class="a2">⚙ API FastAPI</span>→<span class="a3">🗄 DB MySQL</span></div>
+      <div class="btns"><a class="btn" href="https://github.com/AR7ST/giftia">giftia を開く →</a></div>
+    </div>
+
+    <div class="card">
+      <h3>進捗ダッシュボード</h3>
+      <p class="muted">閉じた Issue（やることカード）の数。merge のときに手で更新します。</p>
+      <p class="big">完了 <span id="doneAll">-</span> / <span id="totalAll">-</span></p>
+      <div class="bar"><div id="barAll" style="width:0"></div></div>
+      <div id="who"></div>
+      <p class="muted">更新：<span id="updated"></span></p>
+      <div class="btns"><a class="btn" href="https://github.com/users/AR7ST/projects/1">改善ボードを開く →</a></div>
+    </div>
+  </div>
+
+  <div class="grid" style="margin-top:14px">
+    <div class="card links">
+      <h3>GitHub</h3>
+      <a href="https://github.com/AR7ST/giftia/issues/assigned/@me"><span>📋 自分の担当 Issue<small>自分がやることカード</small></span>→</a>
+      <a href="https://github.com/AR7ST/giftia/pulls/review-requested/@me"><span>👀 レビュー待ちの PR<small>確認をたのまれている回覧</small></span>→</a>
+      <a href="https://github.com/AR7ST/giftia/pulls"><span>🔀 PR 一覧<small>確認待ちの変更</small></span>→</a>
+      <a href="https://github.com/users/AR7ST/projects/1"><span>🗂 Giftia 改善ボード<small>やること → 作業中 → 確認待ち → 完了</small></span>→</a>
+      <p class="muted">※ リポジトリとボードは非公開。班のメンバーと講師だけが開けます。</p>
+    </div>
+
+    <div class="card">
+      <h3>課題の進み具合</h3>
+      <div class="task"><span>課題2　要求定義書・要件定義書</span><span class="chip c-done">提出用 完成</span></div>
+      <div class="task"><span>課題3　班の開発環境を GitHub で共有</span><span class="chip c-doing">再現 OK 待ち</span></div>
+      <div class="task"><span>モノレポ化（講師の指摘）</span><span class="chip c-done">完了</span></div>
+      <div class="task"><span>発展1　AI と GitHub をもっと上手に</span><span class="chip c-todo">これから</span></div>
+      <div class="task"><span>発展2　要件定義をもとに Giftia を更新</span><span class="chip c-todo">これから</span></div>
+    </div>
+  </div>
+
+  <h2 class="sec-title">🗺 画面マップ <span class="dots"><i></i><i></i><i></i></span></h2>
+  <div class="card">
+    <p class="muted">Giftia の検索画面の番号をタップすると、その部分を作っているファイルと行がわかります。ファイル名を押すと GitHub のその行が開きます（非公開。班のメンバーと講師だけ）。商品は説明用の例です。</p>
+    <div class="map-wrap">
+      <div class="gscreen" id="gscreen">
+        <span class="ex">例</span>
+        <div class="hs" data-hs="1" tabindex="0" role="button" aria-label="1 タイトル"><span class="pin">1</span><div class="gt">Giftia</div></div>
+        <div class="hs" data-hs="2" tabindex="0" role="button" aria-label="2 タブ" style="margin-top:6px"><span class="pin">2</span><div class="gm"><span class="on">いまの検索</span><span>取引先へのお礼</span></div></div>
+        <div class="gf">
+          <span class="hs" data-hs="3" tabindex="0" role="button" aria-label="3 入力欄" style="flex:1 1 140px"><span class="pin">3</span><span class="gq" style="display:block">キーワード（例：送別 お菓子）</span></span>
+          <span class="hs" data-hs="4" tabindex="0" role="button" aria-label="4 カテゴリー"><span class="pin">4</span><span class="gs" style="display:block">すべてのカテゴリー ▾</span></span>
+          <span class="hs" data-hs="5" tabindex="0" role="button" aria-label="5 検索ボタン"><span class="pin">5</span><span class="gb" style="display:block">検索</span></span>
+        </div>
+        <div class="hs" data-hs="6" tabindex="0" role="button" aria-label="6 件数"><span class="pin">6</span><p class="gsum">上位 20 件</p></div>
+        <div class="hs" data-hs="7" tabindex="0" role="button" aria-label="7 結果カード"><span class="pin">7</span>
+          <div class="gc"><p class="gmeta">1位・食品・みなと製菓</p><p class="gn">ありがとうの焼き菓子 12個入</p>
+            <span class="hs" data-hs="8" tabindex="0" role="button" aria-label="8 値段"><span class="pin">8</span><span class="gp">3,240円</span></span>
+            <p class="gmeta">評価4.6（128件）</p></div>
+        </div>
+        <div class="gc"><p class="gmeta">2位・生活雑貨・ふわり織</p><p class="gn">今治のフェイスタオル 2枚</p><p class="gp">3,850円</p><p class="gmeta">評価4.4（86件）</p></div>
+      </div>
+      <div class="map-detail" id="map-detail" aria-live="polite"></div>
+    </div>
+    <div class="btns"><a class="btn ghost" href="overview.html">アプリの全体像</a><a class="btn pink" href="map.html">🗺 コードの地図をもっと見る →</a><a class="btn ghost" href="screen.html">画面の地図</a><a class="btn ghost" href="flow.html">動きの地図</a><a class="btn ghost" href="change.html">変える地図</a><a class="btn ghost" href="data.html">データの地図</a><a class="btn ghost" href="files.html">ファイルの地図</a><a class="btn ghost" href="words.html">ことばの地図</a><a class="btn ghost" href="trouble.html">困ったときの地図</a><a class="btn ghost" href="git.html">GitHub の地図</a></div>
+  </div>
+
+  <h2 class="sec-title">🎯 目指すアプリの姿</h2>
+  <section class="card" aria-label="これから作るGiftia">
+    <h3>送別ギフトを、仲間と納得して決められるように</h3>
+    <p>共同予算で探す → 特徴を比べる → 最大3候補と理由を整理 → 相談文をコピーして仲間へ。</p>
+    <p>これから作るPhase1の設計です。現在の仕組みとは分けて確認できます。</p>
+    <div class="btns"><a class="btn pink" href="vision.html">目指すアプリの設計を見る →</a><a class="btn ghost" href="overview.html">現在の検索の仕組みを見る</a></div>
+  </section>
+
+  <h2 class="sec-title">🍻 メンバー <span class="dots"><i></i><i></i><i></i></span></h2>
+  <div class="grid">
+    <div class="card member"><div class="avatar m1">タ</div><div class="role">班長</div><h3>タケ</h3>
+      <ul><li>日程・提出物・全体の進み具合</li><li>最終提言・方向性のまとめ</li></ul></div>
+    <div class="card member"><div class="avatar m2">む</div><div class="role">コード長</div><h3>むっちゃん</h3>
+      <ul><li>使う技術・コードの確認</li><li>骨組み・画面と機能の実装</li></ul></div>
+    <div class="card member"><div class="avatar m3">ま</div><div class="role">発表長</div><h3>まいまい</h3>
+      <ul><li>発表資料の構成・時間配分</li><li>画面デザインや導線の確認</li></ul></div>
+  </div>
+
+  <h2 class="sec-title">🚀 最初だけ <span class="dots"><i></i><i></i><i></i></span></h2>
+  <div class="grid">
+    <div class="card">
+      <h3>自分の PC で動かす</h3>
+      <p class="muted">clone → .env をコピー → API（8000番）と画面（3000番）を起動。くわしくは README の3章。</p>
+      <div class="btns"><a class="btn pink" href="https://github.com/AR7ST/giftia#readme">README を読む →</a></div>
+    </div>
+    <div class="card">
+      <h3>スマホの Claude Code とつなぐ</h3>
+      <ol class="steps">
+        <li>claude.ai/connect-github で GitHub を許可</li>
+        <li>Claude GitHub App に giftia・giftia-hub を入れる</li>
+        <li>Code → 新規 → giftia を選ぶ</li>
+      </ol>
+    </div>
+  </div>
+
+  <h2 class="sec-title">🗼 改善の流れ <span class="dots"><i></i><i></i><i></i></span></h2>
+  <div class="card">
+    <ol class="steps">
+      <li><b>Issue を作る</b>：Projects で「Giftia 改善ボード」を選ぶ（やること）</li>
+      <li><b>担当を決めて始める</b>：Assignees に自分（作業中）</li>
+      <li><b>ブランチで変える</b>：main を pull → ブランチ → 変更・確認</li>
+      <li><b>PR を出す</b>：何を／なぜ／確認手順 と Closes #番号（確認待ち）</li>
+      <li><b>本人以外が Approve</b>：手元で動かしてから</li>
+      <li><b>merge</b>：Issue は自動で閉じる（完了）</li>
+      <li><b>全員で再現</b>：pull して「再現 OK」。このページの改善ログに1行</li>
+    </ol>
+  </div>
+
+  <h2 class="sec-title">💡 ナレッジ <span class="dots"><i></i><i></i><i></i></span></h2>
+  <div class="grid">
+    <div class="card">
+      <h3>ルールの要点</h3>
+      <ul>
+        <li><b>main に直接 push しない。</b>変更はブランチ＋PR</li>
+        <li>作業の前に <code>git pull</code></li>
+        <li>1つの PR には1つの変更だけ</li>
+        <li>Approve は本人以外。Approve が付いてから merge</li>
+        <li><b>.env の中身は、GitHub・Slack・生成 AI に貼らない</b></li>
+      </ul>
+      <div class="btns">
+        <a class="btn ghost" href="https://github.com/AR7ST/giftia#readme">README ↗</a>
+        <a class="btn ghost" href="https://github.com/AR7ST/giftia/blob/main/AGENTS.md">AGENTS.md ↗</a>
+      </div>
+    </div>
+    <div class="card">
+      <h3>改善ログ（Giftia の成長日記）</h3>
+      <table>
+        <tr><th>日付</th><th>変えたこと</th><th>PR</th></tr>
+        <tr><td>11/01</td><td>画面を検索 API につないだ（2週目）</td><td><a href="https://github.com/AR7ST/giftia/pull/1">giftia #1</a></td></tr>
+        <tr><td>11/01</td><td>README を班の案内とルールに書き直した</td><td><a href="https://github.com/AR7ST/giftia/pull/2">giftia #2</a></td></tr>
+        <tr><td>11/06</td><td>AI の使い方ルール（AGENTS.md）を作った</td><td><a href="https://github.com/AR7ST/giftia/pull/4">giftia #4</a></td></tr>
+        <tr><td>11/07</td><td>画面と API を1つのリポジトリ giftia にまとめた（モノレポ化）</td><td><a href="https://github.com/AR7ST/giftia/pull/6">giftia #6</a></td></tr>
+        <tr><td>11/07</td><td>ハブのリンクをモノレポの giftia に直した</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/1">hub #1</a></td></tr>
+        <tr><td>11/07</td><td>このハブを東京の夜景デザインにした</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/2">hub #2</a></td></tr>
+        <tr><td>11/07</td><td>画面マップを足した</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/3">hub #3</a></td></tr>
+        <tr><td>11/07</td><td>コードの地図（画面・動き・変える）を足した</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/5">hub #5</a></td></tr>
+        <tr><td>11/08</td><td>コードの地図（データ・ファイル・ことば）を足した</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/6">hub #6</a></td></tr>
+        <tr><td>11/08</td><td>コードの地図（困ったとき・GitHub）を足した</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/7">hub #7</a></td></tr>
+        <tr><td>11/08</td><td>コードの地図に学習チェックと「次に読む」を追加（Codex）</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/8">hub #8</a></td></tr>
+        <tr><td>11/08</td><td>画面からDBまでの仕組みをたどる「アプリの全体像」を追加（Codex）</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/10">hub #10</a></td></tr>
+        <tr><td>11/08</td><td>共同の送別ギフトを支援する「目指すアプリの姿」を追加（Codex）</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/12">hub #12</a></td></tr>
+        <tr><td>11/08</td><td>要件 → いまのコードの対応を足し、表示と改善ログを整えた</td><td>hub（このPR）</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="warn">⚠ このページは公開ページです。秘密の情報（.env・API キー・パスワード）、教材の内容、本名、DB のデータが写ったスクショは載せません。</div>
+</main>
+<footer>Giftia 班（クラス5・東京 Drinking Party）・ 更新したら PR で</footer>
+
+<script>
+(function () {
+  // 星
+  const stars = document.getElementById("stars");
+  for (let i = 0; i < 70; i++) {
+    const s = document.createElement("i");
+    s.className = "star";
+    s.style.left = Math.random() * 100 + "%";
+    s.style.top = Math.random() * 55 + "%";
+    s.style.animationDelay = (Math.random() * 3).toFixed(2) + "s";
+    if (Math.random() < .2) { s.style.width = s.style.height = "3px"; }
+    stars.appendChild(s);
+  }
+
+  // ビル群と東京タワー（SVG）
+  const svg = document.getElementById("skyline");
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+  let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  const colors = ["#ffe9a3", "#ffd23f", "#38e1ff", "#ff9bd0", "#fff6d0"];
+  // 奥のビル
+  for (let x = 0; x < 1000; ) {
+    const w = 30 + rnd() * 50, h = 40 + rnd() * 70;
+    svg.appendChild(el("rect", { x, y: 170 - h, width: w, height: h, fill: "#24204f" }));
+    x += w + 2;
+  }
+  // 東京タワー
+  const tx = 760;
+  const tower = el("g", {});
+  tower.appendChild(el("path", { d: `M${tx} 8 L${tx + 4} 8 L${tx + 26} 170 L${tx - 22} 170 Z`, fill: "#ff3b3b" }));
+  tower.appendChild(el("path", { d: `M${tx - 12} 100 L${tx + 16} 100 L${tx + 14} 108 L${tx - 10} 108 Z`, fill: "#fff2f2" }));
+  tower.appendChild(el("path", { d: `M${tx - 4} 55 L${tx + 8} 55 L${tx + 7} 61 L${tx - 3} 61 Z`, fill: "#fff2f2" }));
+  for (let y = 20; y < 170; y += 14) tower.appendChild(el("line", { x1: tx - (y / 170) * 22 + 2, y1: y, x2: tx + 4 + (y / 170) * 22 - 2, y2: y, stroke: "#ffb0b0", "stroke-width": 1.2, opacity: .7 }));
+  tower.appendChild(el("circle", { cx: tx + 2, cy: 8, r: 3, fill: "#fff", class: "win" }));
+  svg.appendChild(tower);
+  // 手前のビル（窓あかり）
+  for (let x = 0; x < 1000; ) {
+    const w = 34 + rnd() * 46, h = 30 + rnd() * 80;
+    if (x > tx - 40 && x < tx + 30 && h > 60) { x += 10; continue; }
+    svg.appendChild(el("rect", { x, y: 170 - h, width: w, height: h, fill: "#120f2e" }));
+    for (let wy = 170 - h + 8; wy < 162; wy += 10) {
+      for (let wx = x + 5; wx < x + w - 6; wx += 9) {
+        if (rnd() < .38) {
+          const c = el("rect", { x: wx, y: wy, width: 4, height: 5, fill: colors[Math.floor(rnd() * colors.length)] });
+          if (rnd() < .3) { c.setAttribute("class", "win"); c.style.animationDelay = (rnd() * 4).toFixed(2) + "s"; }
+          svg.appendChild(c);
+        }
+      }
+    }
+    x += w + 3;
+  }
+
+  // 日付の計算
+  const day = 86400000;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const d = s => { const t = new Date(s + "T00:00:00"); return t; };
+  const start = d(HUB.start), end = d(HUB.presentation);
+  const pct = Math.max(0, Math.min(100, Math.round((today - start) / (end - start) * 100)));
+  const left = Math.max(0, Math.round((end - today) / day));
+  document.getElementById("pct").textContent = pct;
+  document.getElementById("left").textContent = left;
+  document.getElementById("left2").textContent = left;
+  document.getElementById("today").textContent = "今日 " + (today.getMonth() + 1) + "/" + today.getDate();
+  document.getElementById("fill").style.width = pct + "%";
+  document.getElementById("train").style.left = pct + "%";
+  const pos = s => Math.round((d(s) - start) / (end - start) * 100) + "%";
+  document.getElementById("st2").style.left = pos("2026-11-10");
+  document.getElementById("st3").style.left = pos("2026-11-17");
+  document.querySelectorAll(".stn").forEach(s => { if (parseFloat(s.style.left) <= pct) s.classList.add("done"); });
+  document.querySelectorAll(".stage").forEach(s => {
+    if (today >= d(s.dataset.from) && today <= d(s.dataset.to)) s.classList.add("now");
+  });
+  const nexts = [["2026-11-10", "制作 前半スタート（第6回ミーティング）"], ["2026-11-17", "制作 後半スタート（第7回ミーティング）"], ["2026-11-24", "最終発表"]];
+  const n = nexts.find(x => d(x[0]) > today);
+  document.getElementById("next").textContent = n ? "次の節目：" + n[1] + " まで あと " + Math.round((d(n[0]) - today) / day) + " 日" : "発表、おつかれさまでした！";
+
+  // 進捗
+  let done = 0, total = 0;
+  const who = document.getElementById("who");
+  HUB.members.forEach(m => {
+    done += m.done; total += m.total;
+    const p = m.total ? Math.round(m.done / m.total * 100) : 0;
+    const row = document.createElement("div");
+    row.className = "who";
+    row.innerHTML = `<span>${m.name}</span><div class="bar"><div style="width:${p}%"></div></div><b>${m.done}/${m.total}</b>`;
+    who.appendChild(row);
+  });
+  document.getElementById("doneAll").textContent = done;
+  document.getElementById("totalAll").textContent = total;
+  document.getElementById("barAll").style.width = (total ? Math.round(done / total * 100) : 0) + "%";
+  document.getElementById("updated").textContent = HUB.updated;
+  // 画面マップ
+  const R = "https://github.com/AR7ST/giftia/blob/main/";
+  const MAP = {
+    1: ["タイトル「Giftia」", "お店の<b>看板</b>。文字は画面のファイルに、色と大きさは見た目のファイルに書いてある。",
+        [["page.tsx 40行", "giftia-frontend/app/page.tsx#L40"], ["globals.css 6行", "giftia-frontend/app/globals.css#L6"]], "map"],
+    2: ["タブ", "<b>メモ帳</b>に「いまどちらのタブか」を覚えておき、押したら書きかえる。選ばれている方だけ濃い色になる。",
+        [["page.tsx 13行（覚える箱）", "giftia-frontend/app/page.tsx#L13"], ["page.tsx 43〜46行（ボタン）", "giftia-frontend/app/page.tsx#L43-L46"]], "map"],
+    3: ["キーワードの入力欄", "1文字打つたびに、打った言葉が<b>メモ帳</b>に書き写される。薄い字の例文は検索には使われない。",
+        [["page.tsx 14行（覚える箱）", "giftia-frontend/app/page.tsx#L14"], ["page.tsx 51行（入力欄）", "giftia-frontend/app/page.tsx#L51"]], "lab"],
+    4: ["カテゴリーの選択", "選べる種類は、選択肢の行の数だけ。1行足すと1つ増える。名前は DB の文字とそろえる。",
+        [["page.tsx 52〜57行", "giftia-frontend/app/page.tsx#L52-L57"]], "lab"],
+    5: ["検索ボタン", "押すと<b>伝書鳩</b>に条件を持たせて受付（API）へ飛ばし、帰ってくるまで待つ。",
+        [["page.tsx 69行（ボタン）", "giftia-frontend/app/page.tsx#L69"], ["page.tsx 22〜35行（押したときの処理）", "giftia-frontend/app/page.tsx#L22-L35"], ["api.ts 29〜45行（伝書鳩）", "giftia-frontend/lib/api.ts#L29-L45"]], "trip"],
+    6: ["「上位 20 件」", "受付（API）が<b>決まった件数</b>だけ返し、画面はその数を数えて出している。件数を変えるのは API 側。",
+        [["page.tsx 77行（表示）", "giftia-frontend/app/page.tsx#L77"], ["main.py 44行（20件の正体）", "backend/main.py#L44"]], "lab"],
+    7: ["結果のカード", "同じ<b>カードの型紙</b>を、結果の数だけ並べている。型紙を1か所直すと全部のカードが変わる。",
+        [["ResultCard.tsx（型紙）", "giftia-frontend/app/ResultCard.tsx#L4-L12"], ["page.tsx 79行（並べる）", "giftia-frontend/app/page.tsx#L79"], ["main.py 71行（並び順）", "backend/main.py#L71"]], "lab"],
+    8: ["値段", "DB の数を、受付が<b>名札を付け替えて</b>画面に渡し、カード側でカンマを付けて見せている。",
+        [["ResultCard.tsx 9行", "giftia-frontend/app/ResultCard.tsx#L9"], ["main.py 79〜89行（名札の付け替え）", "backend/main.py#L79-L89"]], "map"],
+  };
+  const det = document.getElementById("map-detail");
+  function pick(n) {
+    document.querySelectorAll("#gscreen .hs").forEach(h => h.classList.toggle("on", +h.dataset.hs === n));
+    const m = MAP[n];
+    det.innerHTML = `<span class="badge">部品 ${n}</span><h3>${m[0]}</h3><div class="say">${m[1]}</div>
+      <div class="filelinks">${m[2].map(f => `<a href="${R}${f[1]}" target="_blank" rel="noopener">${f[0]} ↗</a>`).join("")}</div>`;
+  }
+  document.querySelectorAll("#gscreen .hs").forEach(h => {
+    h.addEventListener("click", e => { e.stopPropagation(); pick(+h.dataset.hs); });
+    h.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); pick(+h.dataset.hs); } });
+  });
+  pick(5);
+})();
+</script>
+</body>
+</html>
