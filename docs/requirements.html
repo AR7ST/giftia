@@ -6,6 +6,7 @@
 <title>要件定義書 ｜ 東京 Drinking Party</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/map.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <style>
   table { width: 100%; border-collapse: collapse; margin: 10px 0 18px; font-size: .92rem; }
   th, td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
@@ -60,7 +61,24 @@
 
   <h2 class="sec-title">5. データ設計</h2>
   <h3>5.1 ER図（配布の基本ER図からの拡張）</h3>
-  <div class="card"><p class="muted">※原本のGoogleドキュメントには画像として埋め込まれたER図がありますが、このページには含まれていません。必要な場合は原本から別途ご確認ください。</p></div>
+  <div class="card">
+    <p class="muted">※原本のGoogleドキュメントには画像として埋め込まれたER図がありますが、ここでは現在の実装コード（backend/main.py・database.py・giftia-frontend/lib/api.ts）から実際に確認できる範囲だけを再構成しています。配布された「データ定義.md」はTech0のConfidential資料のためリポジトリに複写しておらず、productsテーブル以外（会員・注文等）が配布資料に存在する場合でも、ここには含めていません。</p>
+    <pre class="mermaid">
+erDiagram
+    products {
+        string product_id PK "例: G0001"
+        string category
+        string brand
+        string product_name
+        int price "円"
+        decimal rating "レビュー平均。評価なしはNULL(PR #12で0から変更)"
+        int review_count
+        int stock
+        int sales_count
+    }
+    </pre>
+    <p class="muted">現在コードから確認できるのは products テーブル1つのみ（/api/search・/api/health が参照する列）。</p>
+  </div>
 
   <h3>5.2 追加するデータの定義</h3>
   <div class="card">
@@ -134,5 +152,8 @@
   <p class="src">原本: <a href="https://docs.google.com/document/d/17cbMGdWMRYxOWZusGtCB7o-_m6KvIX5pXz1pSerIDG4/edit" target="_blank" rel="noopener">クラス5_東京Drinking Party_要件定義書（提出用）</a>（Googleドキュメント）／ リポジトリ内のMarkdown: <span class="mono">02_プロジェクト/soubetsu-gift/要件.md</span></p>
   <footer>Giftia 班（クラス5・東京 Drinking Party）</footer>
 </div>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: "dark" });
+</script>
 </body>
 </html>
