@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>アプリの全体像 ｜ 東京 Drinking Party</title>
+<meta name="description" content="Giftiaの検索が画面・FastAPI・MySQLを通って動く流れを、6つのステップで説明します。">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css">
+<link rel="stylesheet" href="assets/overview.css">
+</head>
+<body>
+<main class="wrap">
+<div class="top"><span class="kicker">GIFTIA ・ OVERVIEW</span><a href="./">← ハブにもどる</a></div>
+<h1><span class="p">アプリの全体像</span></h1>
+<p class="lead">検索ボタンを押すと、どこで何が起きる？ 売り場・受付・倉庫にたとえて、情報の旅をたどります。</p>
+<div class="overview-intro"><b>画面がお願い → APIが探し方を作る → DBが探す → APIが返す → 画面に並ぶ</b>
+<p>このhubは仕組みを学ぶ案内ページです。実際に商品を検索するGiftiaアプリとは別です。ここではDBへの通信を行いません。</p></div>
+<p class="say">ここは<b>現在の検索の仕組み</b>です。これから追加したい体験は、<a href="vision.html">目指すアプリの姿</a>で確認できます。</p>
+<h2 class="sec-title" id="overview-title">検索1回の流れ</h2>
+<p>①から⑥の順に矢印をたどってください。「担当と役割」を開くと、コードとのつながりを読めます。</p>
+<ul class="legend" aria-label="色と役割の凡例"><li><span style="color:#38e1ff">青：画面・ブラウザ</span></li><li><span style="color:#3ee59a">緑：API・受付</span></li><li><span style="color:#c7a1ff">紫：DB・倉庫</span></li></ul>
+<ol class="overview-flow" aria-labelledby="overview-title">
+<li class="overview-step web">
+<div class="step-head"><span class="step-number" aria-hidden="true">1</span><h3><span aria-hidden="true">🖥</span> 1. 画面で条件を選ぶ</h3></div>
+<p><b>売り場で「これがほしい」と伝える</b></p><p>キーワードやカテゴリー、価格帯などを入力し、検索ボタンを押します。</p>
+<details><summary>担当と役割</summary><p><code>page.tsx</code></p><p>開いているタブで使う条件をまとめます。画面の入力を覚える役目です。</p></details>
+</li>
+<li class="overview-step web">
+<div class="step-head"><span class="step-number" aria-hidden="true">2</span><h3><span aria-hidden="true">✉</span> 2. APIへお願いを送る</h3></div>
+<p><b>注文票を受付に届ける</b></p><p>選んだ条件をURLにまとめ、fetchでFastAPIへ送ります。</p>
+<details><summary>担当と役割</summary><p><code>api.ts</code></p><p>ブラウザからAPIへ直接通信します。awaitで応答と本文の読み取りを待ちます。</p></details>
+</li>
+<li class="overview-step api">
+<div class="step-head"><span class="step-number" aria-hidden="true">3</span><h3><span aria-hidden="true">🧑</span> 3. 探し方を組み立てる</h3></div>
+<p><b>受付が倉庫向けの指示を作る</b></p><p>FastAPIが条件を受け取り、SQLの条件文と検索に使う値を準備します。</p>
+<details><summary>担当と役割</summary><p><code>main.py</code></p><p>入力された値をSQLの命令と分けて渡し、件数と商品情報を問い合わせます。</p></details>
+</li>
+<li class="overview-step db">
+<div class="step-head"><span class="step-number" aria-hidden="true">4</span><h3><span aria-hidden="true">📦</span> 4. DBで商品を探す</h3></div>
+<p><b>倉庫から条件に合う情報を取り出す</b></p><p>MySQLで条件に合う件数と、人気順の商品情報を調べます。</p>
+<details><summary>担当と役割</summary><p><code>database.py / MySQL</code></p><p>DB接続とSQLの実行を担当します。商品取得は通常最大20件です。商品そのものを配送する処理ではありません。</p></details>
+</li>
+<li class="overview-step api">
+<div class="step-head"><span class="step-number" aria-hidden="true">5</span><h3><span aria-hidden="true">↩</span> 5. 画面用の情報を返す</h3></div>
+<p><b>受付が読みやすい返事を作る</b></p><p>DBの項目名を画面向けにそろえ、JSON形式で件数と商品一覧を返します。</p>
+<details><summary>担当と役割</summary><p><code>main.py → api.ts</code></p><p>APIは件数と一覧を返します。現在の画面用の通信処理は、そのうち商品一覧を取り出して返します。</p></details>
+</li>
+<li class="overview-step web">
+<div class="step-head"><span class="step-number" aria-hidden="true">6</span><h3><span aria-hidden="true">🎁</span> 6. 商品カードを並べる</h3></div>
+<p><b>売り場で見つかった商品を見せる</b></p><p>画面が一覧を受け取り、商品名や価格、評価をカードに表示します。</p>
+<details><summary>担当と役割</summary><p><code>page.tsx / ResultCard.tsx</code></p><p>見つからない場合も正常な返事です。現在は「上位0件」と表示されます。通信に失敗した場合はエラーを表示します。</p></details>
+</li>
+</ol>
+<h2 class="sec-title">支える仕組みも知っておこう</h2>
+<div class="overview-notes">
+<section class="card"><h3>画面を届ける：Next.js</h3><p>ローカル開発では、Next.jsのサーバーが画面のコードをブラウザへ届けます。検索するときは、ブラウザからFastAPIへお願いを送ります。</p><p>画面を配ることと、検索を受け付けることは別の役割です。</p></section>
+<section class="card"><h3>返事を読めるようにする：CORS</h3><p>画面とAPIの場所が違うとき、API側が許可した画面かをブラウザが確認します。</p><p>許可が足りないと、APIが処理していても画面で返事を読めない場合があります。DBの鍵とは別の仕組みです。</p></section>
+<section class="card"><h3>接続の設定：.env</h3><p>DBの接続情報はAPI側で管理します。画面へ渡す情報にパスワードを含めません。</p><p>画面側の公開設定にはAPIの場所を指定します。公開される設定に秘密は置きません。</p></section>
+<section class="card"><h3>待つことと失敗を分ける</h3><p>awaitは通信や読み取りの完了を待つためのものです。CORSは返事を読めるかのルールで、役割が違います。</p><p>商品0件と通信失敗も別です。0件なら条件を見直し、通信失敗ならAPIや設定を調べます。</p></section>
+</div>
+<h2 class="sec-title">ここから詳しく見る</h2>
+<nav class="overview-links" aria-label="全体像から関連する地図へ">
+<a class="btn pink" href="flow.html">順番を動かして見る → 動きの地図</a>
+<a class="btn" href="data.html">情報の形を見る → データの地図</a>
+<a class="btn" href="screen.html">入力と表示を見る → 画面の地図</a>
+<a class="btn" href="trouble.html">つながらないとき → 困ったときの地図</a>
+</nav>
+<p class="muted">現在の検索の仕組みを、自分たちの言葉でまとめています。GitHub上の実装を参照しました。コード本体・教材の図・実際の商品データ・秘密情報は掲載していません。</p>
+<nav id="mapnav" aria-label="コードの地図の一覧"></nav>
+<footer>Giftia 班（クラス5・東京 Drinking Party）</footer>
+</main>
+<script src="assets/map.js"></script>
+</body>
+</html>

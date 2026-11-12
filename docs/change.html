@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>変える地図 ｜ コードの地図</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css">
+<style>
+  .ba { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (max-width: 520px) { .ba { grid-template-columns: minmax(0, 1fr); } }
+  .ba h4 { margin: 0 0 6px; font-size: .85rem; color: var(--muted); }
+  .ba .gscreen { font-size: 12px; padding: 10px; }
+  .ba .gscreen .gt { font-size: 18px; }
+  .ctrl { display: grid; gap: 6px; margin: 10px 0; }
+  .ctrl label { font-weight: 800; font-size: .9rem; }
+  .ctrl input[type=text], .ctrl select { font: inherit; max-width: 340px; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line); background: #0b0f2a; color: var(--text); }
+  .ctrl input[type=range] { max-width: 340px; accent-color: var(--pink); }
+  .sws { display: flex; gap: 8px; flex-wrap: wrap; }
+  .sw { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--line); cursor: pointer; }
+  .sw[aria-pressed="true"] { border-color: #fff; box-shadow: 0 0 0 3px var(--pink); }
+  .steps { margin: 6px 0 0; padding-left: 1.3em; } .steps li { margin: 4px 0; }
+  .diagram { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (max-width: 640px) { .diagram { grid-template-columns: minmax(0, 1fr); } }
+  .chain { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-weight: 800; font-size: .85rem; }
+  .chain span { padding: 4px 10px; border-radius: 10px; background: var(--card2); border: 1px solid var(--line); }
+  .chain span.new { border-color: var(--green); color: var(--green); }
+  .chain span.gone { border-color: var(--red); color: var(--red); text-decoration: line-through; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="kicker">CODE MAP ・ 変える地図</span><a href="map.html">← 地図の入口</a></div>
+  <h1><span class="p">変える地図</span></h1>
+  <p class="lead">「こうしたい」から、変えるファイルと行を探す地図です。値を動かすと、変える前と後の画面（例）が並びます。実際に変えるときは、Issue → ブランチ → PR の順で。</p>
+
+  <h2 class="sec-title">1. 変えたいこと逆引き <small>10こ</small></h2>
+  <div class="card">
+    <div class="chips" id="wants"></div>
+    <div id="want" style="margin-top:12px" aria-live="polite"></div>
+  </div>
+
+  <h2 class="sec-title">2. 要件定義書 → 変える場所 <small>発展2の下調べ</small></h2>
+  <div class="card scroll">
+    <p class="muted">要件定義書（提出用・11/7）の機能要件を、いまの Giftia のどこを変えると実現できそうかに結びつけた表です。決定ではなく、班で相談するための下調べです。くわしくは <a href="vision.html#code-trace">目指すアプリの姿</a>。</p>
+    <table class="t" id="req">
+      <tr><th>要件</th><th>画面のどこ</th><th>変えそうな場所</th><th>大きさ</th></tr>
+    </table>
+  </div>
+
+  <h2 class="sec-title">3. 1週目 → 2週目で変わったところ</h2>
+  <div class="card">
+    <div class="diagram">
+      <div><h3>1週目（ダミーの3件）</h3><div class="chain"><span>画面 page.tsx</span>→<span class="gone">sampleGifts.ts（例の3件）</span></div>
+        <p class="muted">ボタンを押すと、ファイルに書いてある3件をそのまま出していた。DB にはつながっていない。</p>
+        <div class="refs"><a class="ref" href="https://github.com/AR7ST/giftia/commit/373f901" target="_blank" rel="noopener">1週目のコミット ↗</a></div></div>
+      <div><h3>2週目（本物の DB）</h3><div class="chain"><span>画面 page.tsx</span>→<span class="new">伝書鳩 api.ts</span>→<span class="new">受付 main.py</span>→<span class="new">倉庫 MySQL</span></div>
+        <p class="muted">ボタンを押すと、伝書鳩が受付へ行き、受付が DB を検索して、本物の商品を返す。</p>
+        <div class="refs"><a class="ref" href="https://github.com/AR7ST/giftia/commit/2ba468a" target="_blank" rel="noopener">画面の変更 ↗</a><a class="ref" href="https://github.com/AR7ST/giftia/commit/919b750" target="_blank" rel="noopener">API を作った ↗</a></div></div>
+    </div>
+    <div class="scroll" style="margin-top:12px">
+      <table class="t" id="w12">
+        <tr><th>ファイル</th><th>1週目</th><th>2週目</th><th>いまの場所</th></tr>
+      </table>
+    </div>
+  </div>
+
+  <div style="margin-top:24px" id="mapnav"></div>
+  <footer>画面と商品は説明用の例です。班の DB のデータではありません。</footer>
+</div>
+<script src="assets/map.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const BASE = { label: "検索", placeholder: "キーワード（例：送別 お菓子）", cats: ["コスメ", "食品", "生活雑貨"], limit: 3, order: "sales", accent: "#1b3a5c", price: "comma", extra: "", stock: false, bands: 2 };
+function mock(o) {
+  const r = searchSample({ keyword: "", category: "", indivWrap: false, priceBand: "" }, { limit: o.limit, order: o.order }).results;
+  const extra = o.extra === "sales" ? g => `<p class="gmeta">販売数 ${g.sales}</p>` : o.extra === "wrap" ? g => (g.wrap ? `<p class="gmeta">個包装あり</p>` : "") : null;
+  return `<div class="gscreen" style="--acc:${o.accent}"><span class="ex">例</span><div class="gt">Giftia</div>
+    <div class="gm"><button type="button" class="on" tabindex="-1">いまの検索</button><button type="button" tabindex="-1">取引先へのお礼</button></div>
+    <form onsubmit="return false"><input type="text" placeholder="${esc(o.placeholder)}" tabindex="-1" aria-label="例"><select tabindex="-1" aria-label="例"><option>すべてのカテゴリー</option>${o.cats.map(c => `<option>${esc(c)}</option>`).join("")}</select><button class="gb" type="button" tabindex="-1">${esc(o.label)}</button></form>
+    ${o.showCats ? `<p class="gsum">選べるカテゴリー：${o.cats.map(esc).join("・")}</p>` : ""}${o.showBands ? `<p class="gsum">価格帯：${["3,000〜5,000円", "5,000〜10,000円", "10,000円〜"].slice(0, o.bands).join("・")}</p>` : ""}
+    ${o.stock ? `<p class="gsum">（在庫切れの商品も出る）</p>` : ""}
+    <p class="gsum">上位 ${o.limit} 件</p>${r.map((g, i) => cardHTML(g, i, { price: o.price, extra })).join("")}</div>`;
+}
+const W = [
+  { t: "ボタンの文字を変えたい", kind: "fe", keys: ["button"], ctrl: () => `<label for="v">ボタンの文字</label><input type="text" id="v" maxlength="10" value="${esc(cur.label)}">`, on: v => cur.label = v || "検索",
+    how: ["page.tsx のボタンの行で、&gt; と &lt; の間の文字だけを書きかえる", "type=\"submit\" は消さない（消すと押しても検索されない）"], check: "保存すると npm run dev が自動で画面を描き直す" },
+  { t: "入力欄の例文を変えたい", kind: "fe", keys: ["input"], ctrl: () => `<label for="v">例文（placeholder）</label><input type="text" id="v" maxlength="30" value="${esc(cur.placeholder)}">`, on: v => cur.placeholder = v,
+    how: ["入力欄の行の placeholder の文字を書きかえる", "例文は検索には使われない。使う人が迷わない例にする"], check: "npm run dev のまま、画面を見れば変わる" },
+  { t: "カテゴリーを増やしたい", kind: "fe", keys: ["options", "wCat"], ctrl: () => `<label for="v">足すカテゴリー</label><select id="v"><option value="">（足さない）</option><option>インテリア</option><option>キッチン</option><option>ファッション</option></select>`, on: v => { cur.cats = v ? [...BASE.cats, v] : BASE.cats.slice(); cur.showCats = true; },
+    how: ["選択肢の行を1行足す。value の文字は、DB の category の文字と1文字もちがわないようにする", "受付（main.py）は変えなくてよい。もらった文字で「カテゴリーが同じ」をしぼるだけ"], check: "DB にない名前だと0件になる。どんなカテゴリーがあるかは /docs で試すか、データ定義で確かめる（ここの3つは例）" },
+  { t: "表示する件数を変えたい", kind: "be", keys: ["aLimit", "summary"], ctrl: () => `<label for="v">返す件数：<b id="vv">${cur.limit}</b> 件</label><input type="range" id="v" min="1" max="10" value="${cur.limit}">`, on: v => { cur.limit = +v; const e = $("#vv"); if (e) e.textContent = v; },
+    how: ["受付（main.py）の limit の初期値（いまは 20）を変える。1〜100 の間", "画面の「上位 ◯ 件」は、もらった数を数えているだけなので、画面は変えなくてよい"], check: "uvicorn --reload なら保存で読み直す。/docs でも件数を確かめられる（ここの例は10件まで）" },
+  { t: "並び順を変えたい（安い順など）", kind: "be", keys: ["orderBy"], ctrl: () => `<label for="v">並べ方</label><select id="v"><option value="sales">販売数が多い順（いま）</option><option value="price">安い順</option><option value="rating">評価が高い順</option><option value="reviews">レビューが多い順</option></select>`, on: v => cur.order = v,
+    how: ["注文書の「この順で持ってきて」（ORDER BY）の行を変える。大きい順は DESC、小さい順は ASC", "要件定義書 FR-01「決めたルールで並べる」は、ここを変える話"], check: "/docs で同じ条件を試して、順番が変わったかを見る" },
+  { t: "テーマの色を変えたい", kind: "css", keys: ["cssVars"], ctrl: () => `<label>色（--accent）</label><div class="sws">${["#1b3a5c", "#c2185b", "#2e7d32", "#5e35b1", "#e65100"].map(c => `<button class="sw" style="background:${c}" data-c="${c}" aria-pressed="${cur.accent === c}" aria-label="${c}"></button>`).join("")}</div>`, on: v => cur.accent = v, swatch: true,
+    how: ["globals.css の一番上、:root の --accent を1か所変える", "看板・選ばれたタブ・検索ボタンの色が、そろって変わる"], check: "保存すると画面に反映。文字が読みにくくならないかも見る" },
+  { t: "値段の書き方を変えたい", kind: "fe", keys: ["cardPrice"], ctrl: () => `<label for="v">見せ方</label><select id="v"><option value="comma">3,240円（いま）</option><option value="plain">3240円</option><option value="yen">¥3,240</option></select>`, on: v => cur.price = v,
+    how: ["カードの型紙（ResultCard.tsx）の値段の行を変える", "型紙を1か所直すと、全部のカードが変わる"], check: "npm run dev で画面を見る" },
+  { t: "カードに情報を足したい", kind: "be", keys: ["sqlSelect", "toGift", "giftType", "card"], ctrl: () => `<label for="v">足す情報</label><select id="v"><option value="">（足さない）</option><option value="sales">販売数</option><option value="wrap">個包装あり</option></select>`, on: v => cur.extra = v,
+    how: ["4か所をセットで変える：① 注文書で取る列を足す（main.py の SELECT） ② 名札の付け替えに1行足す（to_gift） ③ 画面の商品の形に1行足す（api.ts の Gift 型） ④ カードに表示を足す（ResultCard.tsx）", "画面と API のつなぎ目を変えるので、AGENTS.md のとおり同じ PR でまとめて変える（モノレポなので1つの PR でできる）"], check: "/docs で新しい項目が返ってくるか → 画面に出るか、の順に確かめる" },
+  { t: "価格帯の選択肢を増やしたい", kind: "fe", keys: ["priceSel", "pPrice"], ctrl: () => `<label for="v">価格帯の数</label><select id="v"><option value="2">2つ（いま）</option><option value="3">3つ（10,000円〜 を足す）</option></select>`, on: v => { cur.bands = +v; cur.showBands = true; },
+    how: ["① 画面の価格帯の選択肢に1行足す（page.tsx） ② 伝書鳩がその値を下限・上限に言いかえる行を足す（api.ts）", "受付（main.py）は price_min・price_max をもう持っているので、変えなくてよい"], check: "「取引先へのお礼」タブで選んで検索し、値段が範囲に入っているかを見る" },
+  { t: "在庫切れも出したい", kind: "be", keys: ["whereInit"], ctrl: () => `<label for="v">在庫切れ</label><select id="v"><option value="">出さない（いま）</option><option value="1">出す</option></select>`, on: v => cur.stock = !!v,
+    how: ["注文書の最初の条件「在庫がある」（stock > 0）を外す", "送別ギフトでは在庫切れは選べないので、本当に必要かを要件と照らして決める"], check: "/docs で件数（total）が増えるかを見る" },
+];
+let wi = 0, cur = JSON.parse(JSON.stringify(BASE));
+$("#wants").innerHTML = W.map((w, i) => `<button class="chip" data-i="${i}" aria-pressed="${i === 0}">${w.t}</button>`).join("");
+document.querySelectorAll("#wants .chip").forEach(b => b.onclick = () => { wi = +b.dataset.i; cur = JSON.parse(JSON.stringify(BASE)); document.querySelectorAll("#wants .chip").forEach(x => x.setAttribute("aria-pressed", x === b)); want(); });
+function want() {
+  const w = W[wi];
+  $("#want").innerHTML = `<h3>${w.t} <span class="pill ${w.kind}">${{ fe: "画面", be: "API", css: "見た目" }[w.kind]}</span></h3>
+    <div class="ctrl">${w.ctrl()}</div>
+    <div class="ba"><div><h4>変える前</h4>${mock(Object.assign({}, BASE, { showCats: cur.showCats, showBands: cur.showBands }))}</div><div><h4>変えたあと</h4><div id="after">${mock(cur)}</div></div></div>
+    <h3 style="margin-top:14px">変える場所</h3><div class="refs">${w.keys.map(k => ref(k)).join("")}</div>
+    <ol class="steps">${w.how.map(h => `<li>${h}</li>`).join("")}</ol>
+    <div class="say"><b>確かめ方：</b>${w.check}</div>`;
+  const v = $("#v");
+  if (v) { const fn = () => { w.on(v.value); $("#after").innerHTML = mock(cur); }; v.addEventListener("input", fn); v.addEventListener("change", fn); }
+  if (w.swatch) document.querySelectorAll(".sw").forEach(b => b.onclick = () => { w.on(b.dataset.c); document.querySelectorAll(".sw").forEach(x => x.setAttribute("aria-pressed", x === b)); $("#after").innerHTML = mock(cur); });
+}
+want();
+
+const REQ = [
+  ["FR-01 条件検索・候補表示：人数×1人あたり予算を上限に、在庫ありを販売数→評価→商品IDの順（暫定）で表示", "入力欄（人数・予算を足す）、結果の並び", ["form", "condType", "params", "aPrice", "orderBy"], "中（画面と伝書鳩。API は上限をもう受け取れる）"],
+  ["FR-01 の一部：並び順に評価を足すだけ", "結果の並び", ["orderBy"], "小（main.py の1行）"],
+  ["FR-02 比較材料表示：商品名・価格・説明・評価。ない情報は「不明」", "カードの中身", ["sqlSelect", "toGift", "giftType", "card"], "中（4か所セット。評価なしを 0 にしない）"],
+  ["FR-03 相談用テキスト表示：選んだ最大3候補と理由から相談文を作り、コピー", "カードに選ぶボタン、結果の下に相談文", ["card", "resultsArea"], "中（画面だけで作れる）"],
+  ["DR-01：Phase1 は既存の列だけ（列を足さない）", "—", ["sqlSelect"], "なし（使う列を選ぶだけ）"],
+];
+$("#req").insertAdjacentHTML("beforeend", REQ.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td><div class="refs">${r[2].map(k => ref(k)).join("")}</div></td><td>${r[3]}</td></tr>`).join(""));
+
+const WK = [
+  ["lib/sampleGifts.ts", "例の3件と、それを返す searchGifts（DB なし）", "消した（2週目の課題）", "—"],
+  ["lib/api.ts", "なし", "新しく作った：伝書鳩（fetch で API に聞く）【穴5・6】", "giftia-frontend/lib/api.ts"],
+  ["app/page.tsx", "searchGifts() でサンプルを出すだけ", "条件をまとめて await で API に聞く【穴7・8】、エラー表示", "giftia-frontend/app/page.tsx"],
+  ["app/ResultCard.tsx", "カードの型紙", "import の1行だけ（Gift 型の置き場所が api.ts に）", "giftia-frontend/app/ResultCard.tsx"],
+  ["backend/main.py", "なし", "新しく作った：受付（検索 API）【穴1〜4】", "backend/main.py"],
+  ["backend/database.py", "なし", "新しく作った：倉庫係（DB につなぐ）", "backend/database.py"],
+  [".env.local / backend/.env", "なし", "API の場所・DB の鍵（GitHub には上げない）", "各自の PC だけ"],
+];
+$("#w12").insertAdjacentHTML("beforeend", WK.map(r => `<tr><td class="mono">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3].startsWith("giftia") || r[3].startsWith("backend") ? `<a class="ref" href="${REPO}${r[3]}" target="_blank" rel="noopener">${r[3].split("/").pop()} ↗</a>` : r[3]}</td></tr>`).join(""));
+</script>
+</body>
+</html>

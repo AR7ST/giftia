@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ファイルの地図 ｜ コードの地図</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css">
+<style>
+  .tree { font-family: var(--mono); font-size: .85rem; display: grid; gap: 2px; }
+  .tree button { font: inherit; text-align: left; background: none; border: 1px solid transparent; color: var(--text); border-radius: 8px; padding: 3px 8px; cursor: pointer; white-space: pre; overflow: hidden; text-overflow: ellipsis; }
+  .tree button:hover, .tree button.on { border-color: var(--yellow); background: rgba(255,210,63,.06); }
+  .tree .dir { color: var(--cyan); } .tree .key { color: var(--yellow); } .tree .dim { color: var(--muted); }
+  .guide { display: grid; gap: 6px; }
+  .gl { display: grid; grid-template-columns: 5.6em minmax(0, 1fr); gap: 10px; align-items: start; padding: 8px 10px; border-radius: 12px; background: var(--card2); }
+  .gl a { font-family: var(--mono); font-size: .8rem; color: var(--yellow); text-decoration: none; padding-top: 2px; }
+  .gl a:hover { text-decoration: underline; }
+  .gl .tip { display: block; color: var(--cyan); font-size: .85rem; margin-top: 2px; }
+  .gl.sec { background: none; padding: 10px 2px 0; } .gl.sec span { font-weight: 800; color: var(--pink); }
+  .ana { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .ana .card h3 { display: flex; gap: 8px; align-items: center; }
+  .num { width: 2em; height: 2em; border-radius: 50%; display: grid; place-items: center; background: var(--pink); color: #fff; font-weight: 800; font-size: .85rem; flex: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="kicker">CODE MAP ・ ファイルの地図</span><a href="map.html">← 地図の入口</a></div>
+  <h1><span class="p">ファイルの地図</span></h1>
+  <p class="lead">giftia の中のファイルが、それぞれ何の係なのかを知り、GitHub のコードと並べて1行ずつ読むための地図です。</p>
+
+  <h2 class="sec-title">1. フォルダマップ</h2>
+  <div class="grid2">
+    <div class="card"><div class="tree" id="tree"></div><p class="muted">黄色は、ふだんよく読む・変えるファイル。</p></div>
+    <div class="card" id="fileInfo" aria-live="polite"></div>
+  </div>
+
+  <h2 class="sec-title">2. 1行ずつ読むガイド</h2>
+  <div class="card">
+    <p class="muted">GitHub でファイルを開いて、このガイドと並べて読みます。行番号を押すと、GitHub のその行が開きます。</p>
+    <div class="chips" id="gfiles"></div>
+    <div class="refs" id="gopen"></div>
+    <div class="guide" id="guide"></div>
+  </div>
+
+  <h2 class="sec-title">3. 穴埋め復習 <small>穴1〜8</small></h2>
+  <div class="ana" id="ana"></div>
+
+  <div style="margin-top:24px" id="mapnav"></div>
+  <footer>説明はすべて自分たちの言葉です。コードそのものは GitHub で読んでください。</footer>
+</div>
+<script src="assets/map.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const TREE = [
+  ["giftia/", 0, "dir", "リポジトリ全体（モノレポ）。画面と API が1つに入っている。", "", ""],
+  ["README.md", 1, "key", "班の案内とルール。起動の手順は3章。最初に読む。", "README.md", "人が読む"],
+  ["AGENTS.md", 1, "key", "班の AI の使い方ルール。Claude Code などの AI が最初に読む。", "AGENTS.md", "AI が読む"],
+  [".gitignore", 1, "", "GitHub に上げないものの一覧（.env・node_modules・.venv など）。", ".gitignore", "秘密を守る"],
+  ["giftia-frontend/", 1, "dir", "画面（Next.js）。npm run dev はここで打つ（3000番）。", "giftia-frontend", ""],
+  ["app/", 2, "dir", "画面の部品が入るフォルダ。Next.js は app/ の中を見て画面を作る。", "giftia-frontend/app", ""],
+  ["page.tsx", 3, "key", "検索画面の本体。メモ帳（useState）・検索ボタンの処理・画面の形。【穴7・8】", "giftia-frontend/app/page.tsx", "画面全部"],
+  ["ResultCard.tsx", 3, "key", "結果カード1枚の型紙。page.tsx が結果の数だけ並べる。", "giftia-frontend/app/ResultCard.tsx", "カード"],
+  ["globals.css", 3, "key", "見た目（色・大きさ・角の丸み・すき間）。--accent で色をまとめている。", "giftia-frontend/app/globals.css", "見た目"],
+  ["layout.tsx", 3, "", "すべての画面を包む外枠（html・body）。globals.css を読みこむのもここ。", "giftia-frontend/app/layout.tsx", "外枠"],
+  ["page.module.css", 3, "dim", "最初の Next.js が作った見た目。いまの画面では使っていない。", "giftia-frontend/app/page.module.css", "未使用"],
+  ["favicon.ico", 3, "dim", "ブラウザのタブに出る小さなアイコン。", "giftia-frontend/app/favicon.ico", ""],
+  ["lib/", 2, "dir", "画面ではない道具を置くフォルダ。", "giftia-frontend/lib", ""],
+  ["api.ts", 3, "key", "伝書鳩。条件を URL にして API に送り、結果を受け取る。商品の形（Gift 型）もここ。【穴5・6】", "giftia-frontend/lib/api.ts", "通信"],
+  ["public/", 2, "dim", "画像など、そのまま配るファイル。いまは Next.js の初期のアイコンだけ。", "giftia-frontend/public", ""],
+  ["package.json", 2, "", "画面に使う部品（Next.js・React など）の一覧と、npm run dev などの合図。", "giftia-frontend/package.json", "部品の一覧"],
+  ["package-lock.json", 2, "dim", "部品の版をぴったり決めた控え。手で書きかえない。", "giftia-frontend/package-lock.json", ""],
+  ["tsconfig.json", 2, "dim", "TypeScript の設定。@/lib/api の @ が giftia-frontend を指す、などもここ。", "giftia-frontend/tsconfig.json", ""],
+  ["next.config.ts", 2, "dim", "Next.js の設定。いまは初期のまま。", "giftia-frontend/next.config.ts", ""],
+  ["eslint.config.mjs", 2, "dim", "書き方チェック（eslint）の設定。", "giftia-frontend/eslint.config.mjs", ""],
+  ["AGENTS.md", 2, "dim", "Next.js が自動で書く AI 向けの注意書き。班のルールは一番上の AGENTS.md。", "giftia-frontend/AGENTS.md", ""],
+  [".env.local", 2, "dim", "（GitHub にはない）API の場所。各自の PC だけにある。", "", "各自の PC"],
+  ["node_modules/", 2, "dim", "（GitHub にはない）npm install で入る部品の山。", "", "各自の PC"],
+  ["backend/", 1, "dir", "検索 API（FastAPI）。uvicorn と pip はここで打つ（8000番）。", "backend", ""],
+  ["main.py", 2, "key", "受付。URL の条件を受け取り、注文書（SQL）を作って倉庫に頼み、名札を付け替えて返す。【穴1〜4】", "backend/main.py", "API 全部"],
+  ["database.py", 2, "key", "倉庫係。.env の接続情報で DB につなぎ、注文書を実行して行を返す。", "backend/database.py", "DB 接続"],
+  ["requirements.txt", 2, "", "API に使う部品（fastapi・uvicorn・PyMySQL など）の一覧。pip install -r で入れる。", "backend/requirements.txt", "部品の一覧"],
+  [".env.example", 2, "", ".env の型紙。値は空。これをコピーして各自が .env を作る。", "backend/.env.example", "型紙"],
+  [".gitignore", 2, "", "backend の中で上げないもの（.env・.venv・__pycache__）。", "backend/.gitignore", ""],
+  ["README.md", 2, "", "backend の起動手順とつまずいたとき。", "backend/README.md", ""],
+  [".env", 2, "dim", "（GitHub にはない）DB の鍵。各自の PC だけ。だれにも見せない。", "", "各自の PC"],
+  [".venv/", 2, "dim", "（GitHub にはない）Python の部品箱。", "", "各自の PC"],
+];
+let tsel = 6;
+function tree() {
+  $("#tree").innerHTML = TREE.map((t, i) => `<button class="${t[2]}${i === tsel ? " on" : ""}" data-i="${i}">${"  ".repeat(t[1])}${t[1] ? "└ " : ""}${t[0]}</button>`).join("");
+  document.querySelectorAll("#tree button").forEach(b => b.onclick = () => { tsel = +b.dataset.i; tree(); });
+  const t = TREE[tsel];
+  const isDir = t[0].endsWith("/");
+  const link = t[4] ? `<a class="ref" href="https://github.com/AR7ST/giftia/${isDir || t[4] === "giftia-frontend" || t[4] === "backend" ? "tree" : "blob"}/main/${t[4]}" target="_blank" rel="noopener">GitHub で開く ↗</a>` : `<span class="pill">GitHub にはない（上げない）</span>`;
+  const gi = GUIDE_KEYS.indexOf(t[4]);
+  $("#fileInfo").innerHTML = `<span class="badge">${t[5] || (isDir ? "フォルダ" : "ファイル")}</span><h3 style="margin-top:6px" class="mono">${t[0]}</h3><div class="say">${t[3]}</div><div class="refs">${link}</div>${gi >= 0 ? `<button class="btn pink" id="toGuide">1行ずつ読む →</button>` : ""}`;
+  const tg = $("#toGuide"); if (tg) tg.onclick = () => { gsel = gi; guide(); document.getElementById("guide").scrollIntoView({ behavior: "smooth", block: "start" }); };
+}
+
+/* 1行ずつ読むガイド：[行, 説明, たとえ（任意）]。行が "#" から始まるものは見出し */
+const GUIDE = {
+  page: ["page.tsx（画面）", "giftia-frontend/app/page.tsx", [
+    ["#", "準備"],
+    ["1-4", "このファイルの説明のコメント。穴7・8のこと、1週目とのちがい。", ""],
+    ["5", "「ブラウザで動く画面」という合図（use client）。メモ帳（useState）やクリックを使う画面に必要。", "このお店はお客さんの目の前で動きます、の札"],
+    ["7", "React から useState（メモ帳の道具）を借りてくる。", ""],
+    ["8", "カードの型紙（ResultCard）を借りてくる。", ""],
+    ["9", "伝書鳩（searchGifts）と、商品の形（Gift）を api.ts から借りてくる。", ""],
+    ["11", "Home という画面を作って、外から使えるようにする（export default）。", ""],
+    ["#", "① メモ帳（状態）"],
+    ["12-13", "mode：どちらのタブか。最初は standard（いまの検索）。", "メモ帳1枚目"],
+    ["14", "keyword：入力した言葉。最初は空。", ""],
+    ["15", "category：選んだカテゴリー。最初は空（すべて）。", ""],
+    ["16", "indivWrap：個包装だけか。最初は false（いいえ）。【穴7】", ""],
+    ["17", "priceBand：価格帯。最初は空。", ""],
+    ["18", "results：検索結果。最初は null（まだない）。", ""],
+    ["19", "error：つながらないときの文。最初は空。", ""],
+    ["#", "② 検索ボタンの処理"],
+    ["21-22", "onSearch：検索ボタンで動く関数。async は「中で待つ（await）ことがある関数」の印。", ""],
+    ["23", "フォームの送信でページが読みこみ直されるのを止める。", ""],
+    ["24", "前のエラーの文を消す。", ""],
+    ["25-28", "いまのタブの条件だけを condition にまとめる。? と : は「もし〜なら A、ちがえば B」。", ""],
+    ["29-30", "伝書鳩を飛ばして、帰るまで待ち（await）、結果を results に入れる。【穴8】", "引換券を出して、ラーメンができるまで待つ"],
+    ["31-34", "うまくいかなかったら（catch）、結果を消して、エラーの文を入れる。", ""],
+    ["#", "③ 画面の形"],
+    ["37-39", "ここから下が、画面に出る形（JSX）。HTML に似た書き方。", ""],
+    ["40", "看板「Giftia」。", ""],
+    ["42-46", "タブ2つ。押すと mode を書きかえ、結果を消す。選ばれている方に on のクラス。", ""],
+    ["48", "フォーム。送信（検索ボタン）で onSearch を呼ぶ。", ""],
+    ["49-58", "いまの検索タブのとき：キーワードの入力欄とカテゴリーの選択。", ""],
+    ["51", "入力欄。打つたびに onChange で keyword を書きかえる。", ""],
+    ["52-57", "カテゴリーの選択。option の行が選択肢。", ""],
+    ["59-67", "取引先へのお礼タブのとき：個包装のチェックと価格帯の選択。", ""],
+    ["69", "検索ボタン（type=submit）。", ""],
+    ["72", "error が空でないときだけ、エラーの文を出す（&& は「左が本当なら右を出す」）。", ""],
+    ["75-82", "results があるときだけ、件数とカードを出す。", ""],
+    ["77", "件数＝もらった結果の長さ（length）。", ""],
+    ["79", "結果を1件ずつ ResultCard にして並べる（map）。key は見分けるための目印。順位は i + 1。", "型紙で同じカードを何枚も刷る"],
+  ]],
+  card: ["ResultCard.tsx（カードの型紙）", "giftia-frontend/app/ResultCard.tsx", [
+    ["1", "このファイルの説明。2週目に変わったのは import の1行だけ。", ""],
+    ["2", "商品の形（Gift 型）を api.ts から借りる。", ""],
+    ["4", "ResultCard という部品。gift（商品1つ）と rank（順位）を受け取る。", "型紙に差しこむ2つの紙"],
+    ["5-6", "カード1枚の外枠（card のクラス）。", ""],
+    ["7", "1行目：順位・カテゴリー・ブランド。", ""],
+    ["8", "2行目：商品名（太字）。", ""],
+    ["9", "3行目：値段。toLocaleString() で 3240 → 3,240 にする。", ""],
+    ["10", "4行目：評価とレビュー件数。", ""],
+  ]],
+  api: ["api.ts（伝書鳩）", "giftia-frontend/lib/api.ts", [
+    ["1-4", "このファイルの説明。穴5・6のこと。", ""],
+    ["#", "形（型）"],
+    ["6-15", "Gift：画面が使う商品の形。7つの項目と、それぞれ文字か数か。", "カードの型紙に書く項目の一覧"],
+    ["17-23", "SearchCondition：画面から渡す条件の形。2つのタブの分をまとめて持つ。", ""],
+    ["25-26", "API の場所。.env.local の値があればそれ、なければ http://localhost:8000。NEXT_PUBLIC_ はブラウザに配られるので秘密は置かない。", ""],
+    ["#", "伝書鳩の仕事"],
+    ["28-29", "searchGifts：条件を受け取り、商品の配列を返す関数（async）。", ""],
+    ["30-31", "封筒（URLSearchParams）を用意する。", "封筒"],
+    ["32-34", "キーワード・カテゴリー・個包装を、空でないときだけ封筒に書く。", ""],
+    ["35-36", "価格帯を、下限（price_min）と上限（price_max）の数に言いかえて書く。", ""],
+    ["38-39", "fetch で API を呼ぶ。封筒の中身を1本の文（toString）にして URL の後ろに付ける。【穴5】", "鳩を飛ばす"],
+    ["40", "返事が失敗（ok でない）なら、エラーにする。", ""],
+    ["42-43", "返事の JSON を読む。読み終わるまで待つ（await）。【穴6】", "筒を開けて手紙を読む"],
+    ["44", "JSON の中の results（商品の配列）だけを返す。", ""],
+  ]],
+  main: ["main.py（受付）", "backend/main.py", [
+    ["1-8", "このファイルの説明。穴1〜4のこと、起動と確認のしかた。", ""],
+    ["#", "準備"],
+    ["10-16", "使う道具を借りる（os・dotenv・FastAPI・CORS・倉庫係の fetch_all）。", ""],
+    ["18", ".env を読む（DB の接続情報と CORS の許可）。", "金庫の鍵を取り出す"],
+    ["20", "FastAPI のお店（app）を作る。", "受付の窓口を開く"],
+    ["22-25", "CORS の説明のコメント。画面（3000番）と API（8000番）は別のお店。", ""],
+    ["26-27", ".env の CORS_ORIGINS に書いた画面だけ、通ってよいと宣言する。", "門番に渡す通行許可証"],
+    ["#", "窓口1：つながっているかの確認"],
+    ["30-34", "/api/health：DB の名前と商品の数を返す。", ""],
+    ["#", "窓口2：検索"],
+    ["37", "/api/search という窓口を作る（GET）。", ""],
+    ["38-45", "URL の ? のうしろの名前と同じ名前の引数で受け取る。書いていないときの初期値もここ。limit は 1〜100、初期値 20。", "注文票の欄"],
+    ["46", "この窓口の説明（人気順で上位 limit 件）。", ""],
+    ["47-48", "注文書の条件の紙（where）と、値の紙（params）を用意。最初の条件は「在庫がある」。", "2枚組の注文書"],
+    ["49-51", "キーワードを空白で区切って1語ずつ（split）、名前・ブランド・説明に入っているかの条件と、値3つを足す。【穴1】", "% はトランプのジョーカー"],
+    ["52-54", "カテゴリーがあれば「カテゴリーが同じ」の条件と値を足す。【穴2】", ""],
+    ["55-57", "個包装なら「説明文に個包装」の条件と値を足す。【穴3】", ""],
+    ["58-63", "価格の下限・上限があれば、その条件と値を足す。", ""],
+    ["64", "条件を AND（かつ）でつないで1本の文にする。", ""],
+    ["66-67", "条件に合う件数を数える（COUNT）。", ""],
+    ["68-74", "条件に合う商品を、販売数の多い順に limit 件取る。値は %s の空欄に params から入る。", "倉庫係への注文書"],
+    ["75-76", "件数と、名札を付け替えた商品の配列を返す（JSON になる）。", ""],
+    ["#", "名札の付け替え"],
+    ["79-80", "to_gift：DB の1行を、画面の Gift の形に詰め替える関数。", "名札の付け替え係"],
+    ["82-84", "id・category・brand を詰め替え。", ""],
+    ["85", "DB の product_name を、画面の name に。【穴4】", ""],
+    ["86-88", "price・rating（レビューなしは 0）・reviewCount を詰め替え。", ""],
+  ]],
+  db: ["database.py（倉庫係）", "backend/database.py", [
+    ["1-9", "このファイルの説明。.env に置く6つの接続情報の名前（値は書かない）。", ""],
+    ["11-14", "使う道具を借りる（os・pymysql・dotenv）。", ""],
+    ["16", ".env を読んで、os.environ に入れる。", ""],
+    ["19-20", "get_connection：班の DB への接続を1つ作る関数。", "倉庫の扉を開ける"],
+    ["21-24", "必要な4つの値が .env にあるかを確かめ、なければわかりやすいエラーにする。", ""],
+    ["26-27", "Azure は暗号化しない接続を断るので、SSL の設定を作る。", ""],
+    ["29-39", "接続する。ホスト・ポート・ユーザー・パスワード・DB 名・文字コードなど。行を {列名: 値} で受け取る設定（DictCursor）。", ""],
+    ["42-44", "fetch_all：注文書（query）と値（params）を受け取って実行する関数。値を文字列に直接つなげない理由もここ。", ""],
+    ["45", "接続する。", ""],
+    ["46-49", "注文書を実行して（execute）、全部の行を返す（fetchall）。", "倉庫から品物を出す"],
+    ["50-51", "最後に必ず接続を閉じる（finally）。", "扉を閉める"],
+  ]],
+};
+const GUIDE_ORDER = ["page", "card", "api", "main", "db"];
+const GUIDE_KEYS = GUIDE_ORDER.map(k => GUIDE[k][1]);
+let gsel = 0;
+function guide() {
+  $("#gfiles").innerHTML = GUIDE_ORDER.map((k, i) => `<button class="chip" data-i="${i}" aria-pressed="${i === gsel}">${GUIDE[k][0]}</button>`).join("");
+  document.querySelectorAll("#gfiles .chip").forEach(b => b.onclick = () => { gsel = +b.dataset.i; guide(); });
+  const k = GUIDE_ORDER[gsel], [title, path, rows] = GUIDE[k];
+  $("#gopen").innerHTML = `<a class="ref" href="${REPO}${path}" target="_blank" rel="noopener">${title.split("（")[0]} を GitHub で開く ↗</a>`;
+  $("#guide").innerHTML = rows.map(r => {
+    if (r[0] === "#") return `<div class="gl sec"><span></span><span>${r[1]}</span></div>`;
+    const [a, b] = r[0].split("-").map(Number);
+    return `<div class="gl"><a href="${REPO}${path}#L${a}${b ? "-L" + b : ""}" target="_blank" rel="noopener">${r[0].replace("-", "〜")}行</a><span>${r[1]}${r[2] ? `<span class="tip">たとえ：${r[2]}</span>` : ""}</span></div>`;
+  }).join("");
+}
+
+const ANA = [
+  [1, "main", 49, 49, "キーワードを1語ずつに", "受け取ったキーワード（q）を、空白で区切って1語ずつにする。「送別 お菓子」なら2語になる。", "文字列を空白で区切るメソッドは？"],
+  [2, "main", 54, 54, "カテゴリーの値", "「カテゴリーが %s」の空欄に入る値を、別の紙（params）に足す。", "空欄に入れたいのは、受け取ったどの引数？"],
+  [3, "main", 57, 57, "個包装のパターン", "「説明文のどこかに個包装がある」を表すパターンを、別の紙に足す。", "LIKE で「何文字でもよい」を表す記号は？"],
+  [4, "main", 85, 85, "商品名の列名", "DB の商品名の列を、画面の name に付け替える。", "データ定義（products）で商品名の列名を見る"],
+  [5, "api", 39, 39, "封筒を1本の文に", "封筒（params）の中身を、URL の後ろに付けられる1本の文にする。", "URLSearchParams を文字にするメソッドは？"],
+  [6, "api", 43, 43, "返事を読む", "返事（res）の中身を JSON として読み、読み終わるまで待つ。", "fetch の返事を JSON にするメソッドと、待つことば"],
+  [7, "page", 16, 16, "個包装の最初の値", "個包装だけ？のメモ帳の、最初の値。", "「はい／いいえ」を表す型（真偽値）の「いいえ」は？"],
+  [8, "page", 30, 30, "結果を受け取って箱へ", "伝書鳩に条件を持たせて飛ばし、帰るまで待って、結果を results の箱に入れる。", "待つことばと、results の箱を書きかえる関数"],
+];
+$("#ana").innerHTML = ANA.map(a => `<div class="card"><h3><span class="num">${a[0]}</span>${a[4]}</h3><p>${a[5]}</p><p class="muted">考えるヒント：${a[6]}</p><p class="muted">答えは、自分で考えてから GitHub の行で確かめる。</p><div class="refs">${refL(a[1], a[2], a[3], "穴" + a[0])}</div></div>`).join("");
+tree(); guide();
+</script>
+</body>
+</html>

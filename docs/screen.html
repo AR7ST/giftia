@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>画面の地図 ｜ コードの地図</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css">
+<style>
+  .pinbtn { position: absolute; top: -11px; left: -11px; z-index: 3; width: 22px; height: 22px; border-radius: 50%; border: 0; padding: 0; background: var(--pink); color: #fff; font: 800 11px/22px system-ui, sans-serif; cursor: pointer; box-shadow: 0 0 8px rgba(255,79,163,.8); }
+  .pinbtn.on { background: var(--yellow); color: #1b1035; }
+  .part { position: relative; border-radius: 8px; outline: 2px dashed transparent; outline-offset: 2px; }
+  .part.on { outline-color: var(--pink); }
+  .nopins .pinbtn { display: none; }
+  .tools { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 0; align-items: center; }
+  .sw { display: inline-flex; align-items: center; gap: 6px; font-size: .85rem; color: var(--muted); }
+  .err { color: #c0392b !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="kicker">CODE MAP ・ 画面の地図</span><a href="map.html">← 地図の入口</a></div>
+  <h1><span class="p">画面の地図</span></h1>
+  <p class="lead">左（スマホでは上）の Giftia の画面は、本当に入力・選択・検索ができます（商品は例）。さわると、右の「メモ帳」と「操作の記録」が動きます。ピンクの番号を押すと、その部品の説明とコードの場所が出ます。</p>
+
+  <h2 class="sec-title">1. 画面マップ（完全版） <small>13か所</small></h2>
+  <div class="grid2">
+    <div>
+      <div class="gscreen" id="gs">
+        <span class="ex">例</span>
+        <div class="part" data-p="1"><button class="pinbtn" data-p="1" aria-label="部品1">1</button><div class="gt">Giftia</div></div>
+        <div class="part" data-p="2"><button class="pinbtn" data-p="2" aria-label="部品2">2</button>
+          <div class="gm"><button type="button" id="tStd" class="on">いまの検索</button><button type="button" id="tBiz">取引先へのお礼</button></div></div>
+        <form id="f">
+          <span id="stdBox" style="display:contents">
+            <span class="part" data-p="3" style="flex:1 1 140px;display:flex"><button class="pinbtn" type="button" data-p="3" aria-label="部品3">3</button><input type="text" id="kw" placeholder="キーワード（例：送別 お菓子）" aria-label="キーワード" style="flex:1"></span>
+            <span class="part" data-p="4"><button class="pinbtn" type="button" data-p="4" aria-label="部品4">4</button><select id="cat" aria-label="カテゴリー"><option value="">すべてのカテゴリー</option><option>コスメ</option><option>食品</option><option>生活雑貨</option></select></span>
+          </span>
+          <span id="bizBox" style="display:none">
+            <span class="part" data-p="9"><button class="pinbtn" type="button" data-p="9" aria-label="部品9">9</button><label class="chk"><input type="checkbox" id="wrap"> 個包装</label></span>
+            <span class="part" data-p="10"><button class="pinbtn" type="button" data-p="10" aria-label="部品10">10</button><select id="band" aria-label="価格帯"><option value="">すべての価格帯</option><option value="3000">3,000〜5,000円</option><option value="5000">5,000〜10,000円</option></select></span>
+          </span>
+          <span class="part" data-p="5"><button class="pinbtn" type="button" data-p="5" aria-label="部品5">5</button><button class="gb" type="submit">検索</button></span>
+        </form>
+        <div class="part" data-p="11" id="errWrap" hidden><button class="pinbtn" data-p="11" aria-label="部品11">11</button><p class="gsum err" id="errMsg"></p></div>
+        <div id="res" hidden>
+          <div class="part" data-p="6"><button class="pinbtn" data-p="6" aria-label="部品6">6</button><p class="gsum" id="sum"></p></div>
+          <div id="cards"></div>
+        </div>
+      </div>
+      <div class="tools">
+        <label class="sw"><input type="checkbox" id="pins" checked> 番号を出す</label>
+        <label class="sw"><input type="checkbox" id="down"> API を止めてみる（エラー表示を見る）</label>
+      </div>
+      <p class="muted">ためし方：「タオル」で検索 →「食品」にして検索（0件）→ タブを切りかえる。</p>
+    </div>
+    <div class="card" id="detail" aria-live="polite"></div>
+  </div>
+
+  <h2 class="sec-title">2. メモ帳（状態）の動き <small>7つの箱</small></h2>
+  <div class="grid2">
+    <div class="card">
+      <h3>画面が覚えている7つの箱</h3>
+      <p class="muted">React では、変わるデータを useState の箱に入れておきます。箱の中身が変わると、画面が自動で描き直されます。</p>
+      <div class="box7" id="box7"></div>
+    </div>
+    <div class="card">
+      <h3>操作の記録 <span class="muted">（新しいものが上）</span></h3>
+      <p class="muted">画面をさわると、どの操作で、どの関数が動き、どの箱が書きかわったかが出ます。</p>
+      <div class="log" id="log"><div>まだ操作していません</div></div>
+    </div>
+  </div>
+
+  <h2 class="sec-title">3. 操作 → 動く関数</h2>
+  <div class="card scroll">
+    <table class="t">
+      <tr><th>あなたの操作</th><th>しかけ</th><th>動くもの</th><th>書きかわる箱</th><th>コード</th></tr>
+      <tr><td>タブを押す</td><td>onClick</td><td>setMode と setResults(null)</td><td>mode・results</td><td id="r1"></td></tr>
+      <tr><td>キーワードを打つ</td><td>onChange</td><td>setKeyword</td><td>keyword</td><td id="r2"></td></tr>
+      <tr><td>カテゴリーを選ぶ</td><td>onChange</td><td>setCategory</td><td>category</td><td id="r3"></td></tr>
+      <tr><td>個包装にチェック</td><td>onChange</td><td>setIndivWrap</td><td>indivWrap</td><td id="r4"></td></tr>
+      <tr><td>価格帯を選ぶ</td><td>onChange</td><td>setPriceBand</td><td>priceBand</td><td id="r5"></td></tr>
+      <tr><td>検索ボタン</td><td>onSubmit</td><td>onSearch → searchGifts</td><td>error・results</td><td id="r6"></td></tr>
+    </table>
+  </div>
+
+  <h2 class="sec-title">4. 見た目 → globals.css</h2>
+  <div class="card scroll">
+    <p class="muted">見た目（色・大きさ・角の丸み・すき間）は、画面のファイルではなく globals.css に書いてあります。画面の部品に付いた「クラス名」で結びついています。</p>
+    <table class="t" id="cssTable">
+      <tr><th>画面の部品</th><th>クラス名</th><th>決めていること</th><th>コード</th></tr>
+    </table>
+  </div>
+
+  <div style="margin-top:24px" id="mapnav"></div>
+  <footer>商品名・値段は説明用の例です。班の DB のデータではありません。</footer>
+</div>
+<script src="assets/map.js"></script>
+<script>
+const P = {
+  1: ["タイトル「Giftia」", "お店の<b>看板</b>。文字は画面のファイル、色と大きさは見た目のファイル。", ["title", "cssH1"]],
+  2: ["タブ", "<b>メモ帳</b>（mode）に「どちらのタブか」を覚える。押すと書きかえて、前の結果を消す。選ばれている方だけ濃い色。", ["sMode", "tabs", "cssModes"]],
+  3: ["キーワードの入力欄", "1文字打つたびに onChange が動き、<b>メモ帳</b>（keyword）に書き写す。薄い字の例文（placeholder）は検索には使われない。", ["sKeyword", "input"]],
+  4: ["カテゴリーの選択", "選んだ値を<b>メモ帳</b>（category）へ。選べる種類は選択肢の行の数だけ。空（すべて）のときは API に送らない。", ["sCategory", "select", "pCat"]],
+  5: ["検索ボタン", "押すとフォームの onSubmit → onSearch。いまのタブの条件だけをまとめて、<b>伝書鳩</b>（searchGifts）を飛ばし、帰るまで待つ（await）。", ["button", "form", "onSearch", "searchGifts"]],
+  6: ["「上位 ◯ 件」", "もらった結果の数を数えて出しているだけ。何件返すかを決めているのは<b>受付</b>（API）の limit（20件）。", ["summary", "aLimit"]],
+  7: ["結果のカード", "同じ<b>カードの型紙</b>（ResultCard）を、結果の数だけ map で並べる。順位は 0 からではなく 1 から数える（i + 1）。", ["mapCards", "card"]],
+  8: ["値段", "DB の数を<b>名札の付け替え</b>（to_gift）で画面の price に入れ、カード側でカンマを付けて見せる。", ["cardPrice", "tgPrice"]],
+  9: ["個包装のチェック", "チェックの有無（true/false）を<b>メモ帳</b>（indivWrap）へ。true のときだけ、受付は説明文に「個包装」がある商品にしぼる。", ["sIndiv", "check", "pIndiv", "wIndiv"]],
+  10: ["価格帯の選択", "「3,000〜5,000円」を、伝書鳩が下限と上限の2つの数に言いかえて送る。受付はそれで price をしぼる。", ["sPrice", "priceSel", "pPrice", "wPrice"]],
+  11: ["つながらないときの表示", "伝書鳩が帰ってこられないと（API が止まっている・CORS で止められた）、catch に入り、<b>メモ帳</b>（error）に文を書いて表示する。くわしい原因はブラウザの Console。", ["catchErr", "errorShow", "sError"]],
+  12: ["0件のとき", "条件に合う商品がないと、受付は空の配列を返す。画面は「上位 0 件」と出して、カードは並ばない。エラーではない。", ["summary", "where"]],
+  13: ["評価（レビュー）", "DB にレビューがない商品は、<b>受付</b>（to_gift）が rating を null で返す。カード側は <code>?? \" 不明\"</code> で「評価 不明」と見せる（0点にはしない）。2026-11-09 PR #12 で、以前の「レビューなしは0」から変更した。", ["tgRating", "cardRating"]],
+};
+let st = { mode: "standard", keyword: "", category: "", indivWrap: false, priceBand: "", results: null, error: "" };
+let sel = 5;
+const $ = s => document.querySelector(s);
+const log = (op, fn, key) => {
+  const l = $("#log");
+  if (l.firstChild && l.firstChild.textContent === "まだ操作していません") l.innerHTML = "";
+  const d = document.createElement("div");
+  d.textContent = `${op} → ${fn}（${label(key)}）`;
+  l.prepend(d);
+};
+const BOX = [["mode", "どちらのタブ", "sMode"], ["keyword", "入力した言葉", "sKeyword"], ["category", "選んだカテゴリー", "sCategory"], ["indivWrap", "個包装だけ？", "sIndiv"], ["priceBand", "価格帯", "sPrice"], ["results", "検索結果", "sResults"], ["error", "エラーの文", "sError"]];
+function show(v) { if (v === null) return "null（まだない）"; if (Array.isArray(v)) return `[ 商品 ${v.length}件 ]`; if (typeof v === "string") return `"${v}"`; return String(v); }
+function drawBox(changed = []) {
+  $("#box7").innerHTML = BOX.map(([k, t, key]) => `<div class="b${changed.includes(k) ? " flash" : ""}"><a href="${url(key)}" target="_blank" rel="noopener" class="mono" style="color:var(--cyan)">${k}</a><span>${esc(show(st[k]))}<br><small style="color:var(--muted);font-family:inherit">${t}</small></span></div>`).join("");
+  if (changed.length) setTimeout(() => document.querySelectorAll(".box7 .b.flash").forEach(b => b.classList.remove("flash")), 900);
+}
+function setSt(patch) { const ch = Object.keys(patch); Object.assign(st, patch); drawBox(ch); drawScreen(); }
+function drawScreen() {
+  $("#tStd").classList.toggle("on", st.mode === "standard");
+  $("#tBiz").classList.toggle("on", st.mode === "business");
+  $("#stdBox").style.display = st.mode === "standard" ? "contents" : "none";
+  $("#bizBox").style.display = st.mode === "business" ? "contents" : "none";
+  $("#errWrap").hidden = !st.error;
+  $("#errMsg").textContent = st.error;
+  $("#res").hidden = !st.results;
+  if (st.results) {
+    $("#sum").textContent = `上位 ${st.results.length} 件`;
+    $("#cards").innerHTML = st.results.map((g, i) => {
+      let html = cardHTML(g, i);
+      if (i === 0) html = `<div class="part" data-p="7"><button class="pinbtn" data-p="7" aria-label="部品7">7</button>` + html.replace(/<p class="gp">([^<]*)<\/p>/, `<p class="gp"><span class="part" data-p="8" style="display:inline-block"><button class="pinbtn" data-p="8" aria-label="部品8">8</button>$1</span></p>`) + `</div>`;
+      return html;
+    }).join("");
+    if (st.results.length === 0) $("#cards").innerHTML = `<div class="part" data-p="12" style="padding:10px 0"><button class="pinbtn" data-p="12" aria-label="部品12">12</button><p class="gsum">（カードは並びません）</p></div>`;
+  }
+  bindPins(); mark();
+}
+function mark() { document.querySelectorAll("#gs .part").forEach(p => p.classList.toggle("on", +p.dataset.p === sel)); document.querySelectorAll("#gs .pinbtn").forEach(p => p.classList.toggle("on", +p.dataset.p === sel)); }
+function bindPins() { document.querySelectorAll("#gs .pinbtn").forEach(b => b.onclick = e => { e.preventDefault(); e.stopPropagation(); pick(+b.dataset.p); }); }
+function pick(n) {
+  sel = n; mark();
+  const [t, s, keys] = P[n];
+  $("#detail").innerHTML = `<span class="badge">部品 ${n}</span><h3 style="margin-top:6px">${t}</h3><div class="say">${s}</div><div class="refs">${keys.map(k => ref(k)).join("")}</div>
+    <p class="muted">${n === 7 || n === 8 ? "※ 7・8 は検索すると出ます。" : n === 9 || n === 10 ? "※ 9・10 は「取引先へのお礼」タブで出ます。" : n === 11 ? "※ 下の「API を止めてみる」をオンにして検索すると出ます。" : n === 12 ? "※ 例えば「タオル」＋「食品」で検索すると出ます。" : ""}</p>`;
+}
+$("#tStd").onclick = () => { log("タブ「いまの検索」", "onClick → setMode / setResults(null)", "tabStd"); setSt({ mode: "standard", results: null }); };
+$("#tBiz").onclick = () => { log("タブ「取引先へのお礼」", "onClick → setMode / setResults(null)", "tabBiz"); setSt({ mode: "business", results: null }); };
+$("#kw").oninput = e => { log("1文字入力", "onChange → setKeyword", "input"); st.keyword = e.target.value; drawBox(["keyword"]); };
+$("#cat").onchange = e => { log("カテゴリーを選ぶ", "onChange → setCategory", "select"); st.category = e.target.value; drawBox(["category"]); };
+$("#wrap").onchange = e => { log("個包装をチェック", "onChange → setIndivWrap", "check"); st.indivWrap = e.target.checked; drawBox(["indivWrap"]); };
+$("#band").onchange = e => { log("価格帯を選ぶ", "onChange → setPriceBand", "priceSel"); st.priceBand = e.target.value; drawBox(["priceBand"]); };
+$("#f").onsubmit = e => {
+  e.preventDefault();
+  log("検索ボタン", "onSubmit → onSearch（preventDefault・setError(\"\")）", "onSearch");
+  const c = st.mode === "standard" ? { keyword: st.keyword, category: st.category, indivWrap: false, priceBand: "" } : { keyword: "", category: "", indivWrap: st.indivWrap, priceBand: st.priceBand };
+  if ($("#down").checked) {
+    log("伝書鳩が帰れない", "catch → setResults(null) / setError(...)", "catchErr");
+    setSt({ error: "APIにつながりません：Failed to fetch", results: null }); pick(11);
+  } else {
+    log("伝書鳩が帰ってきた", "await searchGifts → setResults", "awaitSearch");
+    const r = searchSample(c).results;
+    setSt({ error: "", results: r }); pick(r.length ? 7 : 12);
+  }
+};
+$("#pins").onchange = e => $("#gs").classList.toggle("nopins", !e.target.checked);
+["r1:tabs", "r2:input", "r3:select", "r4:check", "r5:priceSel", "r6:onSearch"].forEach(s => { const [id, k] = s.split(":"); document.getElementById(id).innerHTML = ref(k); });
+const CSS = [["タイトル", ".header h1", "文字の大きさ・色（--accent）", "cssH1"], ["色の名前（変数）", ":root", "--accent などの色をまとめて決める", "cssVars"], ["タブ", ".modes button / .on", "丸いボタン・選ばれた色", "cssModes"], ["入力・選択・ボタンの並び", ".form", "横に並べる・すき間・角の丸み", "cssForm"], ["検索ボタン", "button[type=submit]", "濃い色・白い文字", "cssSubmit"], ["件数・エラーの文", ".summary", "うすい色・小さめ", "cssSummary"], ["カードの並び", ".grid", "カードとカードのすき間", "cssGrid"], ["カード", ".card / .name / .price / .meta", "枠・角の丸み・文字の大きさ", "cssCard"], ["画面の幅", ".page", "最大幅 960px・まん中寄せ", "cssPage"]];
+$("#cssTable").insertAdjacentHTML("beforeend", CSS.map(r => `<tr><td>${r[0]}</td><td class="mono">${r[1]}</td><td>${r[2]}</td><td>${ref(r[3])}</td></tr>`).join(""));
+drawBox(); drawScreen(); pick(5);
+</script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>困ったときの地図 ｜ コードの地図</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css">
+<style>
+  .err { display: grid; gap: 8px; }
+  .eb { text-align: left; font: inherit; color: inherit; cursor: pointer; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--card2); display: grid; gap: 2px; }
+  .eb code { font-family: var(--mono); font-size: .82rem; color: #ffb3c9; word-break: break-all; }
+  .eb small { color: var(--muted); }
+  .eb[aria-pressed="true"] { border-color: var(--yellow); }
+  @media (max-width: 780px) { #errInfo { order: -1; } }
+  .where { display: flex; gap: 6px; flex-wrap: wrap; }
+  .env { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .box { text-align: left; font: inherit; color: inherit; cursor: pointer; border-radius: 16px; border: 1px solid var(--line); background: var(--card); padding: 12px 14px; }
+  .box b { display: block; font-size: 1rem; }
+  .box small { color: var(--muted); }
+  .box[aria-pressed="true"] { border-color: var(--yellow); box-shadow: 0 0 14px rgba(255,210,63,.3); }
+  .cmd { font-family: var(--mono); font-size: .82rem; background: #0b0f2a; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; white-space: pre-wrap; word-break: break-all; margin: 6px 0; color: #ffe9a3; }
+  .guard { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+  .guard .card h3 { display: flex; gap: 8px; align-items: center; }
+  .shield { width: 2em; height: 2em; border-radius: 50%; display: grid; place-items: center; background: var(--green); color: #062b1a; font-weight: 800; flex: none; }
+  .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: .85rem; margin: 6px 0 12px; }
+  .flow span { padding: 4px 10px; border-radius: 10px; background: var(--card2); border: 1px solid var(--line); }
+  .flow span.ok { border-color: var(--green); color: var(--green); } .flow span.ng { border-color: var(--red); color: var(--red); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="kicker">CODE MAP ・ 困ったときの地図</span><a href="map.html">← 地図の入口</a></div>
+  <h1><span class="p">困ったときの地図</span></h1>
+  <p class="lead">エラーが出たとき、設定を探すとき、秘密を守るしくみを知りたいとき、PC のどこで何が動いているかを知りたいときの地図です。</p>
+
+  <h2 class="sec-title">1. エラーマップ</h2>
+  <div class="card">
+    <p class="muted">まず「どこに出たか」で選びます。画面（ブラウザ）・Console（開発者ツール）・ターミナル1（API）・ターミナル2（画面）。</p>
+    <div class="chips" id="places"></div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="err" id="errs"></div>
+      <div class="card" id="errInfo" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <h2 class="sec-title">2. 設定マップ</h2>
+  <div class="card scroll">
+    <p class="muted">設定は「どのファイルに書くか」と「どこで読まれるか」がセット。値はここには載せません（秘密のもの以外も、班の値は各自の PC に）。</p>
+    <table class="t" id="cfg"><tr><th>設定の名前</th><th>書く場所</th><th>読む場所</th><th>秘密？</th><th>メモ</th></tr></table>
+  </div>
+
+  <h2 class="sec-title">3. 秘密を守る場所マップ</h2>
+  <div class="card">
+    <div class="flow"><span>DB の鍵（.env）</span>→<span class="ng">GitHub ✕</span><span class="ng">Slack ✕</span><span class="ng">生成 AI ✕</span><span class="ng">ハブ ✕</span><span class="ok">各自の PC だけ ○</span></div>
+    <div class="guard" id="guards"></div>
+  </div>
+
+  <h2 class="sec-title">4. 開発環境マップ</h2>
+  <div class="card">
+    <p class="muted">PC の中で、何がどこで動いているか。箱を押すと、そこで打つコマンドと注意が出ます。</p>
+    <div class="env" id="env"></div>
+    <div id="envInfo" style="margin-top:12px" aria-live="polite"></div>
+  </div>
+
+  <div style="margin-top:24px" id="mapnav"></div>
+  <footer>エラー文の例は、班の作業ログでよく出たものを、値を伏せて書いています。</footer>
+</div>
+<script src="assets/map.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const PLACES = [["all", "すべて"], ["screen", "画面"], ["console", "Console"], ["t1", "ターミナル1（API）"], ["t2", "ターミナル2（画面）"]];
+const ERR = [
+  ["screen", "APIにつながりません：Failed to fetch", "画面に赤くない文で出る", "伝書鳩が受付まで行けなかった。① uvicorn が止まっている ② CORS で止められた（Console を見る） ③ .env.local の API の場所がちがう", ["catchErr", "fetch", "apiUrl"], "ターミナル1で uvicorn が動いているか → http://localhost:8000/api/health が開けるか → Console に CORS が出ていないか、の順に見る"],
+  ["console", "blocked by CORS policy: No 'Access-Control-Allow-Origin' header", "Console（赤）", "門番（ブラウザ）が止めた。受付の許可証（CORS_ORIGINS）に、画面の URL が入っていない", ["cors", "dotenv"], "backend/.env の CORS_ORIGINS を http://localhost:3000 にして、uvicorn を Ctrl+C → もう一度起動（--reload は .env の変更に気づかない）"],
+  ["console", "WebSocket connection to 'ws://localhost:3000/_next/hmr' failed", "Console（黄色）", "画面の自動更新係のお知らせ。CORS や検索とは関係ない", [], "気にしなくてよい。画面が動いていれば OK"],
+  ["screen", "APIにつながりません：HTTP 500", "画面", "受付の中でエラー。main.py か database.py のどこかで止まった", ["route", "fetchAll"], "ターミナル1の赤い文の一番下の行（エラーの種類）と、その上の main.py の行番号を見る"],
+  ["screen", "APIにつながりません：HTTP 422", "画面・/docs", "受付が「その値は受け取れない」と言った。limit が 101 以上、price_min がマイナス、など", ["route", "aLimit"], "/docs で同じ値を入れて、どの引数がだめかを見る"],
+  ["t1", "OSError: .env に設定がありません: DB_PASSWORD", "ターミナル1", "倉庫係が .env の値を見つけられない（空・名前のまちがい・.env の場所がちがう）", ["conn"], "backend/.env があるか、その項目が書いてあるかを確かめる（中身は人に見せない）。直したら uvicorn を起動し直す"],
+  ["t1", "Access denied … to database '…'（1044）", "ターミナル1", "パスワードは合っている。DB の名前（DB_NAME）がちがう", ["conn"], "班の DB 名の形（giftia_t ＋ 数字）になっているかを見る"],
+  ["t1", "Access denied for user …（1045）", "ターミナル1", "ユーザー名かパスワードがちがう", ["conn"], ".env の DB_USER・DB_PASSWORD を、配られた値と見くらべる（= の前後にスペースを入れない）"],
+  ["t1", "ModuleNotFoundError: No module named 'fastapi'", "ターミナル1", "部品箱（.venv）を使っていない、または部品を入れていない", [], "行の左に (.venv) があるか → なければ .venv\\Scripts\\Activate.ps1 → pip install -r requirements.txt"],
+  ["t1", "スクリプトの実行がシステムで無効になっているため…", "ターミナル1（PowerShell）", "Windows の安全設定で Activate.ps1 が止められた", [], "Set-ExecutionPolicy -Scope CurrentUser RemoteSigned を一度だけ打つ"],
+  ["t2", "Module not found: Can't resolve '@/lib/api'", "ターミナル2・画面", "部品が入っていない、またはファイルの場所がちがう", ["imports"], "giftia-frontend で npm install。lib/api.ts が giftia-frontend の中にあるかを見る"],
+  ["t2", "Port 3000 is in use", "ターミナル2", "別の npm run dev がもう動いている", [], "前のターミナルを Ctrl+C で止める。または表示された別の番号（3001 など）で開く（そのときは CORS_ORIGINS も合わせる）"],
+  ["screen", "上位 0 件", "画面", "エラーではない。条件に合う商品がない（例：タオル＋食品）", ["where"], "条件を1つずつ外して、どこで0件になるかを見る"],
+  ["screen", "直したのに画面が変わらない", "画面", "① 保存していない ② 別のフォルダのファイルを直した ③ .env を変えたのに起動し直していない ④ ブラウザが古いまま", [], "保存 → 正しいフォルダ（C:\\Services\\giftia\\…）か → uvicorn の起動し直し → ブラウザの再読みこみ、の4つを順に"],
+];
+let place = "all", ei = 0;
+function errs() {
+  $("#places").innerHTML = PLACES.map(([k, t]) => `<button class="chip" data-k="${k}" aria-pressed="${k === place}">${t}</button>`).join("");
+  document.querySelectorAll("#places .chip").forEach(b => b.onclick = () => { place = b.dataset.k; ei = ERR.findIndex(e => place === "all" || e[0] === place); errs(); });
+  $("#errs").innerHTML = ERR.map((e, i) => (place === "all" || e[0] === place) ? `<button class="eb" data-i="${i}" aria-pressed="${i === ei}"><code>${esc(e[1])}</code><small>${e[2]}</small></button>` : "").join("");
+  document.querySelectorAll(".eb").forEach(b => b.onclick = () => { ei = +b.dataset.i; errs(); if (window.innerWidth <= 780) $("#errInfo").scrollIntoView({ behavior: "smooth", block: "start" }); });
+  const e = ERR[ei];
+  $("#errInfo").innerHTML = `<span class="badge">${e[2]}</span><h3 style="margin-top:6px" class="mono">${esc(e[1])}</h3><div class="say"><b>原因：</b>${e[3]}</div><div class="say"><b>直し方：</b>${esc(e[5])}</div>${e[4].length ? `<div class="refs">${e[4].map(k => ref(k)).join("")}</div>` : ""}`;
+}
+errs();
+
+const CFG = [
+  ["NEXT_PUBLIC_API_URL", "giftia-frontend/.env.local", ref("apiUrl"), "いいえ", "ブラウザに配られる。秘密は置かない。書かなければ http://localhost:8000"],
+  ["CORS_ORIGINS", "backend/.env", ref("cors"), "いいえ（でも .env に置く）", "許可する画面の URL。カンマで複数"],
+  ["DB_HOST", "backend/.env", refL("db", 30, 30), "はい", "DB の住所"],
+  ["DB_PORT", "backend/.env", refL("db", 31, 31), "いいえ", "書かなければ 3306"],
+  ["DB_USER", "backend/.env", refL("db", 32, 32), "はい", "配られたユーザー名"],
+  ["DB_PASSWORD", "backend/.env", refL("db", 33, 33), "はい（最重要）", "班のパスワード。だれにも見せない"],
+  ["DB_NAME", "backend/.env", refL("db", 34, 34), "はい", "班の DB 名"],
+  ["DB_SSL_CA", "backend/.env", refL("db", 27, 27), "いいえ", "証明書ファイルの場所（区切りは /）"],
+  ["3000番", "（Next.js の初期値）", "npm run dev", "いいえ", "画面の住所 http://localhost:3000"],
+  ["8000番", "（uvicorn の初期値）", "uvicorn main:app", "いいえ", "API の住所 http://localhost:8000（/docs で試せる）"],
+  ["返す件数 20", "backend/main.py", ref("aLimit"), "いいえ", "設定ファイルではなくコードに書いてある"],
+];
+$("#cfg").insertAdjacentHTML("beforeend", CFG.map(c => `<tr><td class="mono">${c[0]}</td><td class="mono">${c[1]}</td><td>${c[2]}</td><td>${c[3]}</td><td>${c[4]}</td></tr>`).join(""));
+
+const GH = "https://github.com/AR7ST/giftia/blob/main/";
+const GUARDS = [
+  ["1", ".gitignore", ".env・.env.local・node_modules・.venv・PDF を GitHub に上げない。一番上と backend の中の二重の守り。", [`<a class="ref" href="${GH}.gitignore" target="_blank" rel="noopener">.gitignore（一番上） ↗</a>`, `<a class="ref" href="${GH}backend/.gitignore" target="_blank" rel="noopener">backend/.gitignore ↗</a>`]],
+  ["2", "%s と params", "入力した文字を、注文書（SQL）に直接つなげない。悪い命令がまぎれても、ただの文字として扱われる（SQL インジェクション対策）。", [ref("where"), ref("execute")]],
+  ["3", "CORS", "許可した画面（3000番）からしか、ブラウザ経由で受付を使えないようにする。", [ref("cors")]],
+  ["4", "NEXT_PUBLIC_ の約束", "この名前の値はブラウザに配られる。だから API の場所だけを置き、秘密は置かない。", [ref("apiUrl")]],
+  ["5", ".env.example（型紙）", "名前だけで値は空。これをコピーして、各自が自分の .env を作る。", [`<a class="ref" href="${GH}backend/.env.example" target="_blank" rel="noopener">.env.example ↗</a>`]],
+  ["6", "AGENTS.md のルール", "AI に .env を読ませない・貼らせない。AI は commit・push・merge をしない。", [`<a class="ref" href="${GH}AGENTS.md" target="_blank" rel="noopener">AGENTS.md ↗</a>`]],
+];
+$("#guards").innerHTML = GUARDS.map(g => `<div class="card"><h3><span class="shield">${g[0]}</span>${g[1]}</h3><p>${g[2]}</p><div class="refs">${g[3].join("")}</div></div>`).join("");
+
+const ENV = [
+  ["GitHub（giftia）", "クラウド・非公開", "みんなのコードの置き場。main は PR でしか変わらない。", "（ブラウザ／アプリで見る）\nhttps://github.com/AR7ST/giftia", "clone は最初の1回。そのあとは毎回 git pull で最新に。"],
+  ["PC のフォルダ", "C:\\Services\\giftia", "clone したコード。ここで直して、ブランチで push する。", "cd C:\\Services\\giftia\ngit switch main\ngit pull", "Google ドライブや OneDrive の中に置かない（node_modules が壊れる）。"],
+  ["ターミナル1：API", "backend・8000番", "受付（FastAPI）を開けっぱなしにする窓。", "cd C:\\Services\\giftia\\backend\n.venv\\Scripts\\Activate.ps1\nuvicorn main:app --reload", "(.venv) が付いているか。.env を変えたら Ctrl+C → 起動し直し。"],
+  ["ターミナル2：画面", "giftia-frontend・3000番", "お店（Next.js）を開けっぱなしにする窓。", "cd C:\\Services\\giftia\\giftia-frontend\nnpm run dev", "package.json が変わったら npm install。保存すると自動で描き直す。"],
+  ["ブラウザ", "localhost:3000 と :8000/docs", "画面を見る。/docs では API だけを試せる。", "http://localhost:3000\nhttp://localhost:8000/docs\nhttp://localhost:8000/api/health", "Console（開発者ツール）で赤いエラーを見る。"],
+  ["班の DB", "Azure Database for MySQL", "商品の倉庫。受付だけが .env の鍵でつなぐ。", "（直接さわらない。/api/health でつながりを確かめる）", "接続情報は .env だけ。スクショにも写さない。"],
+];
+let en = 2;
+function env() {
+  $("#env").innerHTML = ENV.map((e, i) => `<button class="box" data-i="${i}" aria-pressed="${i === en}"><b>${e[0]}</b><small>${esc(e[1])}</small></button>`).join("");
+  document.querySelectorAll(".box").forEach(b => b.onclick = () => { en = +b.dataset.i; env(); });
+  const e = ENV[en];
+  $("#envInfo").innerHTML = `<div class="say"><b>${e[0]}</b>：${e[2]}</div><div class="cmd">${esc(e[3])}</div><p class="muted">注意：${esc(e[4])}</p>`;
+}
+env();
+</script>
+</body>
+</html>

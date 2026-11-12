@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GitHub の地図 ｜ コードの地図</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css">
+<style>
+  .rail { position: relative; height: 120px; margin: 10px 4px 0; }
+  .rail .ln { position: absolute; left: 0; right: 0; height: 4px; border-radius: 999px; }
+  .rail .main { top: 26px; background: rgba(255,255,255,.35); }
+  .rail .br { top: 86px; left: 12%; right: 22%; background: var(--pink); opacity: .35; transition: opacity .3s; }
+  .rail .br.on { opacity: 1; box-shadow: 0 0 10px var(--pink); }
+  .rail .up, .rail .down { position: absolute; width: 4px; height: 60px; top: 28px; background: var(--pink); opacity: .35; }
+  .rail .up { left: 12%; } .rail .down { left: 78%; }
+  .rail .up.on, .rail .down.on { opacity: 1; }
+  .rail .dot { position: absolute; width: 18px; height: 18px; margin-left: -9px; border-radius: 50%; border: 3px solid #fff; background: var(--night1); }
+  .rail .dot.on { border-color: var(--yellow); background: var(--yellow); box-shadow: 0 0 12px rgba(255,210,63,.7); }
+  .rail .tag { position: absolute; font-size: .7rem; color: var(--muted); transform: translateX(-50%); white-space: nowrap; }
+  .rail .lbl { position: absolute; font-size: .72rem; font-weight: 800; }
+  .board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin: 12px 0; }
+  .col { border-radius: 12px; padding: 8px 6px; text-align: center; font-size: .8rem; font-weight: 800; border: 1px solid var(--line); background: var(--card2); min-height: 66px; }
+  .col .issue { margin: 6px auto 0; padding: 4px 6px; border-radius: 8px; background: #fff; color: #1b1035; font-size: .72rem; max-width: 100%; }
+  .stepper { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 10px 0; }
+  .who { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
+  .tl { position: relative; padding-left: 22px; display: grid; gap: 10px; }
+  .tl::before { content: ""; position: absolute; left: 7px; top: 4px; bottom: 4px; width: 3px; border-radius: 3px; background: linear-gradient(var(--cyan), var(--pink)); }
+  .ev { position: relative; padding: 8px 12px; border-radius: 12px; background: var(--card2); }
+  .ev::before { content: ""; position: absolute; left: -20px; top: 14px; width: 12px; height: 12px; border-radius: 50%; background: var(--night1); border: 3px solid var(--cyan); }
+  .ev.pr::before { border-color: var(--yellow); background: var(--yellow); }
+  .ev .d { font-family: var(--mono); font-size: .75rem; color: var(--muted); }
+  .ev b { display: block; }
+  .ev a { font-family: var(--mono); font-size: .75rem; color: var(--cyan); }
+  .flt { margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="kicker">CODE MAP ・ GitHub の地図</span><a href="map.html">← 地図の入口</a></div>
+  <h1><span class="p">GitHub の地図</span></h1>
+  <p class="lead">1つの改善が、ブランチ → PR → Approve → merge と進むとき、GitHub と PC と改善ボードで何が起きているか。そして giftia がこれまでどう育ってきたか。</p>
+
+  <h2 class="sec-title">1. GitHub の流れ <small>STEP 0〜9</small></h2>
+  <div class="card">
+    <div class="rail" id="rail">
+      <div class="ln main"></div><div class="ln br" id="br"></div><div class="up" id="up"></div><div class="down" id="down"></div>
+      <span class="lbl" style="left:0;top:0;color:var(--text)">main（本番）</span>
+      <span class="lbl" style="left:12%;top:96px;color:var(--pink)">作業ブランチ（例 12-sort-by-sales）</span>
+    </div>
+    <div class="board" id="board"></div>
+    <div class="stepper"><button class="btn" id="p">← 前へ</button><button class="btn pink" id="n">次へ →</button><span class="dots" id="dots"></span></div>
+    <div id="step" aria-live="polite"></div>
+  </div>
+
+  <h2 class="sec-title">2. 成長の年表</h2>
+  <div class="card">
+    <div class="chips flt" id="flt"></div>
+    <div class="tl" id="tl"></div>
+    <p class="muted" style="margin-top:12px">コミットのリンクは giftia（非公開）と giftia-hub。merge のたびに、ここに1行ずつ足していきます（改善ログとそろえる）。</p>
+  </div>
+
+  <div style="margin-top:24px" id="mapnav"></div>
+  <footer>流れは講義の GitHub Flow（STEP 0〜9）の番号にそろえ、説明は自分たちの言葉で書いています。</footer>
+</div>
+<script src="assets/map.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+/* [STEP, 名前, だれ, どこ, 説明, ボードの列(0-3), レールの状態, 確かめること] */
+const S = [
+  ["0", "Issue を立てる", "作る人", "GitHub", "Issues → New issue。「機能の追加」を選び、なぜ／やること／やらないことを書く。Projects で改善ボードに入れる。番号（#12 など）が付く。", 0, "issue", "ボードの「やること」にカードが出たか"],
+  ["1", "main を pull して、ブランチを切る", "作る人", "PC", "main を最新にしてから、自分の作業用の枝（ブランチ）を作る。名前は「Issue番号-内容」。ボードのカードを「作業中」に動かす。", 1, "branch", "いまいるブランチが main ではないか（git status）"],
+  ["2", "AI と一緒に変える", "作る人＋AI", "PC", "変えたいファイルと行を決めて、AI に相談しながら変える。AI に .env を見せない・commit や merge をさせない。", 1, "branch", "変える場所は「変える地図」で探す"],
+  ["3", "中身と差分を見る", "作る人", "PC", "変えたファイルを自分で読む。今回のファイルだけか、.env が入っていないかを見る。画面と API が今までどおり動くかも確かめる。", 1, "branch", "git status と git diff"],
+  ["4", "commit して push", "作る人", "PC → GitHub", "メッセージは「◯◯をする (#12)」。push は作業ブランチだけ。main には push しない（守られているので、できなくて正常）。", 1, "push", "GitHub にブランチが出たか"],
+  ["5", "PR を出す", "作る人", "GitHub", "base: main ← compare: 作業ブランチ。本文に 何を／なぜ／確認手順 と Closes #12。Reviewers を選び、Slack で一言。カードは「確認待ち」へ。", 2, "pr", "PR の本文の枠（テンプレート）を埋めたか"],
+  ["6", "本人以外がレビュー", "見る人", "GitHub → PC", "Files changed で余計な変更・.env がないかを見る。フェッチして作業ブランチをチェックアウトし、手元で動かす（pull ではない）。", 2, "pr", "確認手順どおりに動くか"],
+  ["7", "Approve", "見る人", "GitHub", "Submit review → 「手元で確認しました」→ Approve。直してほしいときは Request changes で STEP 2 にもどる。", 2, "pr", "PR に approved と出たか"],
+  ["8", "merge", "merge する人", "GitHub", "Approve が1つ以上あるのを確かめて Merge → Confirm → Delete branch。Closes #12 で Issue が自動で閉じ、カードは「完了」へ。", 3, "merge", "Issue が Closed になったか"],
+  ["9", "全員が pull して再現", "全員", "PC", "main に切りかえて pull し、起動して確かめる。PR に「再現 OK」とコメント。全員そろったら1周完了。ハブの改善ログにも1行。", 3, "done", "全員の「再現 OK」がそろったか"],
+];
+const COLS = ["やること", "作業中", "確認待ち", "完了"];
+let si = 0;
+function rail(state) {
+  const dots = [[4, 26, "最新"], [12, 26, "分かれる"], [40, 86, "commit"], [62, 86, "push"], [78, 26, "merge"], [94, 26, "全員 pull"]];
+  const on = { issue: [0], branch: [0, 1, 2], push: [0, 1, 2, 3], pr: [0, 1, 2, 3], merge: [0, 1, 2, 3, 4], done: [0, 1, 2, 3, 4, 5] }[state];
+  document.querySelectorAll("#rail .dot, #rail .tag").forEach(e => e.remove());
+  dots.forEach(([x, y, t], i) => {
+    $("#rail").insertAdjacentHTML("beforeend", `<span class="dot${on.includes(i) ? " on" : ""}" style="left:${x}%;top:${y - 7}px"></span><span class="tag" style="left:${x}%;top:${y < 50 ? y + 14 : y - 24}px">${t}</span>`);
+  });
+  $("#br").classList.toggle("on", state !== "issue");
+  $("#up").classList.toggle("on", state !== "issue");
+  $("#down").classList.toggle("on", state === "merge" || state === "done");
+}
+function step() {
+  const s = S[si];
+  rail(s[6]);
+  $("#board").innerHTML = COLS.map((c, i) => `<div class="col">${c}${i === s[5] ? `<div class="issue">#12 安い順にする</div>` : ""}</div>`).join("");
+  $("#dots").innerHTML = S.map((_, i) => `<button class="${i === si ? "on" : ""}" data-i="${i}" aria-label="STEP ${S[i][0]}"></button>`).join("");
+  document.querySelectorAll("#dots button").forEach(b => b.onclick = () => { si = +b.dataset.i; step(); });
+  $("#p").disabled = si === 0; $("#n").disabled = si === S.length - 1;
+  $("#step").innerHTML = `<span class="badge">STEP ${s[0]}</span><h3 style="margin-top:6px">${s[1]}</h3><div class="who"><span class="pill fe">${s[2]}</span><span class="pill be">${s[3]}</span><span class="pill css">ボード：${COLS[s[5]]}</span></div><div class="say">${s[4]}</div><p class="muted">確かめること：${s[7]}</p>`;
+}
+$("#p").onclick = () => { si--; step(); }; $("#n").onclick = () => { si++; step(); };
+step();
+
+const C = "https://github.com/AR7ST/giftia/commit/", HC = "https://github.com/AR7ST/giftia-hub/commit/";
+/* [日付, 種類(giftia|hub), PRか, 何が起きたか, コミット] */
+const T = [
+  ["10/25", "giftia", false, "Next.js のひな形を作った（1週目の始まり）", "69fd33d"],
+  ["10/28", "giftia", false, "検索画面を作った（例の3件を出す。1週目）", "373f901"],
+  ["11/01", "giftia", false, "画面を FastAPI につないだ（2週目）", "2ba468a"],
+  ["11/01", "giftia", true, "PR #1：2週目の変更を main へ", "e21dc58"],
+  ["11/01", "giftia", false, "検索 API（FastAPI）を作った ※はじめは giftia-backend にあった", "919b750"],
+  ["11/01", "giftia", false, "README を班の案内とルールに書き直した", "47c3588"],
+  ["11/02", "giftia", false, "README：改善の進め方（ボード・Issue・PR・ハブ）", "e256958"],
+  ["11/02", "hub", false, "班のハブページを作った", "a1db2dd"],
+  ["11/06", "giftia", true, "PR #4：AGENTS.md（AI の使い方ルール）※Approve なしで merge → 次から気をつける", "7a45cd4"],
+  ["11/07", "giftia", false, "講師の指摘で、画面を giftia-frontend/ に移した", "65ae360"],
+  ["11/07", "giftia", false, "giftia-backend を履歴ごと backend/ に取りこんだ", "45c169b"],
+  ["11/07", "giftia", true, "PR #2：README を main へ", "41a84b3"],
+  ["11/07", "giftia", true, "PR #6：モノレポ化。名前を giftia に。giftia-backend はアーカイブ", "7b7a81f"],
+  ["11/07", "hub", true, "hub PR #1：リンクをモノレポに直した", "657420b"],
+  ["11/07", "hub", true, "hub PR #2：東京の夜景デザインに", "e017893"],
+  ["11/07", "hub", true, "hub PR #3：画面マップ", "ff21408"],
+  ["11/07", "hub", true, "hub PR #5：コードの地図（画面・動き・変える）", "a2373fd"],
+  ["11/08", "hub", true, "hub PR #6：コードの地図（データ・ファイル・ことば）", "d92256e"],
+];
+let f = "all";
+function tl() {
+  $("#flt").innerHTML = [["all", "すべて"], ["giftia", "giftia（アプリ）"], ["hub", "giftia-hub"], ["pr", "merge だけ"]].map(([k, t]) => `<button class="chip" data-k="${k}" aria-pressed="${k === f}">${t}</button>`).join("");
+  document.querySelectorAll("#flt .chip").forEach(b => b.onclick = () => { f = b.dataset.k; tl(); });
+  $("#tl").innerHTML = T.filter(t => f === "all" || (f === "pr" ? t[2] : t[1] === f)).map(t => `<div class="ev${t[2] ? " pr" : ""}"><span class="d">${t[0]}・${t[1]}</span><b>${t[3]}</b><a href="${(t[1] === "hub" ? HC : C) + t[4]}" target="_blank" rel="noopener">${t[4]} ↗</a></div>`).join("");
+}
+tl();
+</script>
+</body>
+</html>
