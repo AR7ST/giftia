@@ -11,8 +11,14 @@ node_modules/
 .next/
 .venv/
 __pycache__/
+_site/
 
 # 個人のメモ・教材（Tech0 の Confidential 資料は上げない）
 *.pdf
 261025_作業ログ.md
 CLAUDE.md
+
+# 公開を想定した証跡に、大容量の動画・圧縮ファイルを含めない
+evidence/**/*.mp4
+evidence/**/*.mov
+evidence/**/*.zip
