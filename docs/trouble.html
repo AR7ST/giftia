@@ -124,7 +124,7 @@ const GUARDS = [
 $("#guards").innerHTML = GUARDS.map(g => `<div class="card"><h3><span class="shield">${g[0]}</span>${g[1]}</h3><p>${g[2]}</p><div class="refs">${g[3].join("")}</div></div>`).join("");
 
 const ENV = [
-  ["GitHub（giftia）", "クラウド・非公開", "みんなのコードの置き場。main は PR でしか変わらない。", "（ブラウザ／アプリで見る）\nhttps://github.com/AR7ST/giftia", "clone は最初の1回。そのあとは毎回 git pull で最新に。"],
+  ["GitHub（giftia）", "クラウド・Public（2026/11/12〜）", "みんなのコードの置き場。main は PR でしか変わらない。", "（ブラウザ／アプリで見る）\nhttps://github.com/AR7ST/giftia", "clone は最初の1回。そのあとは毎回 git pull で最新に。"],
   ["PC のフォルダ", "C:\\Services\\giftia", "clone したコード。ここで直して、ブランチで push する。", "cd C:\\Services\\giftia\ngit switch main\ngit pull", "Google ドライブや OneDrive の中に置かない（node_modules が壊れる）。"],
   ["ターミナル1：API", "backend・8000番", "受付（FastAPI）を開けっぱなしにする窓。", "cd C:\\Services\\giftia\\backend\n.venv\\Scripts\\Activate.ps1\nuvicorn main:app --reload", "(.venv) が付いているか。.env を変えたら Ctrl+C → 起動し直し。"],
   ["ターミナル2：画面", "giftia-frontend・3000番", "お店（Next.js）を開けっぱなしにする窓。", "cd C:\\Services\\giftia\\giftia-frontend\nnpm run dev", "package.json が変わったら npm install。保存すると自動で描き直す。"],

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>課題まとめ ｜ 東京 Drinking Party</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="kicker">GIFTIA ・ 課題まとめ</span><a href="./">← ハブにもどる</a></div>
+  <h1><span class="p">課題まとめ</span></h1>
+  <p class="lead">Tech0の課題のうち、チームの開発活動に関係する部分だけを超要約しています。詳細は各リンク先を参照してください。</p>
+
+  <h2 class="sec-title">過去の課題（完了） <small>3件</small></h2>
+
+  <div class="card">
+    <h3>課題1　要求定義・要件定義のアップデート <span class="pill css">完了</span></h3>
+    <p class="muted">やること：要求定義書・要件定義書に、先週分からの追記セクションを埋める。</p>
+    <p>タケチームの対応：要求.md・要件.mdを作成し、ハブにも公開しました。</p>
+    <div class="btns"><a class="btn ghost" href="request.html">要求定義書を見る</a><a class="btn ghost" href="requirements.html">要件定義書を見る</a></div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h3>課題2　要件定義をもとに開発① <span class="pill css">完了</span></h3>
+    <p class="muted">やること：要件定義をもとに実際にGiftiaを開発し、アンチパターンがないか生成AIと壁打ち、自班でテスト（最低5問）を作成。</p>
+    <p>タケチームの対応：評価（レビュー）がない商品を「0点」ではなく「不明」と表示するよう修正（PR #12）。型チェック等で動作確認済み。</p>
+    <div class="btns"><a class="btn ghost" href="requirements.html#tenkai2">変更点の詳細を見る</a></div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h3>発展1　AIとGitHubを上手に使いこなす <span class="pill css">完了</span></h3>
+    <p class="muted">やること：AGENTS.mdを育てる（AIが実際にしたミスを防ぐルールを追加）、Issue/PRテンプレートを.github/に導入。</p>
+    <p>タケチームの対応：AGENTS.mdに実際のミスから決めたルールを追加。さらにMunder Difflin導入に向けて、リポジトリ統合・Public化・GitHub Pages公開・Branch Protection設定・エージェント定義まで、環境構築を一通り完了しました。</p>
+    <div class="btns"><a class="btn ghost" href="https://github.com/AR7ST/giftia/blob/main/AGENTS.md" target="_blank" rel="noopener">AGENTS.md を見る ↗</a><a class="btn ghost" href="git.html">GitHubの地図</a></div>
+  </div>
+
+  <h2 class="sec-title">現在の課題</h2>
+  <div class="card">
+    <h3>発展2 <span class="pill be">準備中</span></h3>
+    <p class="muted">2026/11/12時点、Tech0側の課題内容はまだ記入されていません。内容が公開され次第、このページに追記します。</p>
+  </div>
+
+  <div style="margin-top:24px" id="mapnav"></div>
+  <footer>Giftia 班（クラス5・東京 Drinking Party）</footer>
+</div>
+<script src="assets/map.js"></script>
+</body>
+</html>

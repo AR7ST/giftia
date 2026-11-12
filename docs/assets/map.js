@@ -103,10 +103,10 @@ function cardHTML(g, i, opt = {}) {
 const PAGES = [
   ["map.html", "🗺 地図の入口"], ["overview.html", "アプリの全体像"], ["vision.html", "目指すアプリの姿"], ["screen.html", "画面の地図"], ["flow.html", "動きの地図"], ["change.html", "変える地図"],
   ["data.html", "データの地図"], ["files.html", "ファイルの地図"], ["words.html", "ことばの地図"],
-  ["trouble.html", "困ったときの地図"], ["git.html", "GitHub の地図"],
+  ["trouble.html", "困ったときの地図"], ["git.html", "GitHub の地図"], ["assignments.html", "📋 課題まとめ"], ["callback-map.html", "mapとコールバック関数"],
 ];
 document.addEventListener("DOMContentLoaded", () => {
   const nav = document.getElementById("mapnav");
-  if (nav) nav.insertAdjacentHTML("beforebegin", `<p class="muted">行のリンクが「404」になるときは、そのブラウザで <a href="https://github.com/login" target="_blank" rel="noopener">GitHub にログイン</a>してください（giftia は非公開のため）。</p>`);
+  if (nav) nav.insertAdjacentHTML("beforebegin", `<p class="muted">giftia は2026/11/12からPublic（公開）。行のリンクが開けないときは、コードの変更で行番号がずれていないか <span class="mono">assets/map.js</span> の LINES 表を確認してください。</p>`);
   if (nav) nav.innerHTML = PAGES.map(([h, t]) => `<a class="btn${location.pathname.endsWith(h) ? " pink" : ""}" href="${h}">${t}</a>`).join(" ") + ` <a class="btn" href="./">ハブにもどる</a>`;
 });

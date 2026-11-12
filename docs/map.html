@@ -23,7 +23,7 @@
 <div class="wrap">
   <div class="top"><span class="kicker">GIFTIA ・ CODE MAP</span><a href="./">← ハブにもどる</a></div>
   <h1><span class="p">コードの地図</span></h1>
-  <p class="lead">Giftia の「画面のここ」が「コードのどこ」なのかを、地図にしました。コードの中身はここには載せていません。行のリンクを押すと GitHub（非公開。班のメンバーと講師だけ）のその行が開きます。商品は説明用の例です。</p>
+  <p class="lead">Giftia の「画面のここ」が「コードのどこ」なのかを、地図にしました。コードの中身はここには載せていません。行のリンクを押すと GitHub（2026/11/12からPublic。ログインなしで見られます）のその行が開きます。商品は説明用の例です。</p>
 
   <p class="say">初めての方は、<a href="overview.html"><b>アプリの全体像</b></a>で仕組みをつかんでから進みましょう。</p>
 
@@ -52,6 +52,8 @@
   <div class="pages">
     <a class="pg" href="request.html"><div class="card"><h3>要求定義書 <span class="pill css">提出用</span></h3><ul><li>誰の、どんな課題を解くか</li><li>顧客の理解・顧客課題</li><li>提供価値と要求一覧</li></ul></div></a>
     <a class="pg" href="requirements.html"><div class="card"><h3>要件定義書 <span class="pill be">提出用</span></h3><ul><li>要求→要件マッピング</li><li>機能一覧（FR-01〜03）</li><li>データ設計</li></ul></div></a>
+    <a class="pg" href="assignments.html"><div class="card"><h3>課題まとめ <span class="pill db">超要約</span></h3><ul><li>過去の課題（課題1・課題2・発展1）</li><li>現在の課題</li></ul></div></a>
+    <a class="pg" href="callback-map.html"><div class="card"><h3>mapとコールバック関数 <span class="pill fe">勉強会</span></h3><ul><li>mapの基本の動き</li><li>Giftiaの検索フロー図</li></ul></div></a>
   </div>
 
   <h2 class="sec-title">地図の一覧 <small>10ページ</small></h2>
@@ -71,13 +73,12 @@
     <a class="pg" href="git.html"><div class="card"><h3>GitHub の地図 <span class="pill db">GitHub</span></h3><ul><li>GitHub の流れ（STEP 0〜9 とボード）</li><li>成長の年表</li></ul></div></a>
   </div>
 
-  <h2 class="sec-title">行のリンクが 404 になるとき</h2>
+  <h2 class="sec-title">行のリンクが見つからないとき</h2>
   <div class="card">
-    <p>giftia は非公開なので、<b>GitHub にログインしていないブラウザ</b>で開くと「404（ページがない）」と出ます。</p>
+    <p>giftia は2026/11/12からPublic（公開）なので、ログインしていないブラウザでも開けます。リンクを押して行がずれている・404になる場合は、たいてい次のどちらかです。</p>
     <ul>
-      <li>Safari で一度 <a href="https://github.com/login" target="_blank" rel="noopener">github.com にログイン</a>してから、もう一度リンクを押す（いちばん確実）</li>
-      <li>GitHub アプリで開くときは、リンクを長押し →「“GitHub”で開く」</li>
-      <li>班のメンバー（Collaborator）として招待を受けていないアカウントでは開けない</li>
+      <li>コードが変わって行番号がずれた（<span class="mono">assets/map.js</span> の LINES 表を直す）</li>
+      <li>ファイル名が変わった・移動した（リンク先のパスを直す）</li>
     </ul>
   </div>
 
