@@ -107,6 +107,6 @@ const PAGES = [
 ];
 document.addEventListener("DOMContentLoaded", () => {
   const nav = document.getElementById("mapnav");
-  if (nav) nav.insertAdjacentHTML("beforebegin", `<p class="muted">行のリンクが「404」になるときは、そのブラウザで <a href="https://github.com/login" target="_blank" rel="noopener">GitHub にログイン</a>してください（giftia は非公開のため）。</p>`);
+  if (nav) nav.insertAdjacentHTML("beforebegin", `<p class="muted">giftia は2026/11/12からPublic（公開）。行のリンクが開けないときは、コードの変更で行番号がずれていないか <span class="mono">assets/map.js</span> の LINES 表を確認してください。</p>`);
   if (nav) nav.innerHTML = PAGES.map(([h, t]) => `<a class="btn${location.pathname.endsWith(h) ? " pink" : ""}" href="${h}">${t}</a>`).join(" ") + ` <a class="btn" href="./">ハブにもどる</a>`;
 });
