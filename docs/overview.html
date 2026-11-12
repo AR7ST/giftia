@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/map.css">
 <link rel="stylesheet" href="assets/overview.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 </head>
 <body>
 <main class="wrap">
@@ -52,6 +53,34 @@
 <details><summary>担当と役割</summary><p><code>page.tsx / ResultCard.tsx</code></p><p>見つからない場合も正常な返事です。現在は「上位0件」と表示されます。通信に失敗した場合はエラーを表示します。</p></details>
 </li>
 </ol>
+<h2 class="sec-title">全体アーキテクチャ図</h2>
+<div class="overview-notes">
+<section class="card">
+<p class="muted">上の6ステップ（実行時の流れ）と、このリポジトリの開発・運用の仕組みを、1枚にまとめたものです。</p>
+<pre class="mermaid">
+flowchart TB
+    subgraph RT["実行時（アプリが動くとき）"]
+        direction LR
+        U[ブラウザ] -->|fetch| FE[Next.js<br/>giftia-frontend]
+        FE -->|REST API| BE[FastAPI<br/>backend]
+        BE -->|SQL| DB[(MySQL)]
+        DB --> BE --> FE --> U
+    end
+
+    subgraph DEV["開発・運用（GitHub上）"]
+        direction LR
+        AG["Claude Code / Munder<br/>boss・frontend・backend"] -->|commit/push/PR作成| PR[Pull Request]
+        PR -->|Approve・merge は人間のみ| MAIN[main]
+        MAIN -->|push| GA[GitHub Actions<br/>pages.yml]
+        GA --> GP["GitHub Pages<br/>ar7st.github.io/giftia"]
+    end
+
+    MAIN -. コードの中身 .-> RT
+</pre>
+<p class="muted">実行時（上）はローカルPCで動かすアプリ本体、開発・運用（下）はGitHub上でのコード変更の流れです。AIが担当できるのはPR作成までで、Approve・mergeは常に人間が行います。</p>
+</section>
+</div>
+
 <h2 class="sec-title">支える仕組みも知っておこう</h2>
 <div class="overview-notes">
 <section class="card"><h3>画面を届ける：Next.js</h3><p>ローカル開発では、Next.jsのサーバーが画面のコードをブラウザへ届けます。検索するときは、ブラウザからFastAPIへお願いを送ります。</p><p>画面を配ることと、検索を受け付けることは別の役割です。</p></section>
@@ -71,5 +100,8 @@
 <footer>Giftia 班（クラス5・東京 Drinking Party）</footer>
 </main>
 <script src="assets/map.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: "dark" });
+</script>
 </body>
 </html>

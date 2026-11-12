@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mapとコールバック関数 ｜ 東京 Drinking Party</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="kicker">GIFTIA ・ コード1行勉強会</span><a href="map.html">← 地図の入口</a></div>
+  <h1><span class="p">mapとコールバック関数</span></h1>
+  <p class="lead">「配列の値を一つずつ関数へ渡し、返された結果を集めて、新しい配列を作る」のが <code class="mono">map</code> です。Giftiaの検索結果も、この仕組みで画面に並んでいます。</p>
+
+  <h2 class="sec-title">1. 基本の動き（数字の例）</h2>
+  <div class="card">
+    <pre class="mono" style="white-space:pre-wrap">const prices = [100, 200, 300];
+const newPrices = prices.map(price =&gt; {
+  return price + 50;
+});
+// newPrices は [150, 250, 350]</pre>
+    <p class="muted">mapへ渡した関数（コールバック関数）を、mapが配列の値ごとに呼び出します。1回分の答え（return）はまずmapへ戻り、全部終わるとmapが新しい配列をまとめて返します。</p>
+    <pre class="mermaid">
+sequenceDiagram
+    participant 呼び出し元
+    participant map
+    participant コールバック関数
+    呼び出し元->>map: prices.map(関数)
+    loop 配列の値ごと
+        map->>コールバック関数: 1つの値を渡す（例:100）
+        コールバック関数-->>map: returnで答えを返す（150）
+    end
+    map-->>呼び出し元: 新しい配列 [150,250,350]
+    </pre>
+  </div>
+
+  <h2 class="sec-title">2. Giftiaでの実際の流れ</h2>
+  <div class="card">
+    <p class="muted">検索条件が画面→API→DB→画面と戻ってくる流れです。最後にResultCardを並べるところで、Giftiaのmapが登場します。</p>
+    <pre class="mermaid">
+flowchart LR
+    A["page.tsx<br/>条件を選ぶ"] --> B["searchGifts(condition)"]
+    B --> C["api.ts<br/>URLの条件を作りfetch"]
+    C --> D["main.py<br/>条件を受け取る"]
+    D --> E["SQL実行<br/>WHERE・ORDER BY"]
+    E --> F[(MySQL)]
+    F --> G["main.py<br/>to_gift()でGift型に変換"]
+    G --> H["JSON<br/>{total, results}"]
+    H --> I["api.ts<br/>res.json()"]
+    I --> J["page.tsx<br/>setResults(...)"]
+    J --> K["results.map(...)"]
+    K --> L["ResultCard<br/>を並べて表示"]
+    </pre>
+    <p class="muted">この最後の<code class="mono">results.map(...)</code>が、1章の仕組みと同じです。届いた商品データ（配列）を1件ずつ受け取り、ResultCardという「コールバック」でカードに変換して並べています。</p>
+  </div>
+
+  <h2 class="sec-title">3. よくある質問</h2>
+  <div class="card">
+    <p><b>Q. returnを忘れるとどうなる？</b><br>A. 計算はしていても答えを返さないので、結果は<code class="mono">undefined</code>になります。</p>
+    <p><b>Q. 商品が0件のときは？</b><br>A. 空配列に対してmapを呼ぶと、コールバックは1回も呼ばれず、空配列がそのまま返ります。</p>
+    <p><b>Q. mapが直接画面に表示するの？</b><br>A. いいえ。mapは新しい配列（Reactの要素の配列）を作るだけで、それを使って画面に反映するのはReactの役目です。</p>
+  </div>
+
+  <div style="margin-top:24px" id="mapnav"></div>
+  <footer>Giftia 班（クラス5・東京 Drinking Party）。本ページの数字・商品例は学習用のダミーです。</footer>
+</div>
+<script src="assets/map.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: "dark" });
+</script>
+</body>
+</html>

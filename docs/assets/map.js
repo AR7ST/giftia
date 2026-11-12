@@ -103,7 +103,7 @@ function cardHTML(g, i, opt = {}) {
 const PAGES = [
   ["map.html", "🗺 地図の入口"], ["overview.html", "アプリの全体像"], ["vision.html", "目指すアプリの姿"], ["screen.html", "画面の地図"], ["flow.html", "動きの地図"], ["change.html", "変える地図"],
   ["data.html", "データの地図"], ["files.html", "ファイルの地図"], ["words.html", "ことばの地図"],
-  ["trouble.html", "困ったときの地図"], ["git.html", "GitHub の地図"], ["assignments.html", "📋 課題まとめ"],
+  ["trouble.html", "困ったときの地図"], ["git.html", "GitHub の地図"], ["assignments.html", "📋 課題まとめ"], ["callback-map.html", "mapとコールバック関数"],
 ];
 document.addEventListener("DOMContentLoaded", () => {
   const nav = document.getElementById("mapnav");

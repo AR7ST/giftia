@@ -6,6 +6,7 @@
 <title>GitHub の地図 ｜ コードの地図</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/map.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <style>
   .rail { position: relative; height: 120px; margin: 10px 4px 0; }
   .rail .ln { position: absolute; left: 0; right: 0; height: 4px; border-radius: 999px; }
@@ -53,7 +54,29 @@
     <div id="step" aria-live="polite"></div>
   </div>
 
-  <h2 class="sec-title">2. 成長の年表</h2>
+  <h2 class="sec-title">2. フロー図（まとめ）</h2>
+  <div class="card">
+    <p class="muted">上のSTEP 0〜9を、1枚の図にまとめたものです。<b>Approve・merge（main への取り込み）は、どんなときも人が行います</b>（2026/11/12 AGENTS.md改訂）。</p>
+    <pre class="mermaid">
+flowchart LR
+    A[Issue作成] --> B[作業ブランチ作成]
+    B --> C[コミット]
+    C --> D[push]
+    D --> E[PR作成]
+    E --> F{レビュー}
+    F -->|修正あり| C
+    F -->|OK| G[Approve 人間のみ]
+    G --> H[merge 人間のみ]
+    H --> I[Issue自動クローズ]
+    I --> J[GitHub Pages 自動再公開]
+
+    classDef human fill:#ff4fa3,stroke:#fff,color:#fff,stroke-width:2px;
+    class G,H human
+    </pre>
+    <p class="muted">ピンク色（Approve・merge）だけは、AI（Claude Code等）が実行しないところです。それ以外（Issue作成〜PR作成・push）はAIが行ってよいことになっています（AGENTS.md 2章）。</p>
+  </div>
+
+  <h2 class="sec-title">3. 成長の年表</h2>
   <div class="card">
     <div class="chips flt" id="flt"></div>
     <div class="tl" id="tl"></div>
@@ -133,6 +156,9 @@ function tl() {
   $("#tl").innerHTML = T.filter(t => f === "all" || (f === "pr" ? t[2] : t[1] === f)).map(t => `<div class="ev${t[2] ? " pr" : ""}"><span class="d">${t[0]}・${t[1]}</span><b>${t[3]}</b><a href="${(t[1] === "hub" ? HC : C) + t[4]}" target="_blank" rel="noopener">${t[4]} ↗</a></div>`).join("");
 }
 tl();
+</script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: "dark" });
 </script>
 </body>
 </html>
