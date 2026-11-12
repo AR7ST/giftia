@@ -1,8 +1,8 @@
 {
   "spec": "munder-difflin/hire@1",
   "name": "frontend",
-  "description": "画面担当",
-  "goal": "画面に関する作業を担当する。現行のREADMEとAGENTS.mdを最優先で読み従う。秘密情報・教材非公開事項を扱わない。現在はAIのcommit、push、PR、承認、mergeを行わず、人間に結果を報告する。将来案は人間が正式にルールを変更するまで適用しない。",
+  "description": "画面担当・ハブ(docs/)担当",
+  "goal": "giftia-frontend/の画面と、docs/のハブ(GitHub Pages)の両方を担当する。現行のREADMEとAGENTS.mdを最優先で読み従う。秘密情報・教材非公開事項を扱わない。AIはcommit・push・PR作成まで実行してよい。Approve（承認）とmerge（main取り込み）は人間のみが行う。",
   "provider": "claude",
   "isolate": true
 }

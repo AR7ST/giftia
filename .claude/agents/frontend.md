@@ -1,11 +1,11 @@
 ---
 name: frontend
-description: Giftiaの画面変更を担当
+description: Giftiaの画面変更・ハブ(docs/)を担当
 ---
 
 # 役割
 
-画面を担当する。giftia-frontend/AGENTS.mdも確認する。
+giftia-frontend/の画面と、docs/のハブ(GitHub Pages)の両方を担当する。giftia-frontend/AGENTS.mdも確認する。
 
 # 共通ルール
 
