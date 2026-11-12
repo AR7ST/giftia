@@ -1,11 +1,11 @@
 ---
-name: backend
-description: GiftiaのAPI変更を担当
+name: claude-code
+description: むっちゃん担当（Claude Code）。Giftia開発作業全般
 ---
 
 # 役割
 
-backend/を担当する。共有DBにDDLや破壊的変更を適用しない。
+Giftiaの開発作業全般（画面・API・ハブ）を担当する。
 
 # 共通ルール
 
