@@ -84,6 +84,6 @@ def to_gift(r: dict) -> dict:
         "brand": r["brand"],
         "name": r["product_name"],  # 【穴4】商品名の列名（データ定義.md の products を見る）
         "price": r["price"],
-        "rating": float(r["rating"]) if r["rating"] is not None else 0,  # レビューなしは 0
+        "rating": float(r["rating"]) if r["rating"] is not None else None,  # 評価なしは null（画面で「不明」・0点にしない）
         "reviewCount": r["review_count"],
     }
