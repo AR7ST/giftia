@@ -80,6 +80,57 @@
   <div class="card"><p>Phase1は既存データのみのため、追加の供給作業はなし。追加する場合は対象商品を絞り、商品部の月5人日程度の範囲で行う（Exhibit 5）。</p></div>
 
   <p class="muted">1・2・4.2・4.3・6〜10章と付録は原本でも未記入（4週目以降に記入予定）のため、このページにも含まれていません。</p>
+
+  <h2 class="sec-title" id="tenkai2">発展2：要件定義をもとにGiftiaを更新した記録 <span class="pill css">完了</span></h2>
+  <div class="card">
+    <p><b>まとめ</b>：要件定義書のFR-02「ない情報は『不明』と示す」と5.2「評価なしを0点にしない」に、Giftiaがそろっていなかった（評価がない商品が「評価0（0件）」と0点の商品に見えていた）。Giftiaを直し「評価 不明（0件）」と表示するようにした。</p>
+  </div>
+
+  <h3>Giftiaの変更（As-Is / To-Be）</h3>
+  <table>
+    <tr><th>項目</th><th>変更前（As-Is）</th><th>変更後（To-Be）</th></tr>
+    <tr><td>評価がない商品のカード</td><td>評価0（0件）</td><td>評価 不明（0件）</td></tr>
+    <tr><td>評価がある商品のカード</td><td>評価4.4（387件）など</td><td>変わらない</td></tr>
+    <tr><td>APIが返す評価（評価なしのとき）</td><td>0</td><td>null（なし）</td></tr>
+    <tr><td>並び順・件数・検索条件</td><td>販売数の多い順・20件</td><td>変わらない</td></tr>
+  </table>
+
+  <p class="muted">変えたファイル（3ファイル・各1行）。画面とAPIのつなぎ目（評価の形）を変えるため、3つを同じPRでまとめて変えた。<a href="https://github.com/AR7ST/giftia/pull/12/files" target="_blank" rel="noopener">PR #12（AR7ST/giftia）</a>。班のメンバーがレビューしてmerge。</p>
+  <table>
+    <tr><th>ファイル</th><th>行</th><th>変更前</th><th>変更後</th></tr>
+    <tr><td class="mono">backend/main.py</td><td>87</td><td>評価がないとき 0 を返す</td><td>null を返す</td></tr>
+    <tr><td class="mono">giftia-frontend/lib/api.ts</td><td>13</td><td>rating: number</td><td>rating: number | null</td></tr>
+    <tr><td class="mono">giftia-frontend/app/ResultCard.tsx</td><td>10</td><td>評価{gift.rating}</td><td>評価{gift.rating ?? " 不明"}</td></tr>
+  </table>
+
+  <h3>確かめたこと</h3>
+  <table>
+    <tr><th>確認</th><th>変更前</th><th>変更後</th><th>判定</th></tr>
+    <tr><td>評価がない商品のAPIの評価</td><td>0</td><td>null</td><td>OK</td></tr>
+    <tr><td>評価がない商品のカード</td><td>評価0（0件）</td><td>評価 不明（0件）</td><td>OK</td></tr>
+    <tr><td>評価がある商品のカード</td><td>評価4.4（387件）</td><td>評価4.4（387件）</td><td>OK</td></tr>
+    <tr><td>型チェック（npx tsc --noEmit）</td><td>―</td><td>エラーなし</td><td>OK</td></tr>
+  </table>
+
+  <h3>進め方（チームでの分担）</h3>
+  <div class="card">
+    <ul>
+      <li>タケ：Issue #11 を作成 → 3ファイルを修正 → 手元で動作確認 → PR #12 を作成 → 要件定義書を更新</li>
+      <li>むっちゃん：PR #12 をレビューしてApprove → merge</li>
+      <li>まいまい：全体の流れを確認</li>
+    </ul>
+  </div>
+
+  <h3>今回やらなかったこと（次の候補）</h3>
+  <div class="card">
+    <ul>
+      <li>FR-01：人数×1人あたり予算での検索、販売数 → 評価 → 商品IDの並び順</li>
+      <li>FR-02の残り：説明文（description）の表示</li>
+      <li>FR-03：相談文の作成・コピー</li>
+    </ul>
+  </div>
+  <p class="src">出典: 「要件定義書_変更点（東京Drinking Party・発展2）.docx」／ リポジトリ内のMarkdown: <span class="mono">02_プロジェクト/soubetsu-gift/発展2_変更点.md</span></p>
+
   <p class="src">原本: <a href="https://docs.google.com/document/d/17cbMGdWMRYxOWZusGtCB7o-_m6KvIX5pXz1pSerIDG4/edit" target="_blank" rel="noopener">クラス5_東京Drinking Party_要件定義書（提出用）</a>（Googleドキュメント）／ リポジトリ内のMarkdown: <span class="mono">02_プロジェクト/soubetsu-gift/要件.md</span></p>
   <footer>Giftia 班（クラス5・東京 Drinking Party）</footer>
 </div>
