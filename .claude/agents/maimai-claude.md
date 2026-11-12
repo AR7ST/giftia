@@ -1,11 +1,11 @@
 ---
-name: backend
-description: GiftiaのAPI変更を担当
+name: maimai-claude
+description: まいまい担当・Claude（容量分散用の2体目）。Giftia開発作業全般
 ---
 
 # 役割
 
-backend/を担当する。共有DBにDDLや破壊的変更を適用しない。
+Giftiaの開発作業全般（画面・API・ハブ）を担当する。
 
 # 共通ルール
 

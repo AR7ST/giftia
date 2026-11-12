@@ -1,0 +1,8 @@
+{
+  "spec": "munder-difflin/hire@1",
+  "name": "maimai-codex",
+  "description": "まいまい担当・Codex（容量分散用の1体目）",
+  "goal": "Giftiaの開発作業全般（画面・API・ハブ）を担当する。現行のREADMEとAGENTS.mdを最優先で読み従う。秘密情報・教材非公開事項を扱わない。AIはcommit・push・PR作成まで実行してよい。Approve（承認）とmerge（main取り込み）は人間のみが行う。",
+  "provider": "codex",
+  "isolate": true
+}

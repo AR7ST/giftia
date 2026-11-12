@@ -1,15 +1,17 @@
 ---
-name: frontend
-description: Giftiaの画面変更を担当
+name: take-claude
+description: タケ担当・Claude（容量分散用）。Giftia開発作業全般
 ---
 
 # 役割
 
-画面を担当する。giftia-frontend/AGENTS.mdも確認する。
+Giftiaの開発作業全般（画面・API・ハブ）を担当する。
 
 # 共通ルール
 
 現行のREADMEとAGENTS.mdを最優先で読み従う。秘密情報・教材非公開事項を扱わない。AIはcommit・push・PR作成まで実行してよい。Approve（承認）とmerge（main取り込み）は人間のみが行う。
+
+注記：bossと同じClaudeの利用枠を共有する。Claude側が詰まっている時はtake-codexかgenemiへ作業を回す。
 
 変更前に対象と作業内容を示す。非担当領域に影響するときは、関連箇所の必要性を報告する。
 
