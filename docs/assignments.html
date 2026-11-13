@@ -6,14 +6,31 @@
 <title>課題まとめ ｜ 東京 Drinking Party</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/map.css">
+<style>
+  .task-list .task { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+  .task-list .task:last-child { border-bottom: 0; }
+  .chip { flex: none; font-size: .78rem; font-weight: 800; padding: 2px 10px; border-radius: 999px; }
+  .c-done { background: #3ee59a; color: #062b1a; }
+  .c-doing { background: #ffd23f; color: #3a2a00; }
+</style>
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><span class="kicker">GIFTIA ・ 課題まとめ</span><a href="./">← ハブにもどる</a></div>
-  <h1><span class="p">課題まとめ</span></h1>
-  <p class="lead">Tech0の課題のうち、チームの開発活動に関係する部分だけを超要約しています。詳細は各リンク先を参照してください。</p>
+  <div class="top"><span class="kicker">GIFTIA ・ 課題の進み具合</span><a class="btn ghost" href="index.html">← トップページ（ハブ）にもどる</a></div>
+  <h1><span class="p">課題の進み具合・まとめ</span></h1>
+  <p class="lead">トップページから移動した「課題の進み具合」の一覧と、各課題のチーム対応記録です。</p>
 
-  <h2 class="sec-title">過去の課題（完了） <small>3件</small></h2>
+  <h2 class="sec-title">課題の進み具合（一覧）</h2>
+  <div class="card task-list">
+    <div class="task"><span>課題1　要求定義・要件定義のアップデート</span><span class="chip c-done">完了</span></div>
+    <div class="task"><span>課題2　要求定義書・要件定義書 ／ 要件定義をもとに開発①</span><span class="chip c-done">提出用 完成</span></div>
+    <div class="task"><span>課題3　班の開発環境を GitHub で共有</span><span class="chip c-done">完了</span></div>
+    <div class="task"><span>モノレポ化（講師の指摘：画面とAPIを1つのリポジトリに統合）</span><span class="chip c-done">完了</span></div>
+    <div class="task"><span>発展1　AI と GitHub をもっと上手に使いこなす</span><span class="chip c-done">完了</span></div>
+    <div class="task"><span>発展2　要件定義をもとに Giftia を更新（評価なしを「不明」表示）</span><span class="chip c-done">完了（PR #12）</span></div>
+  </div>
+
+  <h2 class="sec-title">各課題の詳細記録</h2>
 
   <div class="card">
     <h3>課題1　要求定義・要件定義のアップデート <span class="pill css">完了</span></h3>
@@ -23,10 +40,17 @@
   </div>
 
   <div class="card" style="margin-top:14px">
-    <h3>課題2　要件定義をもとに開発① <span class="pill css">完了</span></h3>
+    <h3>課題2・発展2　要件定義をもとに開発①（Giftiaの更新） <span class="pill css">完了</span></h3>
     <p class="muted">やること：要件定義をもとに実際にGiftiaを開発し、アンチパターンがないか生成AIと壁打ち、自班でテスト（最低5問）を作成。</p>
     <p>タケチームの対応：評価（レビュー）がない商品を「0点」ではなく「不明」と表示するよう修正（PR #12）。型チェック等で動作確認済み。</p>
     <div class="btns"><a class="btn ghost" href="requirements.html#tenkai2">変更点の詳細を見る</a></div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h3>課題3・モノレポ化　班の開発環境を GitHub で共有 <span class="pill css">完了</span></h3>
+    <p class="muted">やること：画面（giftia-frontend/）と検索API（backend/）を1つのリポジトリにまとめ、班全員が手元で再現できるようにする。</p>
+    <p>タケチームの対応：モノレポ構成へ統合（PR #6）し、README に再現手順とルールを整備しました。</p>
+    <div class="btns"><a class="btn ghost" href="https://github.com/AR7ST/giftia#readme" target="_blank" rel="noopener">README を見る ↗</a></div>
   </div>
 
   <div class="card" style="margin-top:14px">
@@ -36,10 +60,8 @@
     <div class="btns"><a class="btn ghost" href="https://github.com/AR7ST/giftia/blob/main/AGENTS.md" target="_blank" rel="noopener">AGENTS.md を見る ↗</a><a class="btn ghost" href="git.html">GitHubの地図</a></div>
   </div>
 
-  <h2 class="sec-title">現在の課題</h2>
-  <div class="card">
-    <h3>発展2 <span class="pill be">準備中</span></h3>
-    <p class="muted">2026/11/12時点、Tech0側の課題内容はまだ記入されていません。内容が公開され次第、このページに追記します。</p>
+  <div class="btns" style="margin-top:20px">
+    <a class="btn pink" href="index.html">← トップページ（ハブ）にもどる</a>
   </div>
 
   <div style="margin-top:24px" id="mapnav"></div>
