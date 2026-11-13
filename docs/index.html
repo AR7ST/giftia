@@ -116,6 +116,27 @@
   .member .role { font-size: .8rem; letter-spacing: .1em; color: var(--muted); }
   .member ul { text-align: left; margin: 8px 0 0; padding-left: 1.1em; font-size: .9rem; }
 
+  /* コンパクトなメンバー3行カード */
+  .member-list { display: grid; gap: 10px; }
+  .member-row { display: grid; grid-template-columns: 34px 7.8em minmax(0, 1fr); gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--line); font-size: .9rem; }
+  .member-row:last-child { border-bottom: 0; padding-bottom: 0; }
+  .member-row:first-child { padding-top: 0; }
+  .member-row .avatar { width: 34px; height: 34px; margin: 0; font-size: 1rem; box-shadow: 0 0 10px rgba(255,255,255,.25); }
+  .member-row .m-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px; line-height: 1.3; }
+  .member-row .m-head b { font-size: .98rem; }
+  .member-row .m-head .role { font-size: .72rem; color: var(--cyan); border: 1px solid rgba(56,225,255,.45); border-radius: 999px; padding: 0 6px; }
+  .member-row .m-desc { color: var(--muted); font-size: .84rem; line-height: 1.45; }
+
+  /* 折りたたみ（details / summary） */
+  details.fold { border-radius: 16px; border: 1px solid var(--line); background: rgba(255,255,255,.04); padding: 10px 14px; margin: 10px 0; }
+  details.card.fold { background: var(--card); border-radius: 18px; padding: 14px 16px; margin: 0; }
+  details.fold > summary { cursor: pointer; font-weight: 800; font-size: .96rem; list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--text); min-height: 32px; }
+  details.fold > summary::-webkit-details-marker { display: none; }
+  details.fold > summary::after { content: "＋ タップで開く"; flex: none; font-size: .75rem; font-weight: 800; color: var(--cyan); border: 1px solid rgba(56,225,255,.5); border-radius: 999px; padding: 2px 10px; background: rgba(56,225,255,.08); }
+  details.fold[open] > summary::after { content: "－ 閉じる"; color: var(--yellow); border-color: rgba(255,210,63,.6); background: rgba(255,210,63,.1); }
+  details.fold > .fold-body { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line); }
+  .ib { display: inline-block; }
+
   ol.steps { margin: 0; padding-left: 1.3em; } ol.steps li { margin: 6px 0; }
   table { width: 100%; border-collapse: collapse; font-size: .92rem; }
   th, td { border-bottom: 1px solid var(--line); padding: 8px 6px; text-align: left; vertical-align: top; }
@@ -123,8 +144,30 @@
   .warn { margin-top: 30px; background: rgba(255,59,59,.12); border: 1px solid rgba(255,59,59,.6); border-radius: 14px; padding: 12px 16px; font-size: .9rem; }
   footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 18px 16px 30px; }
   @media (max-width: 520px) {
-    .stage span { font-size: .8rem } .stage b { font-size: .62rem; letter-spacing: .05em }
-    .who { grid-template-columns: 5.5em 1fr 3em; }
+    .hero { padding: 20px 12px 0; }
+    .hero h1 { font-size: clamp(1.75rem, 7.5vw, 2.4rem); }
+    main { padding: 6px 12px 20px; }
+    .sec-title { margin: 22px 0 10px; padding: 5px 12px; font-size: 1.02rem; }
+    .card, details.card.fold { padding: 13px 14px; border-radius: 15px; }
+    .card h3 { font-size: 1.02rem; }
+    .big { font-size: .96rem; line-height: 1.55; }
+    .big em { font-size: 1.3rem; }
+    .stn-labels { gap: 5px; margin-top: 16px; }
+    .stage { padding: 6px 3px; border-radius: 10px; }
+    .stage span { font-size: .76rem; white-space: nowrap; }
+    .stage b { font-size: .6rem; letter-spacing: .04em; }
+    .stage small { font-size: .66rem; }
+    .who { grid-template-columns: 5.5em 1fr 3em; font-size: .88rem; }
+    .arch { gap: 4px; }
+    .arch span { font-size: .72rem; padding: 2px 6px; }
+    .btn { font-size: .84rem; padding: 7px 13px; }
+    .member-row { grid-template-columns: 30px 1fr; gap: 4px 8px; }
+    .member-row .m-desc { grid-column: 2; font-size: .82rem; }
+    details.fold > summary { font-size: .88rem; }
+    details.fold > summary::after { font-size: .7rem; padding: 1px 8px; }
+    table { font-size: .83rem; }
+    th, td { padding: 6px 4px; }
+    th:first-child, td:first-child, th:last-child, td:last-child { white-space: nowrap; }
   }
   @media (prefers-reduced-motion: reduce) { .star, .win { animation: none } }
 
@@ -266,26 +309,31 @@ const HUB = {
   <h2 class="sec-title">🗺 画面マップ <span class="dots"><i></i><i></i><i></i></span></h2>
   <div class="card">
     <p class="muted">Giftia の検索画面の番号をタップすると、その部分を作っているファイルと行がわかります。ファイル名を押すと GitHub のその行が開きます（2026/11/12からPublic。ログインなしで誰でも見られます）。商品は説明用の例です。</p>
-    <div class="map-wrap">
-      <div class="gscreen" id="gscreen">
-        <span class="ex">例</span>
-        <div class="hs" data-hs="1" tabindex="0" role="button" aria-label="1 タイトル"><span class="pin">1</span><div class="gt">Giftia</div></div>
-        <div class="hs" data-hs="2" tabindex="0" role="button" aria-label="2 タブ" style="margin-top:6px"><span class="pin">2</span><div class="gm"><span class="on">いまの検索</span><span>取引先へのお礼</span></div></div>
-        <div class="gf">
-          <span class="hs" data-hs="3" tabindex="0" role="button" aria-label="3 入力欄" style="flex:1 1 140px"><span class="pin">3</span><span class="gq" style="display:block">キーワード（例：送別 お菓子）</span></span>
-          <span class="hs" data-hs="4" tabindex="0" role="button" aria-label="4 カテゴリー"><span class="pin">4</span><span class="gs" style="display:block">すべてのカテゴリー ▾</span></span>
-          <span class="hs" data-hs="5" tabindex="0" role="button" aria-label="5 検索ボタン"><span class="pin">5</span><span class="gb" style="display:block">検索</span></span>
+    <details class="fold">
+      <summary><span>📱 画面の大きなプレビューを開いて<span class="ib">部品（1〜8）を調べる</span></span></summary>
+      <div class="fold-body">
+        <div class="map-wrap">
+          <div class="gscreen" id="gscreen">
+            <span class="ex">例</span>
+            <div class="hs" data-hs="1" tabindex="0" role="button" aria-label="1 タイトル"><span class="pin">1</span><div class="gt">Giftia</div></div>
+            <div class="hs" data-hs="2" tabindex="0" role="button" aria-label="2 タブ" style="margin-top:6px"><span class="pin">2</span><div class="gm"><span class="on">いまの検索</span><span>取引先へのお礼</span></div></div>
+            <div class="gf">
+              <span class="hs" data-hs="3" tabindex="0" role="button" aria-label="3 入力欄" style="flex:1 1 140px"><span class="pin">3</span><span class="gq" style="display:block">キーワード（例：送別 お菓子）</span></span>
+              <span class="hs" data-hs="4" tabindex="0" role="button" aria-label="4 カテゴリー"><span class="pin">4</span><span class="gs" style="display:block">すべてのカテゴリー ▾</span></span>
+              <span class="hs" data-hs="5" tabindex="0" role="button" aria-label="5 検索ボタン"><span class="pin">5</span><span class="gb" style="display:block">検索</span></span>
+            </div>
+            <div class="hs" data-hs="6" tabindex="0" role="button" aria-label="6 件数"><span class="pin">6</span><p class="gsum">上位 20 件</p></div>
+            <div class="hs" data-hs="7" tabindex="0" role="button" aria-label="7 結果カード"><span class="pin">7</span>
+              <div class="gc"><p class="gmeta">1位・食品・みなと製菓</p><p class="gn">ありがとうの焼き菓子 12個入</p>
+                <span class="hs" data-hs="8" tabindex="0" role="button" aria-label="8 値段"><span class="pin">8</span><span class="gp">3,240円</span></span>
+                <p class="gmeta">評価4.6（128件）</p></div>
+            </div>
+            <div class="gc"><p class="gmeta">2位・生活雑貨・ふわり織</p><p class="gn">今治のフェイスタオル 2枚</p><p class="gp">3,850円</p><p class="gmeta">評価4.4（86件）</p></div>
+          </div>
+          <div class="map-detail" id="map-detail" aria-live="polite"></div>
         </div>
-        <div class="hs" data-hs="6" tabindex="0" role="button" aria-label="6 件数"><span class="pin">6</span><p class="gsum">上位 20 件</p></div>
-        <div class="hs" data-hs="7" tabindex="0" role="button" aria-label="7 結果カード"><span class="pin">7</span>
-          <div class="gc"><p class="gmeta">1位・食品・みなと製菓</p><p class="gn">ありがとうの焼き菓子 12個入</p>
-            <span class="hs" data-hs="8" tabindex="0" role="button" aria-label="8 値段"><span class="pin">8</span><span class="gp">3,240円</span></span>
-            <p class="gmeta">評価4.6（128件）</p></div>
-        </div>
-        <div class="gc"><p class="gmeta">2位・生活雑貨・ふわり織</p><p class="gn">今治のフェイスタオル 2枚</p><p class="gp">3,850円</p><p class="gmeta">評価4.4（86件）</p></div>
       </div>
-      <div class="map-detail" id="map-detail" aria-live="polite"></div>
-    </div>
+    </details>
     <div class="btns"><a class="btn ghost" href="overview.html">アプリの全体像</a><a class="btn pink" href="map.html">🗺 コードの地図をもっと見る →</a><a class="btn ghost" href="screen.html">画面の地図</a><a class="btn ghost" href="flow.html">動きの地図</a><a class="btn ghost" href="change.html">変える地図</a><a class="btn ghost" href="data.html">データの地図</a><a class="btn ghost" href="files.html">ファイルの地図</a><a class="btn ghost" href="words.html">ことばの地図</a><a class="btn ghost" href="trouble.html">困ったときの地図</a><a class="btn ghost" href="git.html">GitHub の地図</a></div>
   </div>
 
@@ -298,80 +346,95 @@ const HUB = {
   </section>
 
   <h2 class="sec-title">🍻 メンバー <span class="dots"><i></i><i></i><i></i></span></h2>
-  <div class="grid">
-    <div class="card member"><div class="avatar m1">タ</div><div class="role">班長</div><h3>タケ</h3>
-      <ul><li>日程・提出物・全体の進み具合</li><li>最終提言・方向性のまとめ</li></ul></div>
-    <div class="card member"><div class="avatar m2">む</div><div class="role">コード長</div><h3>むっちゃん</h3>
-      <ul><li>使う技術・コードの確認</li><li>骨組み・画面と機能の実装</li></ul></div>
-    <div class="card member"><div class="avatar m3">ま</div><div class="role">発表長</div><h3>まいまい</h3>
-      <ul><li>発表資料の構成・時間配分</li><li>画面デザインや導線の確認</li></ul></div>
+  <div class="card member-list">
+    <div class="member-row"><div class="avatar m1">タ</div><div class="m-head"><b>タケ</b><span class="role">班長</span></div><div class="m-desc">日程・提出物・全体の進み具合 ／ 最終提言・方向性のまとめ</div></div>
+    <div class="member-row"><div class="avatar m2">む</div><div class="m-head"><b>むっちゃん</b><span class="role">コード長</span></div><div class="m-desc">使う技術・コードの確認 ／ 骨組み・画面と機能の実装</div></div>
+    <div class="member-row"><div class="avatar m3">ま</div><div class="m-head"><b>まいまい</b><span class="role">発表長</span></div><div class="m-desc">発表資料の構成・時間配分 ／ 画面デザインや導線の確認</div></div>
   </div>
 
   <h2 class="sec-title">🚀 最初だけ <span class="dots"><i></i><i></i><i></i></span></h2>
-  <div class="grid">
-    <div class="card">
-      <h3>自分の PC で動かす</h3>
-      <p class="muted">clone → .env をコピー → API（8000番）と画面（3000番）を起動。くわしくは README の3章。</p>
-      <div class="btns"><a class="btn pink" href="https://github.com/AR7ST/giftia#readme">README を読む →</a></div>
+  <details class="card fold">
+    <summary><span>💻 自分の PC で動かす・<span class="ib">スマホの Claude Code とつなぐ</span></span></summary>
+    <div class="fold-body">
+      <div class="grid">
+        <div>
+          <h3>自分の PC で動かす</h3>
+          <p class="muted">clone → .env をコピー → API（8000番）と画面（3000番）を起動。くわしくは README の3章。</p>
+          <div class="btns"><a class="btn pink" href="https://github.com/AR7ST/giftia#readme">README を読む →</a></div>
+        </div>
+        <div>
+          <h3>スマホの Claude Code とつなぐ</h3>
+          <ol class="steps">
+            <li>claude.ai/connect-github で GitHub を許可</li>
+            <li>Claude GitHub App に giftia・giftia-hub を入れる</li>
+            <li>Code → 新規 → giftia を選ぶ</li>
+          </ol>
+        </div>
+      </div>
     </div>
-    <div class="card">
-      <h3>スマホの Claude Code とつなぐ</h3>
-      <ol class="steps">
-        <li>claude.ai/connect-github で GitHub を許可</li>
-        <li>Claude GitHub App に giftia・giftia-hub を入れる</li>
-        <li>Code → 新規 → giftia を選ぶ</li>
-      </ol>
-    </div>
-  </div>
+  </details>
 
   <h2 class="sec-title">🗼 改善の流れ <span class="dots"><i></i><i></i><i></i></span></h2>
-  <div class="card">
-    <ol class="steps">
-      <li><b>Issue を作る</b>：Projects で「Giftia 改善ボード」を選ぶ（やること）</li>
-      <li><b>担当を決めて始める</b>：Assignees に自分（作業中）</li>
-      <li><b>ブランチで変える</b>：main を pull → ブランチ → 変更・確認</li>
-      <li><b>PR を出す</b>：何を／なぜ／確認手順 と Closes #番号（確認待ち）</li>
-      <li><b>本人以外が Approve</b>：手元で動かしてから</li>
-      <li><b>merge</b>：Issue は自動で閉じる（完了）</li>
-      <li><b>全員で再現</b>：pull して「再現 OK」。このページの改善ログに1行</li>
-    </ol>
-  </div>
+  <details class="card fold">
+    <summary><span>🔄 1回の改善の進め方（<span class="ib">1. Issue を作る</span> 〜 <span class="ib">7. 全員で再現）</span></span></summary>
+    <div class="fold-body">
+      <ol class="steps">
+        <li><b>Issue を作る</b>：Projects で「Giftia 改善ボード」を選ぶ（やること）</li>
+        <li><b>担当を決めて始める</b>：Assignees に自分（作業中）</li>
+        <li><b>ブランチで変える</b>：main を pull → ブランチ → 変更・確認</li>
+        <li><b>PR を出す</b>：何を／なぜ／確認手順 と Closes #番号（確認待ち）</li>
+        <li><b>本人以外が Approve</b>：手元で動かしてから</li>
+        <li><b>merge</b>：Issue は自動で閉じる（完了）</li>
+        <li><b>全員で再現</b>：pull して「再現 OK」。このページの改善ログに1行</li>
+      </ol>
+    </div>
+  </details>
 
   <h2 class="sec-title">💡 ナレッジ <span class="dots"><i></i><i></i><i></i></span></h2>
   <div class="grid">
-    <div class="card">
-      <h3>ルールの要点</h3>
-      <ul>
-        <li><b>main に直接 push しない。</b>変更はブランチ＋PR</li>
-        <li>作業の前に <code>git pull</code></li>
-        <li>1つの PR には1つの変更だけ</li>
-        <li>Approve は本人以外。Approve が付いてから merge</li>
-        <li><b>.env の中身は、GitHub・Slack・生成 AI に貼らない</b></li>
-      </ul>
-      <div class="btns">
-        <a class="btn ghost" href="https://github.com/AR7ST/giftia#readme">README ↗</a>
-        <a class="btn ghost" href="https://github.com/AR7ST/giftia/blob/main/AGENTS.md">AGENTS.md ↗</a>
+    <details class="card fold">
+      <summary><span>📏 ルールの要点（<span class="ib">main保護・</span><span class="ib">Approve・</span><span class="ib">.envの扱い）</span></span></summary>
+      <div class="fold-body">
+        <ul>
+          <li><b>main に直接 push しない。</b>変更はブランチ＋PR</li>
+          <li>作業の前に <code>git pull</code></li>
+          <li>1つの PR には1つの変更だけ</li>
+          <li>Approve は本人以外。Approve が付いてから merge</li>
+          <li><b>.env の中身は、GitHub・Slack・生成 AI に貼らない</b></li>
+        </ul>
+        <div class="btns">
+          <a class="btn ghost" href="https://github.com/AR7ST/giftia#readme">README ↗</a>
+          <a class="btn ghost" href="https://github.com/AR7ST/giftia/blob/main/AGENTS.md">AGENTS.md ↗</a>
+        </div>
       </div>
-    </div>
+    </details>
     <div class="card">
       <h3>改善ログ（Giftia の成長日記）</h3>
       <table>
         <tr><th>日付</th><th>変えたこと</th><th>PR</th></tr>
-        <tr><td>11/01</td><td>画面を検索 API につないだ（2週目）</td><td><a href="https://github.com/AR7ST/giftia/pull/1">giftia #1</a></td></tr>
-        <tr><td>11/01</td><td>README を班の案内とルールに書き直した</td><td><a href="https://github.com/AR7ST/giftia/pull/2">giftia #2</a></td></tr>
-        <tr><td>11/06</td><td>AI の使い方ルール（AGENTS.md）を作った</td><td><a href="https://github.com/AR7ST/giftia/pull/4">giftia #4</a></td></tr>
-        <tr><td>11/07</td><td>画面と API を1つのリポジトリ giftia にまとめた（モノレポ化）</td><td><a href="https://github.com/AR7ST/giftia/pull/6">giftia #6</a></td></tr>
-        <tr><td>11/07</td><td>ハブのリンクをモノレポの giftia に直した</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/1">hub #1</a></td></tr>
-        <tr><td>11/07</td><td>このハブを東京の夜景デザインにした</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/2">hub #2</a></td></tr>
-        <tr><td>11/07</td><td>画面マップを足した</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/3">hub #3</a></td></tr>
-        <tr><td>11/07</td><td>コードの地図（画面・動き・変える）を足した</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/5">hub #5</a></td></tr>
-        <tr><td>11/08</td><td>コードの地図（データ・ファイル・ことば）を足した</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/6">hub #6</a></td></tr>
-        <tr><td>11/08</td><td>コードの地図（困ったとき・GitHub）を足した</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/7">hub #7</a></td></tr>
-        <tr><td>11/08</td><td>コードの地図に学習チェックと「次に読む」を追加（Codex）</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/8">hub #8</a></td></tr>
         <tr><td>11/08</td><td>画面からDBまでの仕組みをたどる「アプリの全体像」を追加（Codex）</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/10">hub #10</a></td></tr>
         <tr><td>11/08</td><td>共同の送別ギフトを支援する「目指すアプリの姿」を追加（Codex）</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/12">hub #12</a></td></tr>
         <tr><td>11/08</td><td>要件 → いまのコードの対応を足し、表示と改善ログを整えた</td><td>hub（このPR）</td></tr>
       </table>
+      <details class="fold" style="margin-top:10px">
+        <summary><span>📜 過去のログを見る<span class="ib">（11件）</span></span></summary>
+        <div class="fold-body">
+          <table>
+            <tr><th>日付</th><th>変えたこと</th><th>PR</th></tr>
+            <tr><td>11/01</td><td>画面を検索 API につないだ（2週目）</td><td><a href="https://github.com/AR7ST/giftia/pull/1">giftia #1</a></td></tr>
+            <tr><td>11/01</td><td>README を班の案内とルールに書き直した</td><td><a href="https://github.com/AR7ST/giftia/pull/2">giftia #2</a></td></tr>
+            <tr><td>11/06</td><td>AI の使い方ルール（AGENTS.md）を作った</td><td><a href="https://github.com/AR7ST/giftia/pull/4">giftia #4</a></td></tr>
+            <tr><td>11/07</td><td>画面と API を1つのリポジトリ giftia にまとめた（モノレポ化）</td><td><a href="https://github.com/AR7ST/giftia/pull/6">giftia #6</a></td></tr>
+            <tr><td>11/07</td><td>ハブのリンクをモノレポの giftia に直した</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/1">hub #1</a></td></tr>
+            <tr><td>11/07</td><td>このハブを東京の夜景デザインにした</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/2">hub #2</a></td></tr>
+            <tr><td>11/07</td><td>画面マップを足した</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/3">hub #3</a></td></tr>
+            <tr><td>11/07</td><td>コードの地図（画面・動き・変える）を足した</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/5">hub #5</a></td></tr>
+            <tr><td>11/08</td><td>コードの地図（データ・ファイル・ことば）を足した</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/6">hub #6</a></td></tr>
+            <tr><td>11/08</td><td>コードの地図（困ったとき・GitHub）を足した</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/7">hub #7</a></td></tr>
+            <tr><td>11/08</td><td>コードの地図に学習チェックと「次に読む」を追加（Codex）</td><td><a href="https://github.com/AR7ST/giftia-hub/pull/8">hub #8</a></td></tr>
+          </table>
+        </div>
+      </details>
     </div>
   </div>
 
@@ -451,9 +514,9 @@ const HUB = {
   document.querySelectorAll(".stage").forEach(s => {
     if (today >= d(s.dataset.from) && today <= d(s.dataset.to)) s.classList.add("now");
   });
-  const nexts = [["2026-11-10", "制作 前半スタート（第6回ミーティング）"], ["2026-11-17", "制作 後半スタート（第7回ミーティング）"], ["2026-11-24", "最終発表"]];
+  const nexts = [["2026-11-10", "制作 前半スタート", "（第6回ミーティング）"], ["2026-11-17", "制作 後半スタート", "（第7回ミーティング）"], ["2026-11-24", "最終発表", ""]];
   const n = nexts.find(x => d(x[0]) > today);
-  document.getElementById("next").textContent = n ? "次の節目：" + n[1] + " まで あと " + Math.round((d(n[0]) - today) / day) + " 日" : "発表、おつかれさまでした！";
+  document.getElementById("next").innerHTML = n ? `<span class="ib">次の節目：${n[1]}</span>${n[2] ? `<span class="ib">${n[2]}</span>` : ""} <span class="ib">まで あと ${Math.round((d(n[0]) - today) / day)} 日</span>` : "発表、おつかれさまでした！";
 
   // 進捗
   let done = 0, total = 0;
