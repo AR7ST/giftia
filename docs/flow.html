@@ -6,6 +6,7 @@
 <title>動きの地図 ｜ コードの地図</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/map.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <style>
   .stepper { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0; }
   .timeline { position: relative; height: 70px; margin: 18px 6px 6px; }
@@ -35,6 +36,28 @@
   <div class="top"><span class="kicker">CODE MAP ・ 動きの地図</span><a href="map.html">← 地図の入口</a></div>
   <h1><span class="p">動きの地図</span></h1>
   <p class="lead">検索ボタンを押してから、カードが並ぶまでに、どのファイルのどこを、どんなデータが通るのかを追いかけます。</p>
+
+  <h2 class="sec-title">0. 検索の往復図 <small>全体を一枚で見る</small></h2>
+  <div class="card scroll">
+    <p class="muted">下の「1. 検索の旅（12ステップ）」を1枚にまとめた通信の順番図（シーケンス図）です。<b>画面（page.tsx）と伝書鳩（api.ts）はブラウザの中</b>、<b>受付（main.py）はサーバー（FastAPI）</b>、<b>倉庫は MySQL</b> で動きます。<code>await</code> は画面全体が固まるのではなく、「返事が届くまで検索結果を待つ」合図です。</p>
+    <pre class="mermaid">
+sequenceDiagram
+    participant P as 🖥 画面 (page.tsx)<br/>【ブラウザ内】
+    participant A as 🕊 伝書鳩 (api.ts)<br/>【ブラウザ内】
+    participant M as 🧑 受付 (main.py)<br/>【FastAPI サーバー】
+    participant D as 🗄 倉庫 (MySQL)<br/>【database.py 経由】
+
+    P->>A: ①〜④ onSearch() から searchGifts(condition)
+    Note over P,A: await（検索結果が返るまで待つ）
+    A->>M: ⑤〜⑥ fetch GET /api/search?q=…
+    M->>D: ⑦〜⑨ fetch_all(SQL, params) で件数・上位20件を検索
+    D-->>M: total（件数）＋ rows（商品の行）
+    M-->>A: ⑩ to_gift() で名札を付け替え JSON 返却
+    A-->>P: ⑪ res.json() から results（Gift[]）を返す
+    P->>P: ⑫ setResults() で ResultCard を並べる
+    </pre>
+    <p class="muted">図が表示されない場合：検索開始（page.tsx）→ APIへ依頼（api.ts の fetch）→ DB検索（main.py から MySQL）→ JSON返却（to_gift）→ カード表示（setResults）の順に往復します。</p>
+  </div>
 
   <h2 class="sec-title">1. 検索の旅 <small>12ステップ</small></h2>
   <div class="lanes" id="lanes">
@@ -181,6 +204,9 @@ function draw() {
 }
 ["#cTab", "#cKw", "#cCat", "#cWrap", "#cBand"].forEach(s => { $(s).addEventListener("input", draw); $(s).addEventListener("change", draw); });
 draw();
+</script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: "dark" });
 </script>
 </body>
 </html>
