@@ -6,6 +6,7 @@
 <title>変える地図 ｜ コードの地図</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/map.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <style>
   .ba { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   @media (max-width: 520px) { .ba { grid-template-columns: minmax(0, 1fr); } }
@@ -33,6 +34,26 @@
   <div class="top"><span class="kicker">CODE MAP ・ 変える地図</span><a href="map.html">← 地図の入口</a></div>
   <h1><span class="p">変える地図</span></h1>
   <p class="lead">「こうしたい」から、変えるファイルと行を探す地図です。値を動かすと、変える前と後の画面（例）が並びます。実際に変えるときは、Issue → ブランチ → PR の順で。</p>
+
+  <h2 class="sec-title">0. 変更範囲の判断チャート <small>どこを触る？</small></h2>
+  <div class="card scroll">
+    <p class="muted">改善を始める前に、<b>画面だけで完結するか・API（受付）もセットで変える必要があるか</b>を見分ける判断チャートです。画面と API のつなぎ目（<code>lib/api.ts</code> の <code>Gift</code> 型や <code>searchGifts()</code>）を変えるときは、<code>backend/main.py</code> も同じ PR でセットで変えるかを先に確認します（AGENTS.md 3章）。</p>
+    <pre class="mermaid">
+flowchart TD
+    S([Giftia を改善したい]) --> Q1{変えるのは画面の<br/>見た目・文言・配置だけ？}
+    Q1 -->|はい：色・ボタン文字・例文など| FE["【画面ファイルのみ】<br/>page.tsx / ResultCard.tsx / globals.css<br/>※API（backend）は変更不要"]
+    Q1 -->|いいえ：検索条件・件数・並び順・表示項目| Q2{画面とAPIのつなぎ目<br/>（送る条件・返る項目名や型）が変わる？}
+    Q2 -->|変わらない：件数初期値やORDER BYなど| BE["【API（受付）のみ確認】<br/>backend/main.py の引数・SQLを確認"]
+    Q2 -->|変わる：新しい検索条件やカード項目の追加| BOTH["【画面＋APIを同じPRでセット変更】<br/>giftia-frontend（page.tsx・lib/api.ts・ResultCard.tsx）と<br/>backend/main.py の両方を確認"]
+    BOTH --> Q3{DBから取る列（SELECT）も増える？}
+    Q3 -->|はい| DB["【データ構造も確認】<br/>products テーブルの列と main.py の SELECT・to_gift() を確認"]
+    Q3 -->|いいえ| NEXT["下の「1. 変えたいこと逆引き」で<br/>具体的なファイルと行番号を確認"]
+    FE --> NEXT
+    BE --> NEXT
+    DB --> NEXT
+    </pre>
+    <p class="muted">図が表示されない場合：①見た目や文言だけなら画面ファイル（page.tsx / ResultCard.tsx / globals.css）、②件数初期値や並び順だけなら backend/main.py、③送る条件や受け取る項目（Gift型）も変わるなら lib/api.ts と backend/main.py の両方を同じ PR で確認します。</p>
+  </div>
 
   <h2 class="sec-title">1. 変えたいこと逆引き <small>10こ</small></h2>
   <div class="card">
@@ -140,6 +161,9 @@ const WK = [
   [".env.local / backend/.env", "なし", "API の場所・DB の鍵（GitHub には上げない）", "各自の PC だけ"],
 ];
 $("#w12").insertAdjacentHTML("beforeend", WK.map(r => `<tr><td class="mono">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3].startsWith("giftia") || r[3].startsWith("backend") ? `<a class="ref" href="${REPO}${r[3]}" target="_blank" rel="noopener">${r[3].split("/").pop()} ↗</a>` : r[3]}</td></tr>`).join(""));
+</script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: "dark" });
 </script>
 </body>
 </html>

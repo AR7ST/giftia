@@ -6,6 +6,7 @@
 <title>困ったときの地図 ｜ コードの地図</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/map.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <style>
   .err { display: grid; gap: 8px; }
   .eb { text-align: left; font: inherit; color: inherit; cursor: pointer; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--card2); display: grid; gap: 2px; }
@@ -33,6 +34,23 @@
   <div class="top"><span class="kicker">CODE MAP ・ 困ったときの地図</span><a href="map.html">← 地図の入口</a></div>
   <h1><span class="p">困ったときの地図</span></h1>
   <p class="lead">エラーが出たとき、設定を探すとき、秘密を守るしくみを知りたいとき、PC のどこで何が動いているかを知りたいときの地図です。</p>
+
+  <h2 class="sec-title">0. 原因の切り分けチャート <small>どこから確かめる？</small></h2>
+  <div class="card scroll">
+    <p class="muted">検索や画面がうまく動かないときに、<b>どの順番で確かめると早いか</b>をたどる診断フローチャートです。症状だけで原因を決めつけず、たどり着いた箱の内容を下の「1. エラーマップ」や「2. 設定マップ」で詳しく確認してください（※設定ファイルの中身やパスワードは Slack・GitHub・AI に貼らないでください）。</p>
+    <pre class="mermaid">
+flowchart TD
+    S([検索や画面がうまく動かない]) --> Q1{画面は開く？<br/>http://localhost:3000}
+    Q1 -->|開かない・表示崩れ| T2["【ターミナル2（画面）を確認】<br/>npm run dev 起動中か / Port 3000 重複 / npm install"]
+    Q1 -->|開くが検索できない| Q2{検索ボタンを押すと<br/>どう表示される？}
+    Q2 -->|Failed to fetch| Q3{ブラウザの Console に<br/>CORS の赤字がある？}
+    Q3 -->|ある| CORS["【CORS 設定を確認】<br/>backend/.env の CORS_ORIGINS と<br/>uvicorn の再起動を確認"]
+    Q3 -->|ない| T1["【ターミナル1（API）と接続先を確認】<br/>uvicorn 起動中か / /api/health が開くか /<br/>giftia-frontend/.env.local の URL"]
+    Q2 -->|HTTP 500 または 422| APIERR["【受付（API）・DB接続を確認】<br/>ターミナル1のエラー行 / /docs での引数確認 /<br/>backend/.env の項目名（中身は貼らない）"]
+    Q2 -->|上位 0 件と出る| ZERO["【正常な応答（該当商品なし）】<br/>エラーではない。キーワードやカテゴリー条件を<br/>1つずつ外して確かめる"]
+    </pre>
+    <p class="muted">図が表示されない場合：①画面が開かないときはターミナル2（npm run dev）、②Failed to fetch のときは Console の CORS 表示とターミナル1（uvicorn・/api/health）、③HTTP 500/422 のときはターミナル1のエラー行と /docs、④上位0件のときは検索条件を順に確認します。</p>
+  </div>
 
   <h2 class="sec-title">1. エラーマップ</h2>
   <div class="card">
@@ -139,6 +157,9 @@ function env() {
   $("#envInfo").innerHTML = `<div class="say"><b>${e[0]}</b>：${e[2]}</div><div class="cmd">${esc(e[3])}</div><p class="muted">注意：${esc(e[4])}</p>`;
 }
 env();
+</script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: "dark" });
 </script>
 </body>
 </html>
