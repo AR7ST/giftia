@@ -207,14 +207,15 @@
 </head>
 <body>
 
-<!-- ここの数字を、merge のときに書きかえる（このページは手で更新する） -->
+<!-- 進捗データの初期値（assets/progress.json が読めない環境用のフォールバック） -->
 <script>
 const HUB = {
-  updated: "2026/11/07",
+  updated: "2026/11/14 07:05",
   presentation: "2026-11-24",
   start: "2026-10-20",
+  rule: "対象：PR・誤作成(not_planned)を除くGitHub Issue／完了：state=closed／担当未設定はIssue作成者で集計",
   members: [
-    { name: "タケ",       role: "班長",   done: 1, total: 1 },
+    { name: "タケ",       role: "班長",   done: 4, total: 4 },
     { name: "むっちゃん", role: "コード長", done: 1, total: 1 },
     { name: "まいまい",   role: "発表長", done: 0, total: 0 }
   ]
@@ -231,7 +232,7 @@ const HUB = {
 
     <div class="line">
       <div class="line-head">
-        <span class="pct">全体 <span id="pct">--</span>%</span>
+        <span class="pct" title="期間（10/20〜11/24）の日数経過率">日程経過 <span id="pct">--</span>%</span>
         <span class="badge" id="today">今日</span>
         <span class="muted">発表 11/24 まで あと <b id="left">--</b> 日</span>
       </div>
@@ -257,6 +258,29 @@ const HUB = {
 
 <main>
 
+  <h2 class="sec-title">📄 要求・要件定義書 <span class="dots"><i></i><i></i><i></i></span></h2>
+  <div class="grid">
+    <div class="card">
+      <h3>📘 要求定義書（Why / What）</h3>
+      <p class="muted">誰の、どんな課題を、何を実現して解くか（顧客インサイト・課題設定・解決策3案の比較と提案）</p>
+      <p class="muted" style="font-size:.8rem">原本所在：<code>02_プロジェクト/soubetsu-gift/要求.md</code></p>
+      <div class="btns">
+        <a class="btn pink" href="request.html">要求定義書を読む →</a>
+        <a class="btn ghost" href="https://github.com/AR7ST/giftia/blob/main/02_%E3%83%97%E3%83%AD%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88/soubetsu-gift/%E8%A6%81%E6%B1%82.md" target="_blank" rel="noopener">原本MD（要求.md） ↗</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>📗 要件定義書（How）</h3>
+      <p class="muted">要求をどの構成・ロジックで作るか（要求→要件マッピング・機能一覧・ER図・データ設計・発展2の実装記録）</p>
+      <p class="muted" style="font-size:.8rem">原本所在：<code>02_プロジェクト/soubetsu-gift/要件.md</code></p>
+      <div class="btns">
+        <a class="btn pink" href="requirements.html">要件定義書を読む →</a>
+        <a class="btn ghost" href="https://github.com/AR7ST/giftia/blob/main/02_%E3%83%97%E3%83%AD%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88/soubetsu-gift/%E8%A6%81%E4%BB%B6.md" target="_blank" rel="noopener">原本MD（要件.md） ↗</a>
+      </div>
+    </div>
+  </div>
+
   <h2 class="sec-title">🌃 毎日 <span class="dots"><i></i><i></i><i></i></span></h2>
   <div class="grid">
     <div class="card">
@@ -275,13 +299,14 @@ const HUB = {
       <div class="btns"><a class="btn" href="https://github.com/AR7ST/giftia">giftia を開く →</a></div>
     </div>
 
-    <div class="card">
-      <h3>進捗ダッシュボード</h3>
-      <p class="muted">閉じた Issue（やることカード）の数。merge のときに手で更新します。</p>
-      <p class="big">完了 <span id="doneAll">-</span> / <span id="totalAll">-</span></p>
+    <div class="card" id="progress-card">
+      <h3>進捗ダッシュボード（開発タスク完了率）</h3>
+      <p class="muted">上の「日程経過」とは別に、GitHub Issue（やることカード）の完了数を集計しています（PR・誤作成を除く）。</p>
+      <p class="big" id="prog-summary">タスク完了 <span id="doneAll">-</span> / <span id="totalAll">-</span> 件（<span id="pctAll">--</span>%）</p>
       <div class="bar"><div id="barAll" style="width:0"></div></div>
       <div id="who"></div>
-      <p class="muted">更新：<span id="updated"></span></p>
+      <p class="muted">最終更新：<span id="updated"></span></p>
+      <p class="muted" id="prog-status" style="font-size:.8rem"></p>
       <div class="btns"><a class="btn" href="https://github.com/users/AR7ST/projects/1">改善ボードを開く →</a></div>
     </div>
   </div>
@@ -298,10 +323,9 @@ const HUB = {
 
     <div class="card">
       <h3>課題</h3>
+      <p class="muted">Tech0 の各課題（課題1〜3・モノレポ化・発展1〜2）の進み具合と対応記録は、別ページにまとめています。</p>
       <div class="btns">
-        <a class="btn ghost" href="request.html">要求定義書</a>
-        <a class="btn ghost" href="requirements.html">要件定義書</a>
-        <a class="btn pink" href="assignments.html">課題進捗 →</a>
+        <a class="btn pink" href="assignments.html">📋 課題の進み具合を見る →</a>
       </div>
     </div>
   </div>
@@ -518,21 +542,51 @@ const HUB = {
   const n = nexts.find(x => d(x[0]) > today);
   document.getElementById("next").innerHTML = n ? `<span class="ib">次の節目：${n[1]}</span>${n[2] ? `<span class="ib">${n[2]}</span>` : ""} <span class="ib">まで あと ${Math.round((d(n[0]) - today) / day)} 日</span>` : "発表、おつかれさまでした！";
 
-  // 進捗
-  let done = 0, total = 0;
-  const who = document.getElementById("who");
-  HUB.members.forEach(m => {
-    done += m.done; total += m.total;
-    const p = m.total ? Math.round(m.done / m.total * 100) : 0;
-    const row = document.createElement("div");
-    row.className = "who";
-    row.innerHTML = `<span>${m.name}</span><div class="bar"><div style="width:${p}%"></div></div><b>${m.done}/${m.total}</b>`;
-    who.appendChild(row);
-  });
-  document.getElementById("doneAll").textContent = done;
-  document.getElementById("totalAll").textContent = total;
-  document.getElementById("barAll").style.width = (total ? Math.round(done / total * 100) : 0) + "%";
-  document.getElementById("updated").textContent = HUB.updated;
+  // 進捗ダッシュボード（assets/progress.json を優先し、取得失敗・対象0件も誤解なく表示）
+  function renderProgress(data, statusNote) {
+    const statusEl = document.getElementById("prog-status");
+    const summaryEl = document.getElementById("prog-summary");
+    const who = document.getElementById("who");
+    if (!data || !Array.isArray(data.members)) {
+      summaryEl.innerHTML = "⚠ 進捗データを取得できませんでした";
+      document.getElementById("barAll").style.width = "0%";
+      who.innerHTML = "";
+      document.getElementById("updated").textContent = "取得失敗";
+      statusEl.textContent = statusNote || "下の「改善ボードを開く」から直接ご確認ください。";
+      return;
+    }
+    let done = 0, total = 0;
+    who.innerHTML = "";
+    data.members.forEach(m => {
+      const mDone = Math.max(0, Number(m.done) || 0);
+      const mTotal = Math.max(0, Number(m.total) || 0);
+      done += mDone; total += mTotal;
+      const p = mTotal ? Math.round(mDone / mTotal * 100) : 0;
+      const row = document.createElement("div");
+      row.className = "who";
+      row.innerHTML = `<span>${m.name}</span><div class="bar"><div style="width:${p}%"></div></div><b>${mDone}/${mTotal}</b>`;
+      who.appendChild(row);
+    });
+    const pctAll = total ? Math.round(done / total * 100) : 0;
+    if (total === 0) {
+      summaryEl.innerHTML = `タスク完了 <span id="doneAll">0</span> / <span id="totalAll">0</span> 件 <small class="muted">（対象Issue 0件）</small>`;
+    } else {
+      summaryEl.innerHTML = `タスク完了 <span id="doneAll">${done}</span> / <span id="totalAll">${total}</span> 件（<span id="pctAll">${pctAll}</span>%）`;
+    }
+    document.getElementById("barAll").style.width = pctAll + "%";
+    document.getElementById("updated").textContent = data.updatedAt || data.updated || "-";
+    statusEl.textContent = statusNote || data.rule || "";
+  }
+  window.renderProgress = renderProgress;
+  renderProgress(HUB);
+  fetch("assets/progress.json", { cache: "no-store" })
+    .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    .then(json => renderProgress(json))
+    .catch(() => {
+      if (location.protocol !== "file:") {
+        renderProgress(HUB, "⚠ 最新の進捗データ取得に失敗したため、保存済みデータを表示しています。");
+      }
+    });
   // 画面マップ
   const R = "https://github.com/AR7ST/giftia/blob/main/";
   const MAP = {

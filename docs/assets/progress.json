@@ -1,0 +1,28 @@
+{
+  "updatedAt": "2026/11/14 07:05",
+  "repo": "AR7ST/giftia",
+  "rule": "対象：PR・誤作成(not_planned)を除くGitHub Issue／完了：state=closed／担当未設定はIssue作成者で集計",
+  "members": [
+    {
+      "name": "タケ",
+      "role": "班長",
+      "github": "AR7ST",
+      "done": 4,
+      "total": 4
+    },
+    {
+      "name": "むっちゃん",
+      "role": "コード長",
+      "github": "tabidance",
+      "done": 1,
+      "total": 1
+    },
+    {
+      "name": "まいまい",
+      "role": "発表長",
+      "github": "",
+      "done": 0,
+      "total": 0
+    }
+  ]
+}
