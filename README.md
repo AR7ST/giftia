@@ -1,7 +1,7 @@
 # Giftia（班のリポジトリ：画面 Next.js ＋ 検索 API FastAPI）
 
-Giftia のギフト検索アプリです。画面（Next.js）と検索 API（FastAPI）を、この1つのリポジトリにまとめています（モノレポ）。班で**できる日に1回**、少しずつ改善していきます（毎日でなくて OK）。
-進捗は **[Giftia 改善ボード](https://github.com/users/AR7ST/projects/1)**（GitHub Projects）と、**[ハブページ](https://ar7st.github.io/giftia-hub/)**（giftia-hub）の2つで管理します（→ 4章）。
+Giftia のギフト検索アプリです。画面（Next.js）、検索 API（FastAPI）、および開発ハブ（`docs/`）を、この1つのリポジトリにまとめています（モノレポ）。班で**できる日に1回**、少しずつ改善していきます（毎日でなくて OK）。
+進捗は **[Giftia 改善ボード](https://github.com/users/AR7ST/projects/1)**（GitHub Projects）と、**[ハブページ](https://ar7st.github.io/giftia/)**（`docs/` を GitHub Pages で公開）の2つで管理します（→ 4章）。
 **作業を始める前に、このファイルを最後まで読んでください。Claude Code を使う人は、最初に「README.md を読んで、ルールを守って作業して」と伝えてください（→ 8章）。**
 
 ---
@@ -13,25 +13,26 @@ Giftia のギフト検索アプリです。画面（Next.js）と検索 API（Fa
   giftia-frontend/             backend/                          Tech0 から配布
 ```
 
-このリポジトリは**モノレポ**（画面と API を、1つのリポジトリの中にフォルダを分けて入れた形）です。
+このリポジトリは**モノレポ**（画面・API・開発ハブを、1つのリポジトリの中にフォルダを分けて入れた形）です。
 
 ```
 giftia/（このリポジトリ）
 ├── giftia-frontend/   ← 画面（Next.js）。npm のコマンドはここで打つ
 ├── backend/           ← 検索 API（FastAPI）。uvicorn・pip のコマンドはここで打つ
+├── docs/              ← 班の開発ハブページ（GitHub Pages で公開）
 ├── README.md          ← このファイル（班の案内とルール）
 ├── AGENTS.md          ← 班の AI の使い方ルール
 └── .gitignore         ← GitHub に上げないファイル（.env など）
 ```
 
-| リポジトリ | 中身 | URL |
+| 場所 | 中身 | URL |
 | --- | --- | --- |
-| **giftia**（ここ。Private） | 画面と検索 API | https://github.com/AR7ST/giftia |
-| **giftia-hub**（公開） | 班のハブページ（入口・改善ログ）。GitHub Pages で公開 | https://github.com/AR7ST/giftia-hub → https://ar7st.github.io/giftia-hub/ |
+| **giftia**（このリポジトリ。2026/11/12 から Public） | 画面・検索 API・開発ハブ（`docs/`） | https://github.com/AR7ST/giftia |
+| **開発ハブ（GitHub Pages）** | 班の入口ページ・要求／要件定義書・コードの地図・改善ログ | https://ar7st.github.io/giftia/ |
 
-- giftia は **Private**（招待されたメンバーだけが見られる）。giftia-hub だけ **Public**（だれでも見られる）なので、秘密は置かない。
+- 2026/11/12 に `giftia-hub` の内容を `docs/` に統合し、リポジトリ全体を **Public**（だれでも見られる公開設定）にしました。秘密の情報（`.env`、教材の非公開資料、DB の実データなど）は絶対に置かないでください。
 - 2週目の変更の内容は PR #1 にまとめてある：https://github.com/AR7ST/giftia/pull/1
-- 前は画面（giftia-frontend）と API（giftia-backend）を別々のリポジトリにしていた。講師の指摘を受けて、モノレポに組みかえた（Issue #5）。giftia-backend はアーカイブ（読み取り専用）にして残している。
+- 前は画面（giftia-frontend）、API（giftia-backend）、ハブ（giftia-hub）を別々のリポジトリにしていた。講師の指摘と運用の簡素化のため、モノレポに組みかえた（Issue #5・PR #6・PR #13）。giftia-backend はアーカイブ（読み取り専用）にして残している。
 
 ### 主なファイル
 
@@ -139,10 +140,10 @@ npm run dev
 
 | 道具 | たとえ | URL | 見られる人 |
 | --- | --- | --- | --- |
-| **ハブページ** | 班の**玄関**（毎日ここから） | https://ar7st.github.io/giftia-hub/ | URL を知っている人はだれでも（公開） |
-| **Giftia 改善ボード**（GitHub Projects） | 付せんを貼る**ホワイトボード** | https://github.com/users/AR7ST/projects/1 | 班のメンバーだけ |
-| **Issue** | 付せん1枚＝**やることカード** | https://github.com/AR7ST/giftia/issues | 班のメンバーだけ |
-| **PR**（プルリクエスト） | 「清書に入れていい？」の**申請** | https://github.com/AR7ST/giftia/pulls | 班のメンバーだけ |
+| **ハブページ** | 班の**玄関**（毎日ここから） | https://ar7st.github.io/giftia/ | だれでも（公開） |
+| **Giftia 改善ボード**（GitHub Projects） | 付せんを貼る**ホワイトボード** | https://github.com/users/AR7ST/projects/1 | 公開範囲はボード設定に従う |
+| **Issue** | 付せん1枚＝**やることカード** | https://github.com/AR7ST/giftia/issues | だれでも閲覧可（2026/11/12 から Public） |
+| **PR**（プルリクエスト） | 「清書に入れていい？」の**申請** | https://github.com/AR7ST/giftia/pulls | だれでも閲覧可（Approve・merge は班のメンバーのみ） |
 
 ### 4-2. 1回の改善の流れ（全体図）
 
@@ -189,7 +190,7 @@ npm run dev
 **コツ**
 - **1回（1日）で終わる大きさ**にする。大きいときは Issue を分ける。
 - 思いついただけのアイデアも、担当なしで Issue にして「やること」に置いてよい（アイデア置き場になる）。
-- Issue は非公開だが、**パスワードなどの秘密は書かない**（ルール1）。
+- リポジトリは公開（Public）なので、**パスワードや接続情報などの秘密は絶対に書かない**（ルール1）。
 
 ### 4-4. ボード（Giftia 改善ボード）の使い方
 
@@ -245,18 +246,18 @@ Closes #12
 
 ### 4-6. ハブページの更新（改善ログを1行足す）
 
-merge した人が、ハブの「改善ログ」に1行足す。**ブラウザだけでできる**（コマンド不要）。
+merge したあと、ハブ（`docs/index.html`）の「改善ログ」に1行足す。**ブラウザだけでもできる**（コマンド不要）。
 
-1. https://github.com/AR7ST/giftia-hub を開く → **index.html** を押す
+1. https://github.com/AR7ST/giftia/blob/main/docs/index.html を開く
 2. 右上の **鉛筆マーク**（Edit this file）を押す
-3. 「改善ログ」の表（`<table>` の中）の**最後の行の下**に、1行足す
+3. 「改善ログ」の表（`<table>` の中）に、1行足す
    ```
-       <tr><td>2026-11-05</td><td>結果カードに星の評価を表示した</td><td>giftia #3</td></tr>
+       <tr><td>11/05</td><td>結果カードに星の評価を表示した</td><td>giftia #3</td></tr>
    ```
-   （日付・変えたこと・PR 番号。**名前は書かない**）
+   （日付・変えたこと・PR 番号。**本名は書かない**）
 4. 右上の **Commit changes...** → **Create a new branch for this commit and start a pull request** を選ぶ → **Propose changes** → **Create pull request**
-5. 自分で中身を確かめて **Merge**（ログの追加だけなら、班の OK を待たなくてよい）
-6. 1〜2分でページに反映される（**Actions** タブに緑のチェックが付けば完了）。古いままなら `Ctrl + F5`
+5. PR の作者以外のメンバーが中身を確かめて **Approve** し、人が **Merge** する（`main` はブランチ保護により PR＋承認1件以上が必須）
+6. 1〜2分で https://ar7st.github.io/giftia/ に反映される（**Actions** タブに緑のチェックが付けば完了）。古いままなら `Ctrl + F5`
 
 **ハブに載せてはいけないもの（公開ページ）**
 - `.env` の中身（DB のホスト名・ユーザー名・パスワード）、API キー
@@ -264,7 +265,7 @@ merge した人が、ハブの「改善ログ」に1行足す。**ブラウザ�
 - 本名などの個人情報
 - DB の商品データが写った画面のスクショ（載せたいときは講師に確認）
 
-**ハブのリンクやルールの要点を変えるとき**は、ふつうの改善と同じく、Slack で一言 → PR → 班の OK → merge。
+**ハブのリンクやルールの要点を変えるとき**も、ふつうの改善と同じく、Slack で一言 → ブランチ＋PR → 本人以外の Approve → 人が merge。
 
 ### 4-7. 週1回のふりかえり（おすすめ・5分）
 
@@ -284,9 +285,8 @@ merge した人が、ハブの「改善ログ」に1行足す。**ブラウザ�
 
 | 場所 | 班のメンバー（招待済み） | 持ち主だけ | 班の外の人 |
 | --- | --- | --- | --- |
-| giftia（画面と API） | ブランチ・PR・レビュー・merge・Issue | 招待・設定・削除 | 見られない |
-| Giftia 改善ボード | カードを足す・動かす・Archive | メンバーの追加・列や自動の設定 | 見られない |
-| giftia-hub | ページを直す（改善ログなど） | Pages の設定・招待 | **見るだけ** |
+| giftia（画面・API・`docs/` ハブ） | ブランチ・PR・レビュー（Approve）・merge・Issue | 招待・設定・削除 | **見るだけ**（2026/11/12 から Public） |
+| Giftia 改善ボード | カードを足す・動かす・Archive | メンバーの追加・列や自動の設定 | ボードの公開設定に従う |
 
 - 自分のカードは自分で動かす。担当者のアイコンで「だれが何をしているか」がわかる。
 - 招待や設定が必要なときは、Slack で持ち主に頼む。
@@ -297,7 +297,7 @@ merge した人が、ハブの「改善ログ」に1行足す。**ブラウザ�
 | --- | --- |
 | merge したのに、カードが「完了」に動かない | PR 本文に `Closes #番号` がない。カードを手で「完了」へ動かす |
 | Issue を作ったのに、ボードに出ない | Issue の右側の **Projects** で「Giftia 改善ボード」を選ぶ |
-| ハブを直したのに、ページが変わらない | 1〜2分待って `Ctrl + F5`。giftia-hub の **Actions** タブで赤い × が出ていたら持ち主に連絡 |
+| ハブを直したのに、ページが変わらない | 1〜2分待って `Ctrl + F5`。`AR7ST/giftia` の **Actions** タブで赤い × が出ていたら持ち主に連絡 |
 | 2人が同じところを変えそう | Slack で相談して、どちらかが先に merge。あとの人は `git pull` してから続ける |
 | Issue をまちがえて作った | Issue の下の **Close issue ▼** → **Close as not planned**（理由を一言） |
 | 自分の PC に変更が来ない | 作業の前に `git switch main` → `git pull`（自動では同じにならない） |

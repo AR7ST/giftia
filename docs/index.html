@@ -261,7 +261,7 @@ const HUB = {
   <h2 class="sec-title">📄 要求・要件定義書 <span class="dots"><i></i><i></i><i></i></span></h2>
   <div class="grid">
     <div class="card">
-      <h3>📘 要求定義書（Why / What）</h3>
+      <h3>📘 要求定義書（目的・提供価値）</h3>
       <p class="muted">誰の、どんな課題を、何を実現して解くか（顧客インサイト・課題設定・解決策3案の比較と提案）</p>
       <p class="muted" style="font-size:.8rem">原本所在：<code>02_プロジェクト/soubetsu-gift/要求.md</code></p>
       <div class="btns">
@@ -271,8 +271,8 @@ const HUB = {
     </div>
 
     <div class="card">
-      <h3>📗 要件定義書（How）</h3>
-      <p class="muted">要求をどの構成・ロジックで作るか（要求→要件マッピング・機能一覧・ER図・データ設計・発展2の実装記録）</p>
+      <h3>📗 要件定義書（必要な機能・条件）</h3>
+      <p class="muted">要求を満たすために必要な機能と条件・データの定義（要求→要件マッピング・機能一覧・ER図・発展2の記録）</p>
       <p class="muted" style="font-size:.8rem">原本所在：<code>02_プロジェクト/soubetsu-gift/要件.md</code></p>
       <div class="btns">
         <a class="btn pink" href="requirements.html">要件定義書を読む →</a>
@@ -301,7 +301,7 @@ const HUB = {
 
     <div class="card" id="progress-card">
       <h3>進捗ダッシュボード（開発タスク完了率）</h3>
-      <p class="muted">上の「日程経過」とは別に、GitHub Issue（やることカード）の完了数を集計しています（PR・誤作成を除く）。</p>
+      <p class="muted">上の「日程経過」とは別に、登録済み GitHub Issue（やることカード）の完了数を集計しています（※未登録タスクや未検証機能を含む製品全体の完成度を意味しません）。</p>
       <p class="big" id="prog-summary">タスク完了 <span id="doneAll">-</span> / <span id="totalAll">-</span> 件（<span id="pctAll">--</span>%）</p>
       <div class="bar"><div id="barAll" style="width:0"></div></div>
       <div id="who"></div>
@@ -390,7 +390,7 @@ const HUB = {
           <h3>スマホの Claude Code とつなぐ</h3>
           <ol class="steps">
             <li>claude.ai/connect-github で GitHub を許可</li>
-            <li>Claude GitHub App に giftia・giftia-hub を入れる</li>
+            <li>Claude GitHub App に giftia を入れる（ハブも docs/ に統合済み）</li>
             <li>Code → 新規 → giftia を選ぶ</li>
           </ol>
         </div>
