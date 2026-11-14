@@ -1,7 +1,11 @@
 {
-  "updatedAt": "2026/11/14 07:05",
+  "updatedAt": "2026/11/14 09:20",
   "repo": "AR7ST/giftia",
-  "rule": "対象：PR・誤作成(not_planned)を除くGitHub Issue／完了：state=closed／担当未設定はIssue作成者で集計",
+  "rule": "対象：PR・誤作成(not_planned)を除くGitHub Issue／完了：state=closed／複数担当は各担当者に計上・担当未設定はIssue作成者(または未割当)で集計",
+  "done": 5,
+  "total": 5,
+  "open": 0,
+  "pct": 100,
   "members": [
     {
       "name": "タケ",

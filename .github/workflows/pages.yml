@@ -3,14 +3,20 @@ name: Build and deploy hub
 on:
   push:
     branches: [main]
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'scripts/**'
+      - '.github/workflows/pages.yml'
+      - '02_プロジェクト/soubetsu-gift/**'
   issues:
-    types: [opened, closed, reopened]
+    types: [opened, closed, reopened, assigned, unassigned]
   schedule:
     - cron: '0 21 * * *' # UTC、日本時間 06:00
   workflow_dispatch:
 
 concurrency:
-  group: pages
+  group: pages-${{ github.event_name == 'pull_request' && github.ref || 'main' }}
   cancel-in-progress: false
 
 jobs:
@@ -33,13 +39,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          PUBLISH_ISSUE_COUNTS: 'false'
+          PUBLISH_ISSUE_COUNTS: 'true'
         run: python scripts/build-progress.py
-      - uses: actions/upload-pages-artifact@v3
+      - name: Verify generated files
+        run: |
+          test -f _site/index.html
+          test -f _site/assets/progress.json
+          test -f _site/progress.html
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
   deploy:
+    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     permissions:
