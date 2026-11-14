@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>サイト構成ツリー図 ｜ 東京 Drinking Party</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css">
+<style>
+  .tree-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .tree-root { font-family: var(--mono); font-size: .86rem; font-weight: 800; color: var(--cyan); padding: 6px 10px; border-radius: 10px; background: rgba(56,225,255,.08); border: 1px solid rgba(56,225,255,.35); }
+  .tree-groups { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .tree-group { border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; background: rgba(255,255,255,.035); min-width: 0; }
+  .tree-group h3 { margin: 0 0 10px; font-size: .96rem; display: flex; align-items: center; justify-content: space-between; gap: 6px; color: var(--yellow); border-bottom: 1px dashed var(--line); padding-bottom: 6px; }
+  .tree-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .tree-item { display: flex; flex-direction: column; gap: 3px; padding: 8px 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,.1); background: rgba(7,11,31,.6); text-decoration: none; transition: border-color .15s, transform .15s; min-width: 0; }
+  a.tree-item:hover { border-color: var(--pink); transform: translateX(2px); }
+  .tree-item.current { border-color: rgba(56,225,255,.55); background: rgba(56,225,255,.07); }
+  .tree-item-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap; }
+  .tree-branch { font-family: var(--mono); font-size: .84rem; font-weight: 800; color: var(--cyan); word-break: break-all; }
+  .tree-tag { font-size: .72rem; font-weight: 800; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--text); background: rgba(255,255,255,.07); flex: none; }
+  .tree-tag.auto { border-color: var(--green); color: var(--green); }
+  .tree-tag.now { border-color: var(--cyan); color: var(--cyan); }
+  .tree-desc { font-size: .82rem; color: var(--muted); line-height: 1.45; }
+  .btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="kicker">GIFTIA ・ SITE TREE</span><a class="btn" href="index.html">← トップページ（ハブ）にもどる</a></div>
+  <h1><span class="p">🌳 サイト構成ツリー図（全体マップ）</span></h1>
+  <p class="lead">公開ハブ（<code>https://ar7st.github.io/giftia/</code>）の全ページと共通資産の構成ツリーです。各行をタップすると、そのページへ直接移動できます。</p>
+
+  <section class="card" style="margin-top:16px" aria-label="公開ハブの構成ツリー">
+    <div class="tree-head">
+      <span class="tree-root">https://ar7st.github.io/giftia/ （docs/ 直下・全18ページ＋assets/）</span>
+      <span class="muted" style="font-size:.82rem">※各行を押すとそのページへ直接移動します（すべて相対パス）</span>
+    </div>
+
+    <div class="tree-groups">
+      <div class="tree-group">
+        <h3><span>① 入口・要件・課題・運用系</span><span class="tree-tag">7ページ</span></h3>
+        <div class="tree-list">
+          <a class="tree-item" href="./index.html">
+            <div class="tree-item-top"><span class="tree-branch">├── ./index.html</span><span class="tree-tag">入口・トップ</span></div>
+            <span class="tree-desc">開発ハブ本体（東京夜景・日程経過・進捗ダッシュボード・画面マップ）</span>
+          </a>
+          <a class="tree-item current" href="./tree.html">
+            <div class="tree-item-top"><span class="tree-branch">├── ./tree.html</span><span class="tree-tag now">現在地・全体図</span></div>
+            <span class="tree-desc">サイト構成ツリー図（公開ハブ全ページと共通資産の一覧マップ）</span>
+          </a>
+          <a class="tree-item" href="./request.html">
+            <div class="tree-item-top"><span class="tree-branch">├── ./request.html</span><span class="tree-tag auto">MD自動生成</span></div>
+            <span class="tree-desc">要求定義書（目的・提供価値／原本 <code>要求.md</code> から生成・SHA表示）</span>
+          </a>
+          <a class="tree-item" href="./requirements.html">
+            <div class="tree-item-top"><span class="tree-branch">├── ./requirements.html</span><span class="tree-tag auto">MD自動生成</span></div>
+            <span class="tree-desc">要件定義書（機能FR-01〜03・ER図・発展2記録 <code>#tenkai2</code>）</span>
+          </a>
+          <a class="tree-item" href="./assignments.html">
+            <div class="tree-item-top"><span class="tree-branch">├── ./assignments.html</span><span class="tree-tag">課題・対応表</span></div>
+            <span class="tree-desc">次の仕事（担当者フィルター付き）・要求〜実装〜PR対応表・課題記録</span>
+          </a>
+          <a class="tree-item" href="./setup.html">
+            <div class="tree-item-top"><span class="tree-branch">├── ./setup.html</span><span class="tree-tag">初回再現</span></div>
+            <span class="tree-desc">初回セットアップ案内（PCでの再現STEP 1〜5・確認チェックリスト）</span>
+          </a>
+          <a class="tree-item" href="./trouble.html">
+            <div class="tree-item-top"><span class="tree-branch">└── ./trouble.html</span><span class="tree-tag">診断・索引</span></div>
+            <span class="tree-desc">困ったときの地図（原因切り分け図・エラー14件・失敗と再発防止索引）</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="tree-group">
+        <h3><span>② 設計・全体像・GitHubフロー系</span><span class="tree-tag">4ページ</span></h3>
+        <div class="tree-list">
+          <a class="tree-item" href="./overview.html">
+            <div class="tree-item-top"><span class="tree-branch">├── ./overview.html</span><span class="tree-tag">現在の仕組み</span></div>
+            <span class="tree-desc">アプリの全体像（画面→API→DB→画面の検索6ステップと役割）</span>
+          </a>
+          <a class="tree-item" href="./vision.html">
+            <div class="tree-item-top"><span class="tree-branch">├── ./vision.html</span><span class="tree-tag">Phase1設計</span></div>
+            <span class="tree-desc">目指すアプリの姿（共同予算検索・比較材料・相談文コピーの設計）</span>
+          </a>
+          <a class="tree-item" href="./flow.html">
+            <div class="tree-item-top"><span class="tree-branch">├── ./flow.html</span><span class="tree-tag">シーケンス図</span></div>
+            <span class="tree-desc">動きの地図（検索ボタンからDBまでの12ステップ＋Mermaid図）</span>
+          </a>
+          <a class="tree-item" href="./git.html">
+            <div class="tree-item-top"><span class="tree-branch">└── ./git.html</span><span class="tree-tag">GitHub運用</span></div>
+            <span class="tree-desc">GitHub の地図（STEP 0〜9・人間Approve/merge必須フロー・成長年表）</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="tree-group">
+        <h3><span>③ コード逆引き・学習コース系</span><span class="tree-tag">7ページ</span></h3>
+        <div class="tree-list">
+          <a class="tree-item" href="./map.html">
+            <div class="tree-item-top"><span class="tree-branch">├── ./map.html</span><span class="tree-tag">地図の入口</span></div>
+            <span class="tree-desc">コードの地図（おすすめ学習コース6ステップ・チェック保存機能付き）</span>
+          </a>
+          <a class="tree-item" href="./screen.html">
+            <div class="tree-item-top"><span class="tree-branch">├── ./screen.html</span><span class="tree-tag">画面要素</span></div>
+            <span class="tree-desc">画面の地図（画面要素12か所＋状態7つの箱の動く試作）</span>
+          </a>
+          <a class="tree-item" href="./change.html">
+            <div class="tree-item-top"><span class="tree-branch">├── ./change.html</span><span class="tree-tag">逆引き</span></div>
+            <span class="tree-desc">変える地図（変更範囲判断チャート＋変えたいこと逆引き10選）</span>
+          </a>
+          <a class="tree-item" href="./data.html">
+            <div class="tree-item-top"><span class="tree-branch">├── ./data.html</span><span class="tree-tag">DBとSQL</span></div>
+            <span class="tree-desc">データの地図（DBカラム↔画面表示の名札付け替え・SQL組み立て）</span>
+          </a>
+          <a class="tree-item" href="./files.html">
+            <div class="tree-item-top"><span class="tree-branch">├── ./files.html</span><span class="tree-tag">行単位解説</span></div>
+            <span class="tree-desc">ファイルの地図（モノレポ構成＋主要5ファイルの1行ずつガイド）</span>
+          </a>
+          <a class="tree-item" href="./words.html">
+            <div class="tree-item-top"><span class="tree-branch">├── ./words.html</span><span class="tree-tag">用語・クイズ</span></div>
+            <span class="tree-desc">ことばの地図（専門用語のお店のたとえ＋理解度10問クイズ）</span>
+          </a>
+          <a class="tree-item" href="./callback-map.html">
+            <div class="tree-item-top"><span class="tree-branch">└── ./callback-map.html</span><span class="tree-tag">勉強会</span></div>
+            <span class="tree-desc">mapとコールバック関数（配列変換の基本とResultCard表示の仕組み）</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="tree-group">
+        <h3><span>④ Actions自動生成・共通資産（assets/）</span><span class="tree-tag auto">自動連動</span></h3>
+        <div class="tree-list">
+          <a class="tree-item" href="./progress.html">
+            <div class="tree-item-top"><span class="tree-branch">├── ./progress.html</span><span class="tree-tag auto">Actions生成</span></div>
+            <span class="tree-desc">進捗概要ページ（<code>scripts/build-progress.py</code> がビルド時に自動生成）</span>
+          </a>
+          <a class="tree-item" href="./assets/progress.json" target="_blank" rel="noopener">
+            <div class="tree-item-top"><span class="tree-branch">├── ./assets/progress.json</span><span class="tree-tag auto">JSONデータ</span></div>
+            <span class="tree-desc">GitHub Issue集計データ（トップの進捗ダッシュボードが参照）</span>
+          </a>
+          <div class="tree-item">
+            <div class="tree-item-top"><span class="tree-branch">└── ./assets/*.css, *.js</span><span class="tree-tag">共通部品</span></div>
+            <span class="tree-desc"><code>map.css</code>・<code>map.js</code>（行番号表）・<code>course.css/js</code>・<code>overview.css</code>・<code>vision.css</code></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="btns">
+      <a class="btn pink" href="index.html">← トップページ（ハブ）にもどる</a>
+      <a class="btn" href="map.html">🗺 コードの地図を見る →</a>
+    </div>
+  </section>
+
+  <footer>Giftia 班（クラス5・東京 Drinking Party）</footer>
+</div>
+</body>
+</html>
