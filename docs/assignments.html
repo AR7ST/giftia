@@ -3,34 +3,133 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>課題まとめ ｜ 東京 Drinking Party</title>
+<title>課題まとめ・次の仕事・対応表 ｜ 東京 Drinking Party</title>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/map.css">
 <style>
   .task-list .task { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px dashed var(--line); }
   .task-list .task:last-child { border-bottom: 0; }
-  .chip { flex: none; font-size: .78rem; font-weight: 800; padding: 2px 10px; border-radius: 999px; }
+  .chip-status { flex: none; font-size: .78rem; font-weight: 800; padding: 2px 10px; border-radius: 999px; }
   .c-done { background: #3ee59a; color: #062b1a; }
   .c-doing { background: #ffd23f; color: #3a2a00; }
+  .c-todo { background: rgba(56,225,255,.18); color: var(--cyan); border: 1px solid var(--cyan); }
+  .filter-bar { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 14px; }
+  .next-grid { display: grid; gap: 12px; }
+  .next-item { border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; background: rgba(255,255,255,.04); }
+  .next-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+  .owner-tag { font-size: .76rem; font-weight: 800; padding: 1px 9px; border-radius: 999px; background: rgba(255,79,163,.16); border: 1px solid var(--pink); color: #ffd0e6; }
+  table.matrix { width: 100%; border-collapse: collapse; font-size: .88rem; }
+  table.matrix th, table.matrix td { border: 1px solid var(--line); padding: 7px 8px; text-align: left; vertical-align: top; }
+  table.matrix th { background: rgba(255,255,255,.06); color: var(--text); }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><span class="kicker">GIFTIA ・ 課題の進み具合</span><a class="btn ghost" href="index.html">← トップページ（ハブ）にもどる</a></div>
-  <h1><span class="p">課題の進み具合・まとめ</span></h1>
-  <p class="lead">トップページから移動した「課題の進み具合」の一覧と、各課題のチーム対応記録です。</p>
+  <div class="top"><span class="kicker">GIFTIA ・ 課題と開発トレーサビリティ</span><a class="btn ghost" href="index.html">← トップページ（ハブ）にもどる</a></div>
+  <h1><span class="p">課題の進み具合・次の仕事・要件対応表</span></h1>
+  <p class="lead">宿題の進み具合、これから着手する「次の仕事（担当者フィルター付き）」、および要求 → 要件 → 実装ファイル → PR → 確認結果の対応表です。</p>
 
-  <h2 class="sec-title">課題の進み具合（一覧）</h2>
-  <div class="card task-list">
-    <div class="task"><span>課題1　要求定義・要件定義のアップデート</span><span class="chip c-done">完了</span></div>
-    <div class="task"><span>課題2　要求定義書・要件定義書 ／ 要件定義をもとに開発①</span><span class="chip c-done">提出用 完成</span></div>
-    <div class="task"><span>課題3　班の開発環境を GitHub で共有</span><span class="chip c-done">完了</span></div>
-    <div class="task"><span>モノレポ化（講師の指摘：画面とAPIを1つのリポジトリに統合）</span><span class="chip c-done">完了</span></div>
-    <div class="task"><span>発展1　AI と GitHub をもっと上手に使いこなす</span><span class="chip c-done">完了</span></div>
-    <div class="task"><span>発展2　要件定義をもとに Giftia を更新（評価なしを「不明」表示）</span><span class="chip c-done">完了（PR #12）</span></div>
+  <h2 class="sec-title" id="next-tasks">1. 次の仕事（これから作る機能・検証タスク）</h2>
+  <div class="card">
+    <p class="muted">担当者ボタンを押すと、そのメンバーが関わるタスクだけに絞り込めます。</p>
+    <div class="filter-bar" role="group" aria-label="担当者フィルター">
+      <button class="chip" data-owner="all" aria-pressed="true">全員（4件）</button>
+      <button class="chip" data-owner="タケ" aria-pressed="false">タケ（班長）</button>
+      <button class="chip" data-owner="むっちゃん" aria-pressed="false">むっちゃん（コード長）</button>
+      <button class="chip" data-owner="まいまい" aria-pressed="false">まいまい（発表長）</button>
+    </div>
+    <div class="next-grid" id="nextList">
+      <div class="next-item" data-owners="むっちゃん,タケ">
+        <div class="next-head">
+          <b>FR-01：人数×1人あたり予算での検索と並び順（販売数→評価→商品ID）</b>
+          <div><span class="owner-tag">担当：むっちゃん・タケ</span> <span class="chip-status c-todo">これから（Phase1）</span></div>
+        </div>
+        <p class="muted" style="margin:4px 0">人数と1人あたり予算から上限金額（budget_max）を計算し、在庫あり商品を「販売数 → 評価（NULLは末尾） → 商品ID」の順で返す。画面とAPIのつなぎ目（<code>api.ts</code> と <code>backend/main.py</code>）を同じPRで変更。</p>
+      </div>
+      <div class="next-item" data-owners="むっちゃん">
+        <div class="next-head">
+          <b>FR-02（残り）：商品カードへの説明文（description）表示と未設定時の「不明」表示</b>
+          <div><span class="owner-tag">担当：むっちゃん</span> <span class="chip-status c-todo">これから（Phase1）</span></div>
+        </div>
+        <p class="muted" style="margin:4px 0">評価なしの「評価 不明」対応（PR #12 で完了）に続き、商品の特徴・説明文をカード上で比較できるようにし、情報がない項目は「不明」と明示する。</p>
+      </div>
+      <div class="next-item" data-owners="タケ,まいまい">
+        <div class="next-head">
+          <b>FR-03：選んだ最大3候補＋理由から相談文を作成・コピーする機能</b>
+          <div><span class="owner-tag">担当：タケ・まいまい</span> <span class="chip-status c-todo">これから（Phase1）</span></div>
+        </div>
+        <p class="muted" style="margin:4px 0">検索結果から最大3件を選び、選んだ理由を添えて LINE 等にそのまま貼れる定型の相談文を生成・ワンタップでコピーできるようにする。</p>
+      </div>
+      <div class="next-item" data-owners="まいまい,タケ,むっちゃん">
+        <div class="next-head">
+          <b>VR-01：説明しやすさ・相談しやすさの試用評価と最終発表準備</b>
+          <div><span class="owner-tag">担当：まいまい・全員</span> <span class="chip-status c-todo">4〜5週目</span></div>
+        </div>
+        <p class="muted" style="margin:4px 0">Phase1 の画面を班内で試用し、「候補の比較材料が揃うか」「同僚への相談文として使いやすいか」を検証して要求定義書6章・発表資料に反映する。</p>
+      </div>
+    </div>
   </div>
 
-  <h2 class="sec-title">各課題の詳細記録</h2>
+  <h2 class="sec-title" id="traceability">2. 要求 → 要件 → 実装ファイル → PR → 確認結果の対応表</h2>
+  <div class="card scroll">
+    <p class="muted">どの要求・要件が、どのコードと PR で実装・検証されているかを一目でたどれるトレーサビリティ（追跡）表です。</p>
+    <table class="matrix">
+      <tr>
+        <th>要求ID</th>
+        <th>要件ID・内容</th>
+        <th>主な実装ファイル</th>
+        <th>PR</th>
+        <th>確認結果・状態</th>
+      </tr>
+      <tr>
+        <td><b>BR-01</b><br><small class="muted">共同予算・在庫あり候補の把握</small></td>
+        <td><b>FR-01</b><br>人数×予算上限検索、販売数→評価→商品ID順表示</td>
+        <td class="mono">backend/main.py<br>giftia-frontend/lib/api.ts<br>giftia-frontend/app/page.tsx</td>
+        <td><a href="https://github.com/AR7ST/giftia/pull/1" target="_blank" rel="noopener">PR #1</a>（基本検索）<br><small class="muted">予算上限・評価順は次PR予定</small></td>
+        <td><span class="chip-status c-doing">一部実装済</span><br><small class="muted">在庫あり（stock&gt;0）・販売数順20件は稼働中。人数×予算上限は次ステップ</small></td>
+      </tr>
+      <tr>
+        <td><b>BR-02</b><br><small class="muted">候補の特徴・不明点の確認</small></td>
+        <td><b>FR-02</b><br>商品名・価格・説明・評価を表示、ない情報は「不明」と示す</td>
+        <td class="mono">backend/main.py (L87)<br>giftia-frontend/lib/api.ts (L13)<br>giftia-frontend/app/ResultCard.tsx (L10)</td>
+        <td><a href="https://github.com/AR7ST/giftia/pull/12" target="_blank" rel="noopener">PR #12</a>（評価不明化）</td>
+        <td><span class="chip-status c-done">検証OK（PR #12）</span><br><small class="muted">評価なし→null→「評価 不明（0件）」表示、型チェック（tsc --noEmit）OK。説明文は次ステップ</small></td>
+      </tr>
+      <tr>
+        <td><b>BR-02</b><br><small class="muted">既存データで足りるか確認</small></td>
+        <td><b>DR-01</b><br>既存 products テーブルの列で Phase1 を構成</td>
+        <td class="mono">backend/database.py<br>backend/main.py</td>
+        <td><a href="https://github.com/AR7ST/giftia/pull/6" target="_blank" rel="noopener">PR #6</a>・<a href="requirements.html">要件5章</a></td>
+        <td><span class="chip-status c-done">確認済</span><br><small class="muted">products テーブルの既存9列で Phase1 対応可能と確認</small></td>
+      </tr>
+      <tr>
+        <td><b>BR-03</b><br><small class="muted">理由を同僚に説明・相談</small></td>
+        <td><b>FR-03</b><br>選んだ1〜3件と理由から相談文を作成・コピー</td>
+        <td class="mono">giftia-frontend/app/page.tsx<br><small class="muted">（設計：vision.html）</small></td>
+        <td><a href="vision.html">設計済（vision.html）</a></td>
+        <td><span class="chip-status c-todo">これから実装</span><br><small class="muted">UIモック・設計完了、Phase1 で実装予定</small></td>
+      </tr>
+      <tr>
+        <td><b>BR-04</b><br><small class="muted">送別購入率 1.7%→2.2%</small></td>
+        <td><b>VR-01（検証）</b><br>試用で説明・相談のしやすさを評価</td>
+        <td class="mono">02_プロジェクト/soubetsu-gift/要求.md</td>
+        <td><a href="request.html">要求定義書 4.3・6章</a></td>
+        <td><span class="chip-status c-todo">4〜5週目検証</span><br><small class="muted">FR-01〜03 実装後に試用評価を実施</small></td>
+      </tr>
+    </table>
+  </div>
+
+  <h2 class="sec-title">3. 課題の進み具合（一覧）</h2>
+  <div class="card task-list">
+    <div class="task"><span>課題1　要求定義・要件定義のアップデート</span><span class="chip-status c-done">完了</span></div>
+    <div class="task"><span>課題2　要求定義書・要件定義書 ／ 要件定義をもとに開発①</span><span class="chip-status c-done">提出用 完成</span></div>
+    <div class="task"><span>課題3　班の開発環境を GitHub で共有</span><span class="chip-status c-done">完了</span></div>
+    <div class="task"><span>モノレポ化（講師の指摘：画面とAPIを1つのリポジトリに統合）</span><span class="chip-status c-done">完了</span></div>
+    <div class="task"><span>発展1　AI と GitHub をもっと上手に使いこなす</span><span class="chip-status c-done">完了</span></div>
+    <div class="task"><span>発展2　要件定義をもとに Giftia を更新（評価なしを「不明」表示）</span><span class="chip-status c-done">完了（PR #12）</span></div>
+  </div>
+
+  <h2 class="sec-title">4. 各課題の詳細記録</h2>
 
   <div class="card">
     <h3>課題1　要求定義・要件定義のアップデート <span class="pill css">完了</span></h3>
@@ -68,5 +167,21 @@
   <footer>Giftia 班（クラス5・東京 Drinking Party）</footer>
 </div>
 <script src="assets/map.js"></script>
+<script>
+(function () {
+  const buttons = document.querySelectorAll(".filter-bar .chip");
+  const items = document.querySelectorAll("#nextList .next-item");
+  buttons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const owner = btn.dataset.owner;
+      buttons.forEach(b => b.setAttribute("aria-pressed", String(b === btn)));
+      items.forEach(item => {
+        const owners = (item.dataset.owners || "").split(",");
+        item.hidden = owner !== "all" && !owners.includes(owner);
+      });
+    });
+  });
+})();
+</script>
 </body>
 </html>
