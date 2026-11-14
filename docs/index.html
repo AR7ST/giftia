@@ -567,6 +567,10 @@ const HUB = {
       row.innerHTML = `<span>${m.name}</span><div class="bar"><div style="width:${p}%"></div></div><b>${mDone}/${mTotal}</b>`;
       who.appendChild(row);
     });
+    if (Number.isFinite(Number(data.done)) && Number.isFinite(Number(data.total))) {
+      done = Math.max(0, Number(data.done));
+      total = Math.max(0, Number(data.total));
+    }
     const pctAll = total ? Math.round(done / total * 100) : 0;
     if (total === 0) {
       summaryEl.innerHTML = `タスク完了 <span id="doneAll">0</span> / <span id="totalAll">0</span> 件 <small class="muted">（対象Issue 0件）</small>`;
