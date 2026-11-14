@@ -34,6 +34,7 @@
   .moon { position: absolute; top: 26px; right: 7%; width: 54px; height: 54px; border-radius: 50%;
     background: radial-gradient(circle at 35% 35%, #fffbe6, #ffe9a3 60%, #e8c66a);
     box-shadow: 0 0 40px 12px rgba(255,233,163,.25); }
+  .rabbit { position: absolute; top: 30px; right: calc(7% + 66px); font-size: 40px; line-height: 1; }
   .hero-inner { position: relative; z-index: 2; max-width: 920px; margin: 0 auto; }
   .kicker { display: inline-block; font-weight: 800; letter-spacing: .2em; font-size: .8rem; color: var(--cyan);
     border: 1px solid var(--cyan); border-radius: 999px; padding: 2px 12px; text-shadow: 0 0 8px var(--cyan); }
@@ -225,6 +226,7 @@ const HUB = {
 <header class="hero">
   <div class="stars" id="stars"></div>
   <div class="moon"></div>
+  <span class="rabbit" aria-hidden="true">🐇</span>
   <div class="hero-inner">
     <span class="kicker">GIFTIA 開発ハブ</span>
     <h1><span class="neon-pink">東京</span> <span class="neon-cyan">Drinking Party</span></h1>
