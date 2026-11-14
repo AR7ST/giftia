@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>初回セットアップ案内 ｜ 東京 Drinking Party</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/map.css">
+<style>
+  .cmd { font-family: var(--mono); font-size: .84rem; background: #0b0f2a; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; white-space: pre-wrap; word-break: break-all; margin: 8px 0; color: #ffe9a3; }
+  .step-card { margin-bottom: 14px; }
+  .step-card h3 { display: flex; align-items: center; gap: 8px; }
+  .step-num { width: 1.8em; height: 1.8em; border-radius: 50%; display: inline-grid; place-items: center; background: var(--pink); color: #fff; font-weight: 800; font-size: .85rem; flex: none; }
+  .check-list { list-style: none; padding-left: 0; display: grid; gap: 6px; }
+  .check-list li { padding: 6px 10px; border-radius: 8px; background: rgba(255,255,255,.04); border: 1px solid var(--line); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="kicker">GIFTIA ・ 初回セットアップ案内</span><a class="btn ghost" href="index.html">← トップページ（ハブ）にもどる</a></div>
+  <h1><span class="p">初回セットアップ案内（PC 再現手順）</span></h1>
+  <p class="lead">はじめて自分の PC で Giftia（検索 API と画面）を動かすときの 1本道ガイドです。2回目からは STEP 4（ターミナル1）と STEP 5（ターミナル2）だけで動きます。</p>
+
+  <div class="card" style="margin-top:14px; border-color:rgba(255,210,63,.5)">
+    <h3>⚠ はじめる前の大事な約束（秘密を守るルール）</h3>
+    <ul>
+      <li><b><code>.env</code>（DB のホスト名・ユーザー名・パスワード）の中身は、GitHub・Slack・生成 AI（Claude Code / Codex 等）・スクショに絶対に貼らないでください。</b></li>
+      <li>置き場所は <code>C:\Services\giftia</code> のように、<b>OneDrive や Google ドライブの外</b>にします（同期フォルダの中だと <code>node_modules</code> や <code>.venv</code> が壊れます）。</li>
+    </ul>
+  </div>
+
+  <h2 class="sec-title">1. 初回セットアップ（STEP 1〜5）</h2>
+
+  <div class="card step-card">
+    <h3><span class="step-num">1</span> リポジトリを clone する（最初の1回だけ）</h3>
+    <p class="muted">PowerShell を開き、作業用フォルダを作って <code>AR7ST/giftia</code> をダウンロードします。</p>
+    <div class="cmd">mkdir C:\Services -Force
+cd C:\Services
+git clone https://github.com/AR7ST/giftia.git
+cd C:\Services\giftia</div>
+  </div>
+
+  <div class="card step-card">
+    <h3><span class="step-num">2</span> バックエンド（検索 API）の仮想環境と .env を用意する</h3>
+    <p class="muted"><code>backend/</code> フォルダに入り、Python の部品箱（<code>.venv</code>）を作ってパッケージを入れます。続けて型紙（<code>.env.example</code>）を <code>.env</code> にコピーし、班で共有された DB 接続情報を自分の PC だけで記入します。</p>
+    <div class="cmd">cd C:\Services\giftia\backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+copy .env.example .env</div>
+    <p class="muted">※ PowerShell で「スクリプトの実行がシステムで無効…」と出たときは、一度だけ <code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code> を実行してから <code>Activate.ps1</code> を打ち直します。</p>
+    <p class="muted">※ SSL 証明書（<code>DigiCertGlobalRootG2.crt.pem</code>）を <code>C:\Services\certs\</code> 等に置き、<code>backend/.env</code> の <code>DB_SSL_CA</code> にスラッシュ区切り（<code>/</code>）でパスを書きます。</p>
+  </div>
+
+  <div class="card step-card">
+    <h3><span class="step-num">3</span> フロントエンド（画面）のパッケージと .env.local を用意する</h3>
+    <p class="muted"><code>giftia-frontend/</code> フォルダに入り、<code>npm install</code> で部品を入れます。</p>
+    <div class="cmd">cd C:\Services\giftia\giftia-frontend
+npm install
+copy .env.example .env.local</div>
+    <p class="muted">※ <code>giftia-frontend/.env.local</code> の <code>NEXT_PUBLIC_API_URL=http://localhost:8000</code> はそのまま使います（ここには秘密情報を絶対に書きません）。</p>
+  </div>
+
+  <div class="card step-card">
+    <h3><span class="step-num">4</span> 【ターミナル1】検索 API（FastAPI・8000番）を起動する</h3>
+    <p class="muted">1つ目の PowerShell 窓で API を起動し、開けっぱなしにします。</p>
+    <div class="cmd">cd C:\Services\giftia\backend
+.\.venv\Scripts\Activate.ps1
+uvicorn main:app --reload</div>
+    <p class="muted">確認：<a href="http://localhost:8000/api/health" target="_blank" rel="noopener">http://localhost:8000/api/health</a> を開いて <code>{"status":"ok","products":...}</code> が出れば DB 接続まで成功です。</p>
+  </div>
+
+  <div class="card step-card">
+    <h3><span class="step-num">5</span> 【ターミナル2】画面（Next.js・3000番）を起動する</h3>
+    <p class="muted"><b>2つ目の新しい PowerShell 窓</b>を開き、画面を起動します。</p>
+    <div class="cmd">cd C:\Services\giftia\giftia-frontend
+npm run dev</div>
+    <p class="muted">確認：<a href="http://localhost:3000" target="_blank" rel="noopener">http://localhost:3000</a> を開き、「検索」ボタンを押して商品カードが表示されればセットアップ完了です！</p>
+  </div>
+
+  <h2 class="sec-title">2. 動作確認チェックリスト</h2>
+  <div class="card">
+    <ul class="check-list">
+      <li>✅ <b>ターミナル1</b>：行の先頭に <code>(.venv)</code> が付いていて、<code>Uvicorn running on http://127.0.0.1:8000</code> と出ている</li>
+      <li>✅ <b>ヘルスチェック</b>：<code>http://localhost:8000/api/health</code> で <code>status: "ok"</code> が返る</li>
+      <li>✅ <b>ターミナル2</b>：<code>http://localhost:3000</code> で Giftia の画面が開き、検索結果が最大 20 件表示される</li>
+      <li>✅ <b>Git 状態確認</b>：<code>git status</code> を打ったとき、<code>.env</code> や <code>.env.local</code> が一覧に出てこない（<code>.gitignore</code> で守られている）</li>
+    </ul>
+  </div>
+
+  <h2 class="sec-title">3. つまずいたときは？</h2>
+  <div class="card">
+    <p class="muted">エラーが出たときは、症状別の切り分けチャートと過去の実例索引がある「困ったときの地図」を見てください。</p>
+    <div class="btns">
+      <a class="btn pink" href="trouble.html">🛠 困ったときの地図（エラー・実例索引）を見る →</a>
+      <a class="btn ghost" href="https://github.com/AR7ST/giftia#readme" target="_blank" rel="noopener">README 3章を見る ↗</a>
+    </div>
+  </div>
+
+  <div style="margin-top:24px" id="mapnav"></div>
+  <footer>Giftia 班（クラス5・東京 Drinking Party）</footer>
+</div>
+<script src="assets/map.js"></script>
+</body>
+</html>

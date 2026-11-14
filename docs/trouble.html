@@ -81,6 +81,44 @@ flowchart TD
     <div id="envInfo" style="margin-top:12px" aria-live="polite"></div>
   </div>
 
+  <h2 class="sec-title" id="incident-index">5. 実際にあった失敗と再発防止ルール索引（AGENTS.md・班ログ連携）</h2>
+  <div class="card scroll">
+    <p class="muted">班の開発で実際に起きたミスと、それを防ぐために <code>AGENTS.md</code>・<code>README.md</code>・GitHub 設定に入れた仕組みの索引です。</p>
+    <table class="t">
+      <tr><th>実際に起きたこと（失敗・ヒヤリハット）</th><th>原因</th><th>再発防止ルール・仕組み</th><th>参照先</th></tr>
+      <tr>
+        <td><b>公開ハブの例に DB の本当の件数・値を入れてしまった</b></td>
+        <td>動作確認の出力をそのまま公開ページの説明文に写した</td>
+        <td>公開ページ・資料には DB の実データ（件数・商品・値）を載せず、作り物のデータに「例」と明記する</td>
+        <td><a class="ref" href="https://github.com/AR7ST/giftia/blob/main/AGENTS.md" target="_blank" rel="noopener">AGENTS.md 5章 ↗</a></td>
+      </tr>
+      <tr>
+        <td><b>PR の作者本人を Approve する人として案内してしまった</b></td>
+        <td>AI が PR 作成者（タケ）を確かめずにレビュアー候補を案内した</td>
+        <td>Approve 案内前に必ず PR の作者を確かめ、作者以外のメンバー（むっちゃん・まいまい等）を挙げる</td>
+        <td><a class="ref" href="https://github.com/AR7ST/giftia/blob/main/AGENTS.md" target="_blank" rel="noopener">AGENTS.md 5章 ↗</a></td>
+      </tr>
+      <tr>
+        <td><b>PR #4 で Approve が付く前に merge してしまった</b></td>
+        <td>ブランチ保護を入れる前に手作業で merge した</td>
+        <td><code>main</code> に Branch Protection（PR必須・1名以上のApprove必須）を設定し、AI は Approve・merge を一切行わない</td>
+        <td><a class="ref" href="git.html">git.html 2章</a></td>
+      </tr>
+      <tr>
+        <td><b>評価がない商品が「評価0（0件）」と0点に見えていた</b></td>
+        <td>API が NULL を 0 に変換して返していた（要件 FR-02 と不一致）</td>
+        <td><code>backend/main.py</code>・<code>lib/api.ts</code>・<code>ResultCard.tsx</code> を同じ PR（PR #12）で修正し「評価 不明（0件）」に統一</td>
+        <td><a class="ref" href="requirements.html#tenkai2">発展2の記録</a></td>
+      </tr>
+      <tr>
+        <td><b>ハブの進捗が古い日付で止まり、別URL（giftia-hub）と二重管理になった</b></td>
+        <td>固定値と自動生成先の不一致、旧リポジトリの残存</td>
+        <td>正式 URL を <code>ar7st.github.io/giftia/</code> に統一し、<code>build-progress.py</code> と <code>build-docs.py</code> で自動生成に一本化</td>
+        <td><a class="ref" href="index.html#progress-card">進捗ダッシュボード</a></td>
+      </tr>
+    </table>
+  </div>
+
   <div style="margin-top:24px" id="mapnav"></div>
   <footer>エラー文の例は、班の作業ログでよく出たものを、値を伏せて書いています。</footer>
 </div>
@@ -137,7 +175,7 @@ const GUARDS = [
   ["3", "CORS", "許可した画面（3000番）からしか、ブラウザ経由で受付を使えないようにする。", [ref("cors")]],
   ["4", "NEXT_PUBLIC_ の約束", "この名前の値はブラウザに配られる。だから API の場所だけを置き、秘密は置かない。", [ref("apiUrl")]],
   ["5", ".env.example（型紙）", "名前だけで値は空。これをコピーして、各自が自分の .env を作る。", [`<a class="ref" href="${GH}backend/.env.example" target="_blank" rel="noopener">.env.example ↗</a>`]],
-  ["6", "AGENTS.md のルール", "AI に .env を読ませない・貼らせない。AI は commit・push・merge をしない。", [`<a class="ref" href="${GH}AGENTS.md" target="_blank" rel="noopener">AGENTS.md ↗</a>`]],
+  ["6", "AGENTS.md のルール", "AI に .env を読ませない・貼らせない。Approve と merge は必ず人間が行う（2026/11/12 改訂）。", [`<a class="ref" href="${GH}AGENTS.md" target="_blank" rel="noopener">AGENTS.md ↗</a>`]],
 ];
 $("#guards").innerHTML = GUARDS.map(g => `<div class="card"><h3><span class="shield">${g[0]}</span>${g[1]}</h3><p>${g[2]}</p><div class="refs">${g[3].join("")}</div></div>`).join("");
 
