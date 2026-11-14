@@ -35,6 +35,8 @@ jobs:
           test -d docs
           mkdir -p _site
           cp -a docs/. _site/
+      - name: Generate request and requirements HTML from Markdown
+        run: python scripts/build-docs.py _site
       - name: Generate progress
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

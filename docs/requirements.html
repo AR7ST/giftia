@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- 自動生成ファイル: scripts/build-docs.py により 02_プロジェクト/soubetsu-gift/要件.md および 02_プロジェクト/soubetsu-gift/発展2_変更点.md から生成 -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -12,12 +13,17 @@
   th, td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
   th { background: rgba(255,255,255,.06); }
   .src { font-size: .85rem; color: var(--muted); }
+  .source-banner { margin: 10px 0 16px; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(56,225,255,.4); background: rgba(56,225,255,.07); font-size: .84rem; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="top"><span class="kicker">GIFTIA ・ 要件定義書</span><a href="./">← ハブにもどる</a></div>
   <h1><span class="p">要件定義書</span></h1>
+  <div class="source-banner">
+    📄 <b>原本 Markdown から自動生成</b>：<a class="mono" href="https://github.com/AR7ST/giftia/blob/main/02_%E3%83%97%E3%83%AD%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88/soubetsu-gift/%E8%A6%81%E4%BB%B6.md" target="_blank" rel="noopener">02_プロジェクト/soubetsu-gift/要件.md ↗</a>（最終更新：2026-11-12 ／ コミット：<code class="mono">ec4236e</code>）・<a class="mono" href="https://github.com/AR7ST/giftia/blob/main/02_%E3%83%97%E3%83%AD%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88/soubetsu-gift/%E7%99%BA%E5%B1%952_%E5%A4%89%E6%9B%B4%E7%82%B9.md" target="_blank" rel="noopener">02_プロジェクト/soubetsu-gift/発展2_変更点.md ↗</a>（コミット：<code class="mono">a0d8c89</code>）
+  </div>
+
   <p class="lead">Giftia「送別ギフトを、仲間と納得して決められる」施策 ― 何を、なぜこの構成・このロジックで作るか</p>
 
   <table>
@@ -25,12 +31,14 @@
     <tr><th>メンバー</th><td>タケ（班長）、むっちゃん、まいまい</td></tr>
     <tr><th>初版作成日</th><td>2026年11月7日</td></tr>
     <tr><th>最終更新日</th><td>2026年11月9日</td></tr>
-    <tr><th>対応する要求定義書</th><td><a href="request.html">要求定義書</a></td></tr>
+    <tr><th>対応する要求定義書</th><td><a href="request.html">要求定義書（クラス5_東京Drinking Party_要求定義書）</a></td></tr>
     <tr><th>班のリポジトリ</th><td>AR7ST/giftia（画面 giftia-frontend/ と API backend/ を1つにまとめたモノレポ。PR #6）、giftia-hub</td></tr>
   </table>
+
   <p class="muted">生成AI利用：あり</p>
 
   <h2 class="sec-title">更新履歴</h2>
+
   <table>
     <tr><th>日付</th><th>更新した章</th><th>更新内容</th><th>更新者</th></tr>
     <tr><td>2026/11/5</td><td>全体</td><td>生成AIで素案を作成</td><td>タケ</td></tr>
@@ -38,9 +46,11 @@
     <tr><td>2026/11/7</td><td>全体</td><td>初版を確認・修正（FR-01に並び順のルールを追加、検証項目VR-01を機能と分離）。5章のER図を作成。リポジトリをモノレポ（giftia）に合わせて更新</td><td>タケ</td></tr>
     <tr><td>2026/11/9</td><td>5.2</td><td>要件定義をもとに Giftia を更新（発展2）。FR-02・5.2「評価なしを0点にしない」にそろえ、評価がない商品を「評価0」ではなく「評価 不明」と表示するようにした（PR #12）。5.2 に注記を追加</td><td>タケ</td></tr>
   </table>
+
   <p class="muted">※3週目の範囲（3章・4.1・5章）を記載。1・2・4.2・4.3・6〜10章と付録は4週目以降に記入します。</p>
 
   <h2 class="sec-title">3. 要求→要件マッピング</h2>
+
   <table>
     <tr><th>要求ID</th><th>要求</th><th>要件ID</th><th>要件（何を作るか）</th><th>確認方法</th></tr>
     <tr><td>BR-01</td><td>共同予算に合う、在庫のある候補を把握できること</td><td>FR-01</td><td>人数×1人あたり予算を上限に、在庫ありの商品をDBから複数件取得し、販売数→評価→商品IDの順（暫定）で表示する</td><td>予算外・在庫切れが出ず、並び順がルールどおりか確認</td></tr>
@@ -51,7 +61,9 @@
   </table>
 
   <h2 class="sec-title">4. 機能要件</h2>
+
   <h3>4.1 機能一覧</h3>
+
   <table>
     <tr><th>ID</th><th>機能名</th><th>概要</th><th>対応する要求ID</th><th>優先度</th></tr>
     <tr><td>FR-01</td><td>条件検索・候補表示</td><td>人数×1人あたり予算を上限に検索し、販売数→評価→商品IDの順で表示（暫定）</td><td>BR-01</td><td>高</td></tr>
@@ -60,9 +72,12 @@
   </table>
 
   <h2 class="sec-title">5. データ設計</h2>
+
   <h3>5.1 ER図（配布の基本ER図からの拡張）</h3>
+
+  <div class="card"><p class="muted">※元のGoogleドキュメントには画像として埋め込まれたER図がありますが、ここでは現在の実装コード（<code class="mono">backend/main.py</code>・<code class="mono">backend/database.py</code>・<code class="mono">giftia-frontend/lib/api.ts</code>）から実際に確認できる範囲だけをMermaid記法で再構成しています。配布された「データ定義.md」（Tech0の配布資料）はTech0のConfidential資料でありAGENTS.mdのルールによりリポジトリに複写しないため、<code class="mono">products</code>以外のテーブル（会員・注文等）が配布資料に存在する場合でも、ここには含めていません。</p></div>
+
   <div class="card">
-    <p class="muted">※原本のGoogleドキュメントには画像として埋め込まれたER図がありますが、ここでは現在の実装コード（backend/main.py・database.py・giftia-frontend/lib/api.ts）から実際に確認できる範囲だけを再構成しています。配布された「データ定義.md」はTech0のConfidential資料のためリポジトリに複写しておらず、productsテーブル以外（会員・注文等）が配布資料に存在する場合でも、ここには含めていません。</p>
     <pre class="mermaid">
 erDiagram
     products {
@@ -77,17 +92,20 @@ erDiagram
         int sales_count
     }
     </pre>
-    <p class="muted">現在コードから確認できるのは products テーブル1つのみ（/api/search・/api/health が参照する列）。</p>
   </div>
+
+  <div class="card"><p>現在コードから確認できるのは <code class="mono">products</code> テーブル1つのみ（<code class="mono">backend/main.py</code>の<code class="mono">/api/search</code>・<code class="mono">/api/health</code>が参照する列）。会員・贈り先などの関連テーブルは、要求定義書5.3「選ばなかった案」で言及されているのみで、本リポジトリのコードからは未確認です。</p></div>
 
   <h3>5.2 追加するデータの定義</h3>
-  <div class="card">
-    <p>Phase1では追加しない。既存の列を使い、評価や説明がない商品は「不明」と表示する（評価なしを0点にしない）。商品特徴・参考情報は、既存の列で足りないと分かった場合のみ追加を検討する。</p>
-    <p class="muted">※現在の検索API（backend/main.py）は、在庫ありの商品を販売数の多い順で返している。FR-01の予算の上限と、評価による並び替えはこれに足す形で作る。</p>
-    <p class="muted">2026/11/9 更新：評価がない商品は、API（backend/main.py）が評価を null（なし）で返し、画面のカード（ResultCard.tsx）は「評価 不明（0件）」と表示するようにした（FR-02、PR #12）。評価がある商品の表示と並び順は変えていない。</p>
-  </div>
+
+  <div class="card"><p>Phase1では追加しない。既存の列を使い、評価や説明がない商品は「不明」と表示する（評価なしを0点にしない）。商品特徴・参考情報は、既存の列で足りないと分かった場合のみ追加を検討する。</p></div>
+
+  <p class="muted">※現在の検索API（backend/main.py）は、在庫ありの商品を販売数の多い順で返している。FR-01の予算の上限と、評価による並び替えはこれに足す形で作る。</p>
+
+  <div class="card"><p>2026/11/9 更新：評価がない商品は、API（backend/main.py）が評価を null（なし）で返し、画面のカード（ResultCard.tsx）は「評価 不明（0件）」と表示するようにした（FR-02、PR #12）。評価がある商品の表示と並び順は変えていない。</p></div>
 
   <h3>5.3 データをどこに持たせたか</h3>
+
   <table>
     <tr><th>選んだ持たせ方</th><td>既存の products の列を使う（Phase1は追加なし）</td></tr>
     <tr><th>選ばなかった案</th><td>会員・贈り先側に持たせる案／全8,000件に一括で付ける案</td></tr>
@@ -95,16 +113,25 @@ erDiagram
   </table>
 
   <h3>5.4 データ供給計画</h3>
+
   <div class="card"><p>Phase1は既存データのみのため、追加の供給作業はなし。追加する場合は対象商品を絞り、商品部の月5人日程度の範囲で行う（Exhibit 5）。</p></div>
 
-  <p class="muted">1・2・4.2・4.3・6〜10章と付録は原本でも未記入（4週目以降に記入予定）のため、このページにも含まれていません。</p>
+  <p class="muted">1・2・4.2・4.3・6〜10章と付録は原本（下記リンク）でも未記入（4週目以降に記入予定）のため、本ファイルにも含まれていません。</p>
 
   <h2 class="sec-title" id="tenkai2">発展2：要件定義をもとにGiftiaを更新した記録 <span class="pill css">完了</span></h2>
-  <div class="card">
-    <p><b>まとめ</b>：要件定義書のFR-02「ない情報は『不明』と示す」と5.2「評価なしを0点にしない」に、Giftiaがそろっていなかった（評価がない商品が「評価0（0件）」と0点の商品に見えていた）。Giftiaを直し「評価 不明（0件）」と表示するようにした。</p>
-  </div>
+
+  <p class="muted">発展2「要件定義をもとに Giftia を更新」／2026年11月9日</p>
+
+  <h3>まとめ</h3>
+
+  <p class="muted">要件定義書（提出用・11/7版）の FR-02「ない情報は『不明』と示す」と 5.2「評価なしを0点にしない」に、Giftiaがそろっていなかった。</p>
+
+  <p class="muted">評価がない商品が「評価0（0件）」と表示され、0点の商品に見えていた。</p>
+
+  <p class="muted">Giftiaを直し、「評価 不明（0件）」と表示するようにした。あわせて要件定義書に、実装の内容を記録した。</p>
 
   <h3>Giftiaの変更（As-Is / To-Be）</h3>
+
   <table>
     <tr><th>項目</th><th>変更前（As-Is）</th><th>変更後（To-Be）</th></tr>
     <tr><td>評価がない商品のカード</td><td>評価0（0件）</td><td>評価 不明（0件）</td></tr>
@@ -113,15 +140,30 @@ erDiagram
     <tr><td>並び順・件数・検索条件</td><td>販売数の多い順・20件</td><td>変わらない</td></tr>
   </table>
 
-  <p class="muted">変えたファイル（3ファイル・各1行）。画面とAPIのつなぎ目（評価の形）を変えるため、3つを同じPRでまとめて変えた。<a href="https://github.com/AR7ST/giftia/pull/12/files" target="_blank" rel="noopener">PR #12（AR7ST/giftia）</a>。班のメンバーがレビューしてmerge。</p>
+  <p class="muted">変えたファイル（3ファイル・各1行）</p>
+
   <table>
     <tr><th>ファイル</th><th>行</th><th>変更前</th><th>変更後</th></tr>
-    <tr><td class="mono">backend/main.py</td><td>87</td><td>評価がないとき 0 を返す</td><td>null を返す</td></tr>
-    <tr><td class="mono">giftia-frontend/lib/api.ts</td><td>13</td><td>rating: number</td><td>rating: number | null</td></tr>
-    <tr><td class="mono">giftia-frontend/app/ResultCard.tsx</td><td>10</td><td>評価{gift.rating}</td><td>評価{gift.rating ?? " 不明"}</td></tr>
+    <tr><td>backend/main.py</td><td>87</td><td>評価がないとき 0 を返す</td><td>null を返す</td></tr>
+    <tr><td>giftia-frontend/lib/api.ts</td><td>13</td><td>rating: number</td><td>rating: number | null</td></tr>
+    <tr><td>giftia-frontend/app/ResultCard.tsx</td><td>10</td><td>評価{gift.rating}</td><td>評価{gift.rating ?? &quot; 不明&quot;}</td></tr>
+  </table>
+
+  <p class="muted">画面とAPIのつなぎ目（評価の形）を変えるため、3つを同じPRでまとめて変えた。</p>
+
+  <p class="muted"><a href="https://github.com/AR7ST/giftia/pull/12/files" target="_blank" rel="noopener">PR #12（AR7ST/giftia）</a>。班のメンバーがレビューしてmerge。</p>
+
+  <h3>要件定義書の変更</h3>
+
+  <table>
+    <tr><th>場所</th><th>変更前</th><th>変更後</th></tr>
+    <tr><td>更新履歴</td><td>3行（11/5・11/7・11/7）</td><td>4行目を追加：2026/11/9｜5.2｜評価なしの商品を「評価 不明」と表示するよう Giftia を更新（PR #12）</td></tr>
+    <tr><td>5.2 の注記</td><td>現在の検索APIは、在庫ありの商品を販売数の多い順で返している（評価なしの扱いは書いていない）</td><td>「評価がない商品は、APIがnullを返し、画面は『評価 不明（0件）』と表示する。評価がある商品の表示と並び順は変えていない」を追記</td></tr>
+    <tr><td>最終更新日</td><td>2026年11月7日</td><td>2026年11月9日</td></tr>
   </table>
 
   <h3>確かめたこと</h3>
+
   <table>
     <tr><th>確認</th><th>変更前</th><th>変更後</th><th>判定</th></tr>
     <tr><td>評価がない商品のAPIの評価</td><td>0</td><td>null</td><td>OK</td></tr>
@@ -131,6 +173,7 @@ erDiagram
   </table>
 
   <h3>進め方（チームでの分担）</h3>
+
   <div class="card">
     <ul>
       <li>タケ：Issue #11 を作成 → 3ファイルを修正 → 手元で動作確認 → PR #12 を作成 → 要件定義書を更新</li>
@@ -140,6 +183,7 @@ erDiagram
   </div>
 
   <h3>今回やらなかったこと（次の候補）</h3>
+
   <div class="card">
     <ul>
       <li>FR-01：人数×1人あたり予算での検索、販売数 → 評価 → 商品IDの並び順</li>
@@ -147,9 +191,9 @@ erDiagram
       <li>FR-03：相談文の作成・コピー</li>
     </ul>
   </div>
-  <p class="src">出典: 「要件定義書_変更点（東京Drinking Party・発展2）.docx」／ リポジトリ内のMarkdown: <span class="mono">02_プロジェクト/soubetsu-gift/発展2_変更点.md</span></p>
 
-  <p class="src">原本: <a href="https://docs.google.com/document/d/17cbMGdWMRYxOWZusGtCB7o-_m6KvIX5pXz1pSerIDG4/edit" target="_blank" rel="noopener">クラス5_東京Drinking Party_要件定義書（提出用）</a>（Googleドキュメント）／ リポジトリ内のMarkdown: <span class="mono">02_プロジェクト/soubetsu-gift/要件.md</span></p>
+  <p class="src">出典: 「要件定義書_変更点（東京Drinking Party・発展2）.docx」／ リポジトリ内のMarkdown原本: <a class="mono" href="https://github.com/AR7ST/giftia/blob/main/02_%E3%83%97%E3%83%AD%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88/soubetsu-gift/%E7%99%BA%E5%B1%952_%E5%A4%89%E6%9B%B4%E7%82%B9.md" target="_blank" rel="noopener">02_プロジェクト/soubetsu-gift/発展2_変更点.md</a>（コミット <code class="mono">a0d8c89</code>）</p>
+  <p class="src">原本: <a href="https://docs.google.com/document/d/17cbMGdWMRYxOWZusGtCB7o-_m6KvIX5pXz1pSerIDG4/edit" target="_blank" rel="noopener">クラス5_東京Drinking Party_要件定義書（提出用）</a>（Googleドキュメント）／ リポジトリ内のMarkdown原本: <a class="mono" href="https://github.com/AR7ST/giftia/blob/main/02_%E3%83%97%E3%83%AD%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88/soubetsu-gift/%E8%A6%81%E4%BB%B6.md" target="_blank" rel="noopener">02_プロジェクト/soubetsu-gift/要件.md</a>（コミット <code class="mono">ec4236e</code>）</p>
   <footer>Giftia 班（クラス5・東京 Drinking Party）</footer>
 </div>
 <script>
