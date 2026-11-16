@@ -181,7 +181,7 @@ export default function Home() {
             <input className="q" value={fKeyword} onChange={(e) => setFKeyword(e.target.value)} placeholder="キーワード（任意）" />
           </>
         )}
-        <button type="submit" disabled={mode === "farewell" && fStatus === "loading"}>検索</button>
+        <button type="submit">検索</button>
       </form>
 
       {mode !== "farewell" && error && <p className="summary">{error}</p>}
