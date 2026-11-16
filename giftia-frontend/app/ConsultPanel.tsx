@@ -21,10 +21,10 @@ export default function ConsultPanel({ candidates, recommendedId, reason }: Cons
     setStatus("idle");
   }
 
-  // コピーが終わったときに、今の文面と比べるための控え
-  const latestText = useRef(text);
+  // 文面の世代番号。文面が変わるたびに1つ進める（A→B→A と戻っても世代は別になる）
+  const gen = useRef(0);
   useEffect(() => {
-    latestText.current = text;
+    gen.current += 1;
   }, [text]);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -32,6 +32,7 @@ export default function ConsultPanel({ candidates, recommendedId, reason }: Cons
   async function handleCopy() {
     if (text === null) return;
     const startedText = text; // コピーを始めた時点の文面
+    const myGen = gen.current; // コピーを始めた時点の世代
     setStatus("copying");
     let ok = false;
     try {
@@ -42,8 +43,8 @@ export default function ConsultPanel({ candidates, recommendedId, reason }: Cons
     } catch {
       ok = false;
     }
-    // コピー中に文面が変わっていたら、古い結果で上書きしない
-    if (latestText.current !== startedText) return;
+    // コピー中に文面が一度でも変わっていたら（A→B→A も含む）、古い結果で上書きしない
+    if (gen.current !== myGen) return;
     setStatus(ok ? "success" : "error");
     if (!ok) textareaRef.current?.select(); // 手動でコピーしやすいよう、文を選んでおく
   }
