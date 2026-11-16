@@ -14,6 +14,8 @@ from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import fetch_all
+from fastapi import HTTPException
+from farewell import farewell_search
 
 load_dotenv()  # .env を読む（DB の接続情報・CORS の許可）
 
@@ -42,8 +44,14 @@ def search(
     price_min: int | None = Query(default=None, ge=0, description="価格の下限（以上）"),
     price_max: int | None = Query(default=None, ge=0, description="価格の上限（以下）"),
     limit: int = Query(default=20, ge=1, le=100, description="返す件数"),
+    mode: str = Query(default="", description="farewell なら送別ギフト検索（price_max 必須・10件固定）"),
 ):
     """条件に合う商品を、人気順（直近1年の販売数）で上位 limit 件返す"""
+    if mode == "farewell":
+        try:
+            return farewell_search(fetch_all, q, price_max)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
     # ① 条件を WHERE に1つずつ足す（値は %s で渡し、SQL の文字列に直接つなげない）
     where, params = ["stock > 0"], []  # 在庫切れは出さない
     for word in q.split():  # 【穴1】q を空白で区切って1語ずつにする（文字列のメソッド）
