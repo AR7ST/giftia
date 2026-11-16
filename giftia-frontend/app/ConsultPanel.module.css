@@ -1,0 +1,61 @@
+/* app/ConsultPanel.module.css — LINE 相談文パネル専用の見た目。globals.css のクラス名（.card など）は使わない */
+
+.panel {
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+  background: #ffffff;
+}
+
+.title {
+  font-size: 1.1rem;
+  margin: 0 0 8px;
+}
+
+.hint {
+  color: #57606a;
+  margin: 0 0 8px;
+}
+
+.preview {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px;
+  font: inherit;
+  line-height: 1.5;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  background: #f6f8fa;
+  resize: vertical;
+  margin-bottom: 8px;
+}
+
+.copyButton {
+  padding: 8px 20px;
+  font: inherit;
+  border: none;
+  border-radius: 6px;
+  background: #06c755;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.copyButton:disabled {
+  background: #afb8c1;
+  cursor: not-allowed;
+}
+
+.status {
+  min-height: 1.5em;
+  margin: 8px 0 0;
+}
+
+.success {
+  color: #1a7f37;
+}
+
+.error {
+  color: #cf222e;
+}
