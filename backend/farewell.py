@@ -16,8 +16,13 @@ DETAIL_COLUMNS = (
     "sales_count, description, size, gift_wrap, message_card, delivery_days"
 )
 
-GIFT_WRAP_STAMP = "ギフト包装可"
-KEYWORD_STAMPS = ("個包装", "常温", "香り", "甘い")
+GIFT_WRAP_STAMP = {"label": "ギフト包装可", "type": "positive"}
+KEYWORD_STAMPS = (
+    ("個包装", {"label": "個包装の記載あり", "type": "info"}),
+    ("常温", {"label": "常温保存の記載あり", "type": "info"}),
+    ("香り", {"label": "香りあり（好み確認）", "type": "caution"}),
+    ("甘い", {"label": "甘いもの（好み確認）", "type": "caution"}),
+)
 NEGATIONS = ("ない", "なく", "なし", "ません", "不可", "不要", "できず", "無し")
 UNCERTAIN = ("一部", "場合", "可能性", "かも", "もあります", "もある", "？", "?")
 CLAUSE_SPLIT = re.compile(r"[。！？!?\n、,，]")
@@ -74,7 +79,9 @@ def rating_status(rating, review_count) -> str:
         if review_count == 0:
             return "no_reviews"
         return "unknown"  # 件数あり・件数不明
-    if 1 <= float(rating) <= 5 and review_count is not None and review_count >= 1:
+    if review_count is None:
+        return "unknown"  # 評価はあるが件数が分からない
+    if 1 <= float(rating) <= 5 and review_count >= 1:
         return "valid"
     return "inconsistent"  # 評価はあるのに件数0、範囲外 など
 
@@ -94,16 +101,27 @@ def _keyword_state(text: str, word: str) -> str:
     return "yes" if found else "no"
 
 
-def make_stamps(gift_wrap, description) -> list[str]:
+def make_stamps(gift_wrap, description) -> list[dict]:
     """gift_wrap=1 と説明文の語からスタンプを作る。否定文・迷うときは付けない"""
     stamps = []
     if gift_wrap == 1:
-        stamps.append(GIFT_WRAP_STAMP)
+        stamps.append(dict(GIFT_WRAP_STAMP))
     if isinstance(description, str):
-        for word in KEYWORD_STAMPS:
+        for word, stamp in KEYWORD_STAMPS:
             if _keyword_state(description, word) == "yes":
-                stamps.append(word)
+                stamps.append(dict(stamp))
     return stamps
+
+
+def to_flag(value):
+    """1 → True、0 → False、それ以外・NULL → None"""
+    if value is None or isinstance(value, bool):
+        return value
+    if value == 1:
+        return True
+    if value == 0:
+        return False
+    return None
 
 
 def to_farewell_gift(r: dict) -> dict:
@@ -119,8 +137,8 @@ def to_farewell_gift(r: dict) -> dict:
         "salesCount": r["sales_count"],
         "description": r["description"],
         "size": r["size"],
-        "giftWrap": r["gift_wrap"],
-        "messageCard": r["message_card"],
+        "giftWrap": to_flag(r["gift_wrap"]),
+        "messageCard": to_flag(r["message_card"]),
         "deliveryDays": r["delivery_days"],
         "ratingStatus": rating_status(r["rating"], r["review_count"]),
         "stamps": make_stamps(r["gift_wrap"], r["description"]),

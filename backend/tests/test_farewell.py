@@ -43,6 +43,10 @@ def make_fetch(products):
     return fetch
 
 
+def labels(stamps):
+    return [s["label"] for s in stamps]
+
+
 def ids(result):
     return [r["id"] for r in result["results"]]
 
@@ -171,19 +175,27 @@ class RatingStatusTest(unittest.TestCase):
         self.assertEqual(farewell.rating_status(4.0, 0), "inconsistent")
         self.assertEqual(farewell.rating_status(0, 5), "inconsistent")
         self.assertEqual(farewell.rating_status(5.5, 5), "inconsistent")
-        self.assertEqual(farewell.rating_status(4.0, None), "inconsistent")
+
+    def test_rating_with_null_count_is_unknown(self):
+        self.assertEqual(farewell.rating_status(4.0, None), "unknown")
+        self.assertEqual(farewell.rating_status(5.5, None), "unknown")
 
 
 class StampTest(unittest.TestCase):
     def test_gift_wrap(self):
-        self.assertEqual(farewell.make_stamps(1, None), ["ギフト包装可"])
+        self.assertEqual(farewell.make_stamps(1, None), [{"label": "ギフト包装可", "type": "positive"}])
         self.assertEqual(farewell.make_stamps(0, None), [])
         self.assertEqual(farewell.make_stamps(None, None), [])
 
     def test_keywords(self):
         self.assertEqual(
             farewell.make_stamps(None, "個包装で配りやすい。常温で保存できます。香りが良い。甘い味わい。"),
-            ["個包装", "常温", "香り", "甘い"],
+            [
+                {"label": "個包装の記載あり", "type": "info"},
+                {"label": "常温保存の記載あり", "type": "info"},
+                {"label": "香りあり（好み確認）", "type": "caution"},
+                {"label": "甘いもの（好み確認）", "type": "caution"},
+            ],
         )
 
     def test_negation_gets_no_stamp(self):
@@ -205,10 +217,12 @@ class StampTest(unittest.TestCase):
                 self.assertEqual(farewell.make_stamps(None, text), [])
 
     def test_negation_in_other_clause_does_not_block(self):
-        self.assertEqual(farewell.make_stamps(None, "個包装ではありませんが、甘い味です"), ["甘い"])
+        self.assertEqual(farewell.make_stamps(None, "個包装ではありませんが、甘い味です"),
+            [{"label": "甘いもの（好み確認）", "type": "caution"}],
+        )
 
     def test_negated_wrap_keeps_gift_wrap_stamp(self):
-        self.assertEqual(farewell.make_stamps(1, "個包装ではありません"), ["ギフト包装可"])
+        self.assertEqual(labels(farewell.make_stamps(1, "個包装ではありません")), ["ギフト包装可"])
 
     def test_non_string_description(self):
         self.assertEqual(farewell.make_stamps(None, None), [])
@@ -230,10 +244,33 @@ class ResponseShapeTest(unittest.TestCase):
         self.assertIsNone(item["size"])
         self.assertIsNone(item["messageCard"])
         self.assertIsNone(item["deliveryDays"])
-        self.assertEqual(item["giftWrap"], 1)
+        self.assertIs(item["giftWrap"], True)
         self.assertEqual(item["ratingStatus"], "no_reviews")
-        self.assertEqual(item["stamps"], ["ギフト包装可", "個包装"])
+        self.assertEqual(
+            item["stamps"],
+            [{"label": "ギフト包装可", "type": "positive"}, {"label": "個包装の記載あり", "type": "info"}],
+        )
         self.assertEqual(set(result), {"total", "shown", "results"})
+
+
+class FlagTest(unittest.TestCase):
+    def test_to_flag(self):
+        self.assertIs(farewell.to_flag(1), True)
+        self.assertIs(farewell.to_flag(0), False)
+        self.assertIsNone(farewell.to_flag(None))
+        self.assertIsNone(farewell.to_flag(2))
+        self.assertIsNone(farewell.to_flag(-1))
+        self.assertIsNone(farewell.to_flag("x"))
+
+    def test_flags_in_response(self):
+        fetch = make_fetch([
+            {"product_id": "A", "category": "a", "sales_count": 3, "gift_wrap": 1, "message_card": 0},
+            {"product_id": "B", "category": "b", "sales_count": 2, "gift_wrap": 0, "message_card": 1},
+            {"product_id": "C", "category": "c", "sales_count": 1},
+        ])
+        items = farewell.farewell_search(fetch, "", 5000)["results"]
+        self.assertEqual([(i["giftWrap"], i["messageCard"]) for i in items], [(True, False), (False, True), (None, None)])
+        self.assertEqual([labels(i["stamps"]) for i in items], [["ギフト包装可"], [], []])
 
 
 if __name__ == "__main__":
