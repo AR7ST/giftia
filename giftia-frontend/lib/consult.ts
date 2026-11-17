@@ -1,21 +1,10 @@
 // lib/consult.ts — 選んだ1〜3商品から、LINE に貼る相談文を作る（FR-04）。画面を持たない関数だけ
 // 商品の URL は作らない。代わりに「商品ID：」を書く
 
-// ▼ PR0（FarewellGift）が main に merge されたら、この型を次の2行に差し替える：
-//   import type { FarewellGift } from "./api";
-//   export type ConsultCandidate = Pick<FarewellGift, "id" | "name" | "brand" | "category" | "price" | "description" | "rating" | "reviewCount">;
-// 項目名と型は FarewellGift（lib/api.ts）と同じ。FarewellGift[] をそのまま candidates に渡せる
-export type ConsultCandidate = {
-  id: string;
-  name: string;
-  brand: string;
-  category: string;
-  price: number;
-  description: string | null;
-  rating: number | null;
-  reviewCount: number | null;
-};
-// ▲ 差し替えここまで
+// 相談文に使う商品の項目。共通の型 FarewellGift（lib/api.ts、PR0）から8項目だけ取り出す
+// FarewellGift[] をそのまま candidates に渡せる
+import type { FarewellGift } from "./api";
+export type ConsultCandidate = Pick<FarewellGift, "id" | "name" | "brand" | "category" | "price" | "description" | "rating" | "reviewCount">;
 
 export type ConsultInput = {
   candidates: ConsultCandidate[]; // 選択順。使うのは先頭 MAX_CANDIDATES 件まで
