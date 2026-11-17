@@ -43,3 +43,70 @@ export async function searchGifts(c: SearchCondition): Promise<Gift[]> {
   const data = await res.json();
   return data.results;
 }
+
+// ── 送別ギフト（mode=farewell）：PR #30 の応答の形 ─────────────────────────
+
+// 結果カードが使う項目。Gift と違い、reviewCount が null になりうる
+export type ResultCardGift = {
+  id: string;
+  category: string;
+  brand: string;
+  name: string;
+  price: number;
+  rating: number | null;
+  reviewCount: number | null;
+};
+
+export type RatingStatus = "valid" | "no_reviews" | "unknown" | "inconsistent";
+
+export type Stamp = { label: string; type: "positive" | "info" | "caution" };
+
+export type FarewellGift = ResultCardGift & {
+  salesCount: number | null;
+  description: string | null;
+  size: string | null;
+  giftWrap: boolean | null;
+  messageCard: boolean | null;
+  deliveryDays: number | null;
+  ratingStatus: RatingStatus;
+  stamps: Stamp[];
+};
+
+export type FarewellResponse = { total: number; shown: number; results: FarewellGift[] };
+
+// tagOnly は作らない（API が未対応。Phase1 は常に false）
+export type FarewellCondition = { priceMax: number; keyword?: string };
+
+export type FarewellErrorKind = "validation" | "server" | "network";
+
+export class FarewellApiError extends Error {
+  kind: FarewellErrorKind;
+  constructor(kind: FarewellErrorKind, message?: string) {
+    super(message ?? kind);
+    this.name = "FarewellApiError";
+    this.kind = kind;
+  }
+}
+
+// 送別ギフトを検索する。4xx → validation、5xx → server、通信失敗 → network。中断（AbortError）はそのまま投げる
+export async function searchFarewellGifts(c: FarewellCondition, signal?: AbortSignal): Promise<FarewellResponse> {
+  const params = new URLSearchParams({ mode: "farewell", price_max: String(c.priceMax) });
+  if (c.keyword) params.set("q", c.keyword);
+
+  let res: Response;
+  try {
+    res = await fetch(`${API}/api/search?${params.toString()}`, { signal });
+  } catch (e) {
+    if (e instanceof DOMException && e.name === "AbortError") throw e;
+    throw new FarewellApiError("network");
+  }
+  if (res.status >= 400 && res.status < 500) throw new FarewellApiError("validation", `HTTP ${res.status}`);
+  if (!res.ok) throw new FarewellApiError("server", `HTTP ${res.status}`);
+
+  try {
+    return (await res.json()) as FarewellResponse;
+  } catch (e) {
+    if (e instanceof DOMException && e.name === "AbortError") throw e;
+    throw new FarewellApiError("server", "invalid JSON");
+  }
+}
