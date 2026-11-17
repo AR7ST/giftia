@@ -18,3 +18,22 @@ body { margin:0; font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif; co
 .card .name { font-size:16px; margin:4px 0; }
 .card .price { font-size:18px; font-weight:700; margin:4px 0; }
 .card .meta { color:var(--sub); font-size:13px; margin:2px 0; }
+/* 送別ギフト */
+.stamps { display:flex; flex-wrap:wrap; gap:4px; margin:4px 0; }
+.stamp { font-size:12px; padding:2px 8px; border-radius:999px; border:1px solid var(--line); }
+.stamp-positive { background:#e6f4ea; border-color:#b7dfc1; color:#1e6b34; }
+.stamp-info { background:#e8f0fb; border-color:#b9cdee; color:#24508f; }
+.stamp-caution { background:#fff4e0; border-color:#f0d3a0; color:#8a5a00; }
+.card .pick { margin-top:6px; font-size:14px; padding:6px 10px; border:1px solid var(--accent); border-radius:6px; background:#fff; color:var(--accent); cursor:pointer; }
+.card .pick.on { background:var(--accent); color:#fff; }
+.card .pick:disabled { opacity:.4; cursor:not-allowed; }
+.form .budget { width:140px; }
+.notice { font-size:14px; margin:8px 0; padding:8px 10px; border-radius:6px; background:#fff; border:1px solid var(--line); }
+.notice.err { border-color:#e0a0a0; color:#8a1f1f; }
+.consult { border:1px solid var(--line); border-radius:10px; padding:12px 14px; background:#fff; margin:12px 0; }
+.consult h2 { font-size:16px; margin:0 0 8px; }
+.consult ul { margin:4px 0; padding-left:0; list-style:none; }
+.consult li { display:flex; gap:8px; align-items:center; margin:4px 0; font-size:14px; }
+.consult li button { font-size:13px; padding:3px 8px; border:1px solid var(--accent); border-radius:6px; background:#fff; color:var(--accent); cursor:pointer; }
+.consult li button.on { background:var(--accent); color:#fff; }
+.consult textarea { width:100%; font-size:14px; padding:8px; border:1px solid var(--line); border-radius:6px; }
