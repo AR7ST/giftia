@@ -6,6 +6,7 @@
 
 import { useRef, useState } from "react";
 import ResultCard from "./ResultCard";
+import ConsultPanel from "./ConsultPanel";
 import {
   FarewellApiError,
   searchFarewellGifts,
@@ -236,6 +237,9 @@ export default function Home() {
                   )}
                 </div>
               )}
+
+              {/* LINE 相談文（PR3b）。候補が0件のときは「候補を1件以上選んでください」と出て、コピーできない */}
+              <ConsultPanel candidates={selected} recommendedId={recommendedId} reason={reason} />
 
               <div className="grid">
                 {fResults.map((g, i) => (
