@@ -14,6 +14,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from current_screen import render_current_screen, write_screen_guides
+
 REPO_URL = "https://github.com/AR7ST/giftia"
 REQ_GDOC = "https://docs.google.com/document/d/1UKN-KzgEEkWoMsWDvMRQA5dOFL4MDbLSt47nyfW7B3U/edit"
 SPEC_GDOC = "https://docs.google.com/document/d/17cbMGdWMRYxOWZusGtCB7o-_m6KvIX5pXz1pSerIDG4/edit"
@@ -469,9 +471,14 @@ def main():
         else:
             out_dirs.append(root / "docs")
 
+    screen_guide = None
     for d in out_dirs:
         if not d.is_dir():
             raise RuntimeError(f"出力先ディレクトリが存在しません: {d}")
+        if d.resolve() != root / "docs":
+            if screen_guide is None:
+                screen_guide = render_current_screen(root, REPO_URL)
+            write_screen_guides(d, screen_guide)
         (d / "request.html").write_text(req_html, encoding="utf-8")
         (d / "requirements.html").write_text(spec_html, encoding="utf-8")
         print(f"要求・要件定義書HTMLを生成しました: {d / 'request.html'}, {d / 'requirements.html'}")

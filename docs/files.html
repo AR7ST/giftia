@@ -36,7 +36,7 @@
 
   <h2 class="sec-title">2. 1行ずつ読むガイド</h2>
   <div class="card">
-    <p class="muted">GitHub でファイルを開いて、このガイドと並べて読みます。行番号を押すと、GitHub のその行が開きます。</p>
+    <p class="muted">教材と同じ時点のコードを開き、このガイドと並べて読みます。最新の実装は<a href="map.html#current-screen">現在の検索画面とコード</a>で確認できます。</p>
     <div class="chips" id="gfiles"></div>
     <div class="refs" id="gopen"></div>
     <div class="guide" id="guide"></div>
@@ -213,11 +213,11 @@ function guide() {
   $("#gfiles").innerHTML = GUIDE_ORDER.map((k, i) => `<button class="chip" data-i="${i}" aria-pressed="${i === gsel}">${GUIDE[k][0]}</button>`).join("");
   document.querySelectorAll("#gfiles .chip").forEach(b => b.onclick = () => { gsel = +b.dataset.i; guide(); });
   const k = GUIDE_ORDER[gsel], [title, path, rows] = GUIDE[k];
-  $("#gopen").innerHTML = `<a class="ref" href="${REPO}${path}" target="_blank" rel="noopener">${title.split("（")[0]} を GitHub で開く ↗</a>`;
+  $("#gopen").innerHTML = `<a class="ref" href="${LEARNING_REPO}${path}" target="_blank" rel="noopener">${title.split("（")[0]} を GitHub で開く ↗</a>`;
   $("#guide").innerHTML = rows.map(r => {
     if (r[0] === "#") return `<div class="gl sec"><span></span><span>${r[1]}</span></div>`;
     const [a, b] = r[0].split("-").map(Number);
-    return `<div class="gl"><a href="${REPO}${path}#L${a}${b ? "-L" + b : ""}" target="_blank" rel="noopener">${r[0].replace("-", "〜")}行</a><span>${r[1]}${r[2] ? `<span class="tip">たとえ：${r[2]}</span>` : ""}</span></div>`;
+    return `<div class="gl"><a href="${LEARNING_REPO}${path}#L${a}${b ? "-L" + b : ""}" target="_blank" rel="noopener">${r[0].replace("-", "〜")}行</a><span>${r[1]}${r[2] ? `<span class="tip">たとえ：${r[2]}</span>` : ""}</span></div>`;
   }).join("");
 }
 

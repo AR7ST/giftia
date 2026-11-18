@@ -23,7 +23,8 @@
 <div class="wrap">
   <div class="top"><span class="kicker">GIFTIA ・ CODE MAP</span><a href="./">← ハブにもどる</a></div>
   <h1><span class="p">コードの地図</span></h1>
-  <p class="lead">Giftia の「画面のここ」が「コードのどこ」なのかを、地図にしました。コードの中身はここには載せていません。行のリンクを押すと GitHub（2026/11/12からPublic。ログインなしで見られます）のその行が開きます。商品は説明用の例です。</p>
+  <p class="lead">Giftia の画面とコードのつながりを確認できます。学習用の例は、本文と対応する時点のコードを参照します。</p>
+  <!-- current-screen:start --><!-- current-screen:end -->
 
   <p class="say">初めての方は、<a href="overview.html"><b>アプリの全体像</b></a>で仕組みをつかんでから進みましょう。</p>
 
@@ -75,21 +76,12 @@
     <a class="pg" href="git.html"><div class="card"><h3>GitHub の地図 <span class="pill db">GitHub</span></h3><ul><li>GitHub の流れ（STEP 0〜9 とボード）</li><li>成長の年表</li></ul></div></a>
   </div>
 
-  <h2 class="sec-title">行のリンクが見つからないとき</h2>
-  <div class="card">
-    <p>giftia は2026/11/12からPublic（公開）なので、ログインしていないブラウザでも開けます。リンクを押して行がずれている・404になる場合は、たいてい次のどちらかです。</p>
-    <ul>
-      <li>コードが変わって行番号がずれた（<span class="mono">assets/map.js</span> の LINES 表を直す）</li>
-      <li>ファイル名が変わった・移動した（リンク先のパスを直す）</li>
-    </ul>
-  </div>
-
   <h2 class="sec-title">この地図の約束</h2>
   <div class="card">
     <ul>
       <li>コードの中身・教材の内容・.env・DB のデータは載せない（このページは公開）</li>
       <li>説明は自分たちの言葉。コードは GitHub で読む</li>
-      <li>行番号は 2026-11-07 の main（PR #6 のあと）。コードを変えたら <span class="mono">assets/map.js</span> の表を直す</li>
+      <li>「現在の検索画面とコード」の行リンクは、公開時に使ったコミットのコードを開きます。</li>
     </ul>
   </div>
   <footer>Giftia 班（クラス5・東京 Drinking Party）</footer>
