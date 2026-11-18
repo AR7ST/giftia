@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render the changes to Giftia's application code as a static Pages timeline."""
+"""Build separate timelines for application code and the Pages site."""
 
 import re
 import subprocess
@@ -18,13 +18,21 @@ CODE_PATHS = (
     'package.json', 'package-lock.json', ':(glob)next.config.*',
     ':(glob)eslint.config.*', 'tsconfig.json', ':(exclude,glob)**/*.md',
 )
+PAGES_PATHS = (
+    'docs/', '.github/workflows/pages.yml',
+    'scripts/build-docs.py', 'scripts/build-progress.py',
+    'scripts/current_screen.py', 'scripts/build-code-history.py',
+    '02_プロジェクト/soubetsu-gift/要求.md',
+    '02_プロジェクト/soubetsu-gift/要件.md',
+    '02_プロジェクト/soubetsu-gift/発展2_変更点.md',
+)
 
 
 def git(*args, **options):
     return subprocess.run(['git', *args], cwd=ROOT, check=True, **options)
 
 
-def code_history():
+def history(paths):
     checkout = git('rev-parse', '--is-shallow-repository', capture_output=True, text=True)
     if checkout.stdout.strip() == 'true':
         raise RuntimeError('履歴の生成には浅いクローンではなく、全履歴が必要です。')
@@ -42,7 +50,7 @@ def code_history():
         sha, parents, timestamp, subject, body = fields[offset:offset + 5]
         first_parent = parents.split()[:1]
         diff = subprocess.run(
-            ['git', 'diff-tree', '--quiet', '-r', '--root', *first_parent, sha, '--', *CODE_PATHS],
+            ['git', 'diff-tree', '--quiet', '-r', '--root', *first_parent, sha, '--', *paths],
             cwd=ROOT,
         )
         if diff.returncode == 0:
@@ -61,7 +69,7 @@ def code_history():
 
 def render(entries):
     if not entries:
-        return '<p class="card">対象のコード変更はありません。</p>'
+        return '<p class="card">対象の変更はありません。</p>'
 
     sections = []
     for day, changes in groupby(entries, key=lambda entry: entry[0].date()):
@@ -82,15 +90,34 @@ def render(entries):
     return '\n  '.join(sections)
 
 
+def write_history(output, template, title, context, paths):
+    entries = history(paths)
+    page = template.replace('<!-- history-title -->', escape(title))
+    page = page.replace('<!-- history-context -->', context, 1)
+    page = page.replace('<!-- history-entries -->', render(entries), 1)
+    output.write_text(page, encoding='utf-8')
+    print(f'{title}: {len(entries)} 件')
+
+
 def main(output_dir):
-    entries = code_history()
-    name = 'code-history.html'
-    template = (ROOT / 'docs' / name).read_text(encoding='utf-8')
-    if template.count('<!-- code-history -->') != 1:
-        raise RuntimeError('コード変更履歴の挿入位置が一意に決まりません。')
-    page = template.replace('<!-- code-history -->', render(entries), 1)
-    (output_dir / name).write_text(page, encoding='utf-8')
-    print(f'コード変更履歴: {len(entries)} 件')
+    template = (ROOT / 'docs' / 'code-history.html').read_text(encoding='utf-8')
+    for marker, count in (('history-title', 2), ('history-context', 1), ('history-entries', 1)):
+        if template.count(f'<!-- {marker} -->') != count:
+            raise RuntimeError(f'変更履歴の挿入位置が不正です: {marker}')
+
+    write_history(
+        output_dir / 'code-history.html', template, 'コード変更履歴',
+        '<p class="lead">検索画面と検索 API の変更を、'
+        '<code>main</code> のマージ・コミット日時が新しい順に表示します。日時は日本時間（JST）です。</p>',
+        CODE_PATHS,
+    )
+    write_history(
+        output_dir / 'pages-history.html', template, 'GitHub Pages の変更履歴',
+        '<p class="lead">開発ハブのページ・画像・公開処理の変更を、'
+        '<code>main</code> のマージ・コミット日時が新しい順に表示します。日時は日本時間（JST）です。</p>'
+        '<p><a href="https://github.com/AR7ST/giftia-hub/commits/main/">統合前の開発ハブの履歴を GitHub で見る ↗</a></p>',
+        PAGES_PATHS,
+    )
 
 
 if __name__ == '__main__':
