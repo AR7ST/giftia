@@ -12,9 +12,11 @@ type Props = {
 
 function ratingText(g: FarewellGift): string {
   const n = g.reviewCount;
+  // 件数が不明（null）なら、評価の状態より先に「件数不明」を出す（相談文の formatRating と同じ考え方。#38）
+  if (n === null) return "評価不明（件数不明）";
   if (g.ratingStatus === "valid") return `★${g.rating}（${n}件）`;
   if (g.ratingStatus === "no_reviews") return "評価なし（0件）";
-  if (g.ratingStatus === "unknown") return n === null ? "評価不明（件数不明）" : `評価不明（${n}件）`;
+  if (g.ratingStatus === "unknown") return `評価不明（${n}件）`;
   return "評価不明（要確認）";
 }
 
