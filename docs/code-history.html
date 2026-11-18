@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>コード変更履歴 | Giftia</title>
+  <link rel="stylesheet" href="assets/map.css">
+  <style>
+    .history-day { margin: 1.25rem 0; }
+    .history-day h2 { margin: 0; font-size: 1.15rem; }
+    .changes { margin: .5rem 0 0; padding: 0; list-style: none; }
+    .changes li { display: grid; grid-template-columns: 5rem minmax(0, 1fr); gap: .75rem; padding: .65rem 0; }
+    .changes li + li { border-top: 1px solid #34405b; }
+    .changes time { font-variant-numeric: tabular-nums; }
+    .changes p { margin: 0 0 .2rem; overflow-wrap: anywhere; }
+    .entry-links { display: flex; flex-wrap: wrap; gap: .25rem 1rem; font-size: .9rem; }
+    .entry-links a { text-decoration: underline; }
+    @media (max-width: 480px) {
+      .changes li { grid-template-columns: minmax(0, 1fr); gap: .2rem; }
+    }
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <div class="top"><span class="kicker">GIFTIA</span><a href="./">← ハブに戻る</a></div>
+  <h1><span class="p">コード変更履歴</span></h1>
+  <p class="lead">検索画面と検索 API の変更を、<code>main</code> のマージ・コミット日時が新しい順に表示します。日時は日本時間（JST）です。</p>
+  <!-- code-history -->
+</main>
+</body>
+</html>
