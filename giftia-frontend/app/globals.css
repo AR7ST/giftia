@@ -1,39 +1,107 @@
-/* app/globals.css — Giftia 検索画面の見た目（配布。穴埋めの対象ではない） */
-:root { --ink:#1f2933; --sub:#616e7c; --line:#e4e7eb; --accent:#1b3a5c; --bg:#fafaf9; }
+/* app/globals.css — Giftia 検索画面の見た目（デザイン：昼の東京） */
+
+/* ── 色見本（ここを変えると画面全体の色が変わる） ───────────── */
+:root {
+  --ink: #33302b;          /* 文字 */
+  --sub: #7a7368;          /* 補足の文字 */
+  --line: #efe6d8;         /* 枠線 */
+  --bg: #fffaf3;           /* ページの背景（クリーム） */
+  --card: #ffffff;         /* カード・箱 */
+  --input: #fdf6ec;        /* 入力欄・プレビュー */
+  --accent: #d9485a;       /* 差し色（ボタン・価格・選択中） */
+  --accent-soft: #ffe3e7;  /* 差し色の淡い版（選択中の光） */
+  --logo: #2b5d8a;         /* タイトル */
+  --rank-bg: #ffe08a;      /* 順位の札 */
+  --rank-ink: #5a4300;
+  --ok: #2b7a4b;           /* 成功の文字 */
+  --ng: #b42335;           /* エラーの文字 */
+  --sky: linear-gradient(180deg, #bfe6ff 0%, #e3f4ff 70%, #fff4e6 100%);
+  --ground: linear-gradient(90deg, #ffb3c7, #9ee0f0, #ffe08a);
+  --skyline-bldg: #a9c7e0;
+  --skyline-tower: #ff6b5b;
+  --skyline-bridge: #ffffff;
+  --skyline-tree: #7fa6c9;
+  --font: "M PLUS Rounded 1c", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+}
+
 * { box-sizing: border-box; }
-body { margin:0; font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif; color:var(--ink); background:var(--bg); }
-.page { max-width:960px; margin:0 auto; padding:16px; }
-.header h1 { font-size:24px; color:var(--accent); margin:8px 0; }
-.modes { display:flex; gap:8px; margin-top:4px; }
-.modes button { font-size:14px; padding:6px 12px; border:1px solid var(--line); background:#fff; border-radius:999px; cursor:pointer; }
-.modes button.on { background:var(--accent); color:#fff; border-color:var(--accent); }
+body { margin:0; font-family:var(--font); color:var(--ink); background:var(--bg); line-height:1.5; }
+button, input, select, textarea { font-family:inherit; color:inherit; }
+.page { max-width:1040px; margin:0 auto; padding:16px; }
+
+/* ── ヘッダー（空と街並み） ───────────────────────── */
+.header { position:relative; overflow:hidden; border-radius:16px 16px 0 0; background:var(--sky); padding:20px 24px 0; }
+.header h1 { position:relative; z-index:1; font-size:34px; font-weight:800; color:var(--logo); margin:0; letter-spacing:.02em; }
+.header .tagline { position:relative; z-index:1; margin:2px 0 0; font-size:14px; color:#4f6f8c; }
+.header .sun { position:absolute; right:28px; top:18px; width:44px; height:44px; border-radius:50%; background:#ffd98a; box-shadow:0 0 24px #ffd98a; }
+.skyline { display:block; width:100%; height:auto; aspect-ratio:960 / 200; margin-top:clamp(-100px, -9vw, -24px); }
+.skyline-bldg { fill:var(--skyline-bldg); }
+.skyline-tower { fill:var(--skyline-tower); }
+.skyline-bridge { fill:var(--skyline-bridge); }
+.skyline-bridge-line { stroke:var(--skyline-bridge); stroke-width:2.5; }
+.skyline-tree { fill:var(--skyline-tree); }
+.header::after { content:""; position:absolute; left:0; right:0; bottom:0; height:6px; background:var(--ground); }
+
+/* ── タブ ───────────────────────────────────── */
+.modes { display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
+.modes button { font-size:15px; padding:8px 18px; border:1px solid var(--line); background:var(--card); border-radius:999px; cursor:pointer; transition:background .15s, color .15s; }
+.modes button:hover { border-color:var(--accent); }
+.modes button.on { background:var(--accent); color:#fff; border-color:var(--accent); font-weight:700; }
+
+/* ── 検索フォーム（白い箱） ──────────────────────────── */
 .summary { color:var(--sub); font-size:14px; }
-.form { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; align-items:center; }
+.form { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; align-items:center; padding:12px; background:var(--card); border:1px solid var(--line); border-radius:12px; }
 .form .q { flex:1 1 240px; }
-.form input, .form select, .form button { font-size:15px; padding:8px 10px; border:1px solid var(--line); border-radius:6px; background:#fff; }
-.form .chk { display:flex; align-items:center; gap:4px; font-size:14px; }
-.form button[type="submit"] { background:var(--accent); color:#fff; border:none; min-width:88px; cursor:pointer; }
-.grid { display:grid; gap:12px; }
-.card { border:1px solid var(--line); border-radius:10px; padding:12px 14px; background:#fff; }
-.card .name { font-size:16px; margin:4px 0; }
-.card .price { font-size:18px; font-weight:700; margin:4px 0; }
+.form input, .form select, .form button { font-size:15px; padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:var(--input); }
+.form .chk { display:flex; align-items:center; gap:6px; font-size:14px; }
+.form button[type="submit"] { background:var(--accent); color:#fff; border:none; min-width:88px; cursor:pointer; font-weight:700; }
+.form button[type="submit"]:hover { filter:brightness(1.08); }
+.form .budget { width:140px; }
+input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+
+/* ── 結果カード ─────────────────────────────────── */
+.grid { display:grid; gap:12px; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); align-items:start; }
+.card { border:1px solid var(--line); border-radius:12px; padding:12px 14px; background:var(--card); transition:box-shadow .15s, border-color .15s; }
+.card:hover { box-shadow:0 4px 14px rgba(120, 90, 40, .08); }
+.card.selected { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+.card .rank { display:inline-block; font-size:11px; font-weight:800; padding:1px 8px; margin-right:6px; border-radius:999px; background:var(--rank-bg); color:var(--rank-ink); }
+.card .name { font-size:16px; font-weight:700; margin:6px 0 2px; }
+.card .price { font-size:20px; font-weight:800; color:var(--accent); margin:2px 0; }
 .card .meta { color:var(--sub); font-size:13px; margin:2px 0; }
-/* 送別ギフト */
-.stamps { display:flex; flex-wrap:wrap; gap:4px; margin:4px 0; }
-.stamp { font-size:12px; padding:2px 8px; border-radius:999px; border:1px solid var(--line); }
-.stamp-positive { background:#e6f4ea; border-color:#b7dfc1; color:#1e6b34; }
-.stamp-info { background:#e8f0fb; border-color:#b9cdee; color:#24508f; }
-.stamp-caution { background:#fff4e0; border-color:#f0d3a0; color:#8a5a00; }
-.card .pick { margin-top:6px; font-size:14px; padding:6px 10px; border:1px solid var(--accent); border-radius:6px; background:#fff; color:var(--accent); cursor:pointer; }
+.card .pick { margin-top:8px; font-size:14px; padding:6px 12px; border:1px solid var(--accent); border-radius:8px; background:var(--card); color:var(--accent); cursor:pointer; }
 .card .pick.on { background:var(--accent); color:#fff; }
 .card .pick:disabled { opacity:.4; cursor:not-allowed; }
-.form .budget { width:140px; }
-.notice { font-size:14px; margin:8px 0; padding:8px 10px; border-radius:6px; background:#fff; border:1px solid var(--line); }
-.notice.err { border-color:#e0a0a0; color:#8a1f1f; }
-.consult { border:1px solid var(--line); border-radius:10px; padding:12px 14px; background:#fff; margin:12px 0; }
+
+/* 送別ギフトのスタンプ */
+.stamps { display:flex; flex-wrap:wrap; gap:4px; margin:4px 0; }
+.stamp { font-size:12px; padding:2px 8px; border-radius:999px; border:1px solid var(--line); }
+.stamp-positive { background:#e8f6ee; border-color:#bfe3cc; color:#2b7a4b; }
+.stamp-info { background:#e8f2fb; border-color:#bfd6ee; color:#2b5d8a; }
+.stamp-caution { background:#fff2d9; border-color:#f0d3a0; color:#8a5a00; }
+
+/* ── お知らせ ───────────────────────────────────── */
+.notice { font-size:14px; margin:8px 0; padding:8px 12px; border-radius:8px; background:var(--card); border:1px solid var(--line); }
+.notice.err { border-color:#f0b4bc; color:var(--ng); }
+
+/* ── 送別ギフトタブ：結果は左、相談候補と LINE 相談文は右（スクロールしてもついてくる） ── */
+.farewell-layout { display:grid; grid-template-columns:minmax(0, 1fr) 320px; gap:16px; align-items:start; }
+.side { position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; }
+.consult { border:1px solid var(--line); border-radius:12px; padding:12px 14px; background:var(--card); margin:0 0 12px; }
 .consult h2 { font-size:16px; margin:0 0 8px; }
 .consult ul { margin:4px 0; padding-left:0; list-style:none; }
-.consult li { display:flex; gap:8px; align-items:center; margin:4px 0; font-size:14px; }
-.consult li button { font-size:13px; padding:3px 8px; border:1px solid var(--accent); border-radius:6px; background:#fff; color:var(--accent); cursor:pointer; }
+.consult li { display:flex; gap:8px; align-items:center; justify-content:space-between; margin:6px 0; font-size:14px; }
+.consult li button { flex:none; font-size:13px; padding:3px 8px; border:1px solid var(--accent); border-radius:6px; background:var(--card); color:var(--accent); cursor:pointer; }
 .consult li button.on { background:var(--accent); color:#fff; }
-.consult textarea { width:100%; font-size:14px; padding:8px; border:1px solid var(--line); border-radius:6px; }
+.consult label { display:block; font-size:14px; margin-top:8px; }
+.consult textarea { width:100%; font-size:14px; padding:8px; margin-top:4px; border:1px solid var(--line); border-radius:8px; background:var(--input); }
+
+/* ── スマホなど狭い画面：1列に並べる（相談の箱は結果の下） ── */
+@media (max-width: 760px) {
+  .page { padding:12px; }
+  .header { padding:16px 16px 0; }
+  .header h1 { font-size:28px; }
+  .header .sun { width:32px; height:32px; right:16px; top:14px; }
+  .skyline { margin-top:4px; } /* 狭い画面では、街並みを文字と重ねない */
+  .farewell-layout { grid-template-columns:1fr; }
+  .side { position:static; max-height:none; overflow:visible; }
+}

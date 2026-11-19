@@ -1,20 +1,22 @@
-/* app/ConsultPanel.module.css — LINE 相談文パネル専用の見た目。globals.css のクラス名（.card など）は使わない */
+/* app/ConsultPanel.module.css — LINE 相談文パネル専用の見た目。globals.css のクラス名（.card など）は使わない。
+   色は globals.css の色見本（:root の変数）を使う。コピーボタンだけは、LINE と分かるように LINE の緑のまま */
 
 .panel {
-  border: 1px solid #d0d7de;
-  border-radius: 8px;
-  padding: 16px;
-  margin: 16px 0;
-  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin: 0;
+  background: var(--card);
 }
 
 .title {
-  font-size: 1.1rem;
+  font-size: 16px;
   margin: 0 0 8px;
 }
 
 .hint {
-  color: #57606a;
+  color: var(--sub);
+  font-size: 14px;
   margin: 0 0 8px;
 }
 
@@ -24,38 +26,41 @@
   box-sizing: border-box;
   padding: 8px;
   font: inherit;
-  line-height: 1.5;
-  border: 1px solid #d0d7de;
-  border-radius: 6px;
-  background: #f6f8fa;
+  font-size: 13px;
+  line-height: 1.6;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--input);
   resize: vertical;
   margin-bottom: 8px;
 }
 
 .copyButton {
-  padding: 8px 20px;
+  padding: 8px 22px;
   font: inherit;
+  font-weight: 700;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   background: #06c755;
   color: #ffffff;
   cursor: pointer;
 }
 
 .copyButton:disabled {
-  background: #afb8c1;
+  background: #c9c2b8;
   cursor: not-allowed;
 }
 
 .status {
   min-height: 1.5em;
   margin: 8px 0 0;
+  font-size: 14px;
 }
 
 .success {
-  color: #1a7f37;
+  color: var(--ok);
 }
 
 .error {
-  color: #cf222e;
+  color: var(--ng);
 }
