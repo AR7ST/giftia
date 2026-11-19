@@ -1,7 +1,6 @@
-/* コードの地図 共通の部品。
-   行番号はこの LINES の表1か所にまとめる。giftia のコードが変わったら、ここだけ直す。
-   （2026-11-12 時点の main：Merge pull request #12（評価なし→null化）・#10（AGENTS.md改訂）・#8（Issue/PRテンプレート）まで確認済み） */
+/* 学習用の例は LINES の行番号と一致するコミットを参照する。 */
 const REPO = "https://github.com/AR7ST/giftia/blob/main/";
+const LEARNING_REPO = "https://github.com/AR7ST/giftia/blob/87b1b2caad9f314ca34d6a2b1ad8c003b2421c1b/";
 const F = {
   page: "giftia-frontend/app/page.tsx",
   card: "giftia-frontend/app/ResultCard.tsx",
@@ -46,7 +45,7 @@ const WEEK2API = "https://github.com/AR7ST/giftia/commit/919b750";
 
 function url(key) {
   const [f, a, b] = LINES[key];
-  return REPO + F[f] + "#L" + a + (b > a ? "-L" + b : "");
+  return LEARNING_REPO + F[f] + "#L" + a + (b > a ? "-L" + b : "");
 }
 function label(key) {
   const [f, a, b] = LINES[key];
@@ -57,7 +56,7 @@ function ref(key, text) {
 }
 /* 表にない行は、ファイル名と行番号で直接リンクする */
 function refL(f, a, b, text) {
-  const u = REPO + F[f] + "#L" + a + (b > a ? "-L" + b : "");
+  const u = LEARNING_REPO + F[f] + "#L" + a + (b > a ? "-L" + b : "");
   return `<a class="ref" href="${u}" target="_blank" rel="noopener">${SHORT[f]} ${a}${b > a ? "〜" + b : ""}行${text ? "｜" + text : ""} ↗</a>`;
 }
 function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
