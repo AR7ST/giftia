@@ -54,6 +54,8 @@ jobs:
           test -f _site/progress.html
           test -s _site/code-history.html
           test -s _site/pages-history.html
+          test -d _site/changes/code
+          test -d _site/changes/pages
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
