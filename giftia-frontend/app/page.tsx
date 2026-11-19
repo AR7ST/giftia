@@ -215,7 +215,7 @@ export default function Home() {
           {fStatus === "ok" && (
             <>
               <p className="summary">
-                予算 {appliedPriceMax?.toLocaleString()} 円以下：該当 {fTotal} 件のうち、{fResults.length} 件を表示（各カテゴリ最大3件）
+                予算 {appliedPriceMax?.toLocaleString()} 円以下：該当 {fTotal} 件のうち、{fResults.length} 件を表示
               </p>
 
               {/* 見た目の並び：広い画面では結果を左、相談候補と LINE 相談文を右に置く（狭い画面では結果の下） */}
