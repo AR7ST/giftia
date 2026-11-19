@@ -39,7 +39,7 @@ jobs:
           cp -a docs/. _site/
       - name: Generate request and requirements HTML from Markdown
         run: python scripts/build-docs.py _site
-      - name: Generate application code history
+      - name: Generate application and Pages histories
         run: python scripts/build-code-history.py _site
       - name: Generate progress
         env:
@@ -53,6 +53,7 @@ jobs:
           test -f _site/assets/progress.json
           test -f _site/progress.html
           test -s _site/code-history.html
+          test -s _site/pages-history.html
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
