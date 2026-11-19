@@ -7,6 +7,7 @@
 import { useRef, useState } from "react";
 import ResultCard from "./ResultCard";
 import ConsultPanel from "./ConsultPanel";
+import Skyline from "./Skyline";
 import {
   FarewellApiError,
   searchFarewellGifts,
@@ -144,7 +145,12 @@ export default function Home() {
   // ③ 画面
   return (
     <main className="page">
-      <header className="header"><h1>Giftia</h1></header>
+      <header className="header">
+        <div className="sun" aria-hidden="true" />
+        <h1>Giftia</h1>
+        <p className="tagline">送別ギフトを、仲間と納得して決められる。</p>
+        <Skyline />
+      </header>
 
       {/* タブ：state(mode)＋条件で出し分ける */}
       <nav className="modes">
@@ -212,47 +218,52 @@ export default function Home() {
                 予算 {appliedPriceMax?.toLocaleString()} 円以下：該当 {fTotal} 件のうち、{fResults.length} 件を表示（各カテゴリ最大3件）
               </p>
 
-              {selected.length > 0 && (
-                <div className="consult">
-                  <h2>相談候補（{selected.length}/{MAX_SELECT}件）</h2>
-                  <ul>
-                    {selected.map((g) => (
-                      <li key={g.id}>
-                        <span>{g.name}</span>
-                        <button
-                          type="button"
-                          className={recommendedId === g.id ? "on" : ""}
-                          onClick={() => { setRecommendedId(recommendedId === g.id ? null : g.id); setReason(""); }}
-                        >
-                          {recommendedId === g.id ? "おすすめを解除" : "おすすめにする"}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                  {recommendedId && (
-                    <label>
-                      おすすめの理由（任意）
-                      <textarea rows={2} value={reason} onChange={(e) => setReason(e.target.value)} />
-                    </label>
-                  )}
+              {/* 見た目の並び：広い画面では結果を左、相談候補と LINE 相談文を右に置く（狭い画面では結果の下） */}
+              <div className="farewell-layout">
+                <div className="grid">
+                  {fResults.map((g, i) => (
+                    <ResultCard
+                      key={g.id}
+                      gift={g}
+                      rank={i + 1}
+                      farewell={g}
+                      selected={selected.some((s) => s.id === g.id)}
+                      selectDisabled={selected.length >= MAX_SELECT}
+                      onToggleSelect={() => toggleSelect(g)}
+                    />
+                  ))}
                 </div>
-              )}
 
-              {/* LINE 相談文（PR3b）。候補が0件のときは「候補を1件以上選んでください」と出て、コピーできない */}
-              <ConsultPanel candidates={selected} recommendedId={recommendedId} reason={reason} />
+                <aside className="side">
+                  {selected.length > 0 && (
+                    <div className="consult">
+                      <h2>相談候補（{selected.length}/{MAX_SELECT}件）</h2>
+                      <ul>
+                        {selected.map((g) => (
+                          <li key={g.id}>
+                            <span>{g.name}</span>
+                            <button
+                              type="button"
+                              className={recommendedId === g.id ? "on" : ""}
+                              onClick={() => { setRecommendedId(recommendedId === g.id ? null : g.id); setReason(""); }}
+                            >
+                              {recommendedId === g.id ? "おすすめを解除" : "おすすめにする"}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                      {recommendedId && (
+                        <label>
+                          おすすめの理由（任意）
+                          <textarea rows={2} value={reason} onChange={(e) => setReason(e.target.value)} />
+                        </label>
+                      )}
+                    </div>
+                  )}
 
-              <div className="grid">
-                {fResults.map((g, i) => (
-                  <ResultCard
-                    key={g.id}
-                    gift={g}
-                    rank={i + 1}
-                    farewell={g}
-                    selected={selected.some((s) => s.id === g.id)}
-                    selectDisabled={selected.length >= MAX_SELECT}
-                    onToggleSelect={() => toggleSelect(g)}
-                  />
-                ))}
+                  {/* LINE 相談文（PR3b）。候補が0件のときは「候補を1件以上選んでください」と出て、コピーできない */}
+                  <ConsultPanel candidates={selected} recommendedId={recommendedId} reason={reason} />
+                </aside>
               </div>
             </>
           )}

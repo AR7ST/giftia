@@ -31,8 +31,8 @@ function excerpt(s: string | null): string {
 
 export default function ResultCard({ gift, rank, farewell, selected, selectDisabled, onToggleSelect }: Props) {
   return (
-    <div className="card">
-      <p className="meta">{rank}位・{gift.category}・{gift.brand}</p>
+    <div className={`card${selected ? " selected" : ""}`}>
+      <p className="meta"><span className="rank">{rank}位</span>{gift.category}・{gift.brand}</p>
       <h3 className="name">{gift.name}</h3>
       <p className="price">{gift.price.toLocaleString()}円</p>
       {farewell ? (
