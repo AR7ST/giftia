@@ -105,7 +105,7 @@ class BudgetTest(unittest.TestCase):
         self.assertEqual(ids(farewell.farewell_search(fetch, "お茶 クッキー", 5000)), ["A"])
 
 
-class OrderAndDiversityTest(unittest.TestCase):
+class OrderAndLimitTest(unittest.TestCase):
     def test_order_sales_then_valid_rating_then_id(self):
         fetch = make_fetch([
             {"product_id": "A", "category": "a", "sales_count": 10, "rating": 4.0, "review_count": 3},
@@ -117,37 +117,34 @@ class OrderAndDiversityTest(unittest.TestCase):
         ])
         self.assertEqual(ids(farewell.farewell_search(fetch, "", 5000)), ["E", "B", "F", "A", "C", "D"])
 
-    def test_max_three_per_category(self):
+    def test_more_than_three_results_from_one_category(self):
         products = [
             {"product_id": f"X{i}", "category": "x", "sales_count": 100 - i} for i in range(5)
         ] + [
             {"product_id": f"Y{i}", "category": "y", "sales_count": 10 - i} for i in range(5)
         ]
         result = farewell.farewell_search(make_fetch(products), "", 5000)
-        self.assertEqual(ids(result), ["X0", "X1", "X2", "Y0", "Y1", "Y2"])
+        self.assertEqual(ids(result), [f"X{i}" for i in range(5)] + [f"Y{i}" for i in range(5)])
         self.assertEqual(result["total"], 10)
-        self.assertEqual(result["shown"], 6)
+        self.assertEqual(result["shown"], 10)
 
     def test_max_ten_results(self):
         products = [
-            {"product_id": f"P{i:02d}", "category": f"c{i % 5}", "sales_count": 100 - i} for i in range(30)
+            {"product_id": f"P{i:02d}", "category": "x", "sales_count": 100 - i} for i in range(30)
         ]
         result = farewell.farewell_search(make_fetch(products), "", 5000)
         self.assertEqual(result["shown"], 10)
         self.assertEqual(result["total"], 30)
-        counts = {}
-        for r in result["results"]:
-            counts[r["category"]] = counts.get(r["category"], 0) + 1
-        self.assertTrue(all(n <= 3 for n in counts.values()))
+        self.assertEqual(ids(result), [f"P{i:02d}" for i in range(10)])
 
-    def test_candidates_capped_at_500_and_detail_only_for_picked(self):
+    def test_candidates_capped_at_ten_and_detail_only_for_picked(self):
         products = [
             {"product_id": f"P{i:04d}", "category": f"c{i % 50}", "sales_count": 1000 - i} for i in range(600)
         ]
         fetch = make_fetch(products)
         result = farewell.farewell_search(fetch, "", 5000)
         self.assertEqual(result["total"], 600)
-        self.assertEqual(fetch.calls[1][1][-1], 500)
+        self.assertEqual(fetch.calls[1][1][-1], 10)
         self.assertNotIn("description", fetch.calls[1][0])
         detail_sql, detail_params = fetch.calls[2]
         self.assertEqual(len(detail_params), 10)
