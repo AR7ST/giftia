@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>$title | Giftia</title>
+  <link rel="stylesheet" href="../../assets/map.css">
+  <style>
+    .change-section { margin: 1.25rem 0; }
+    .change-section h2 { margin-top: 0; font-size: 1.15rem; }
+    .change-section h3 { font-size: 1rem; }
+    .change-title { overflow-wrap: anywhere; }
+    .tree { padding: .8rem; overflow: auto; background: #10162b; color: #f1f3fa; border-radius: .5rem; }
+    .change-links { display: flex; flex-wrap: wrap; gap: .5rem 1rem; }
+    .change-links a { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <div class="top"><span class="kicker">変更の解説</span><a href="../../$history_file">← $history_title</a></div>
+  <h1 class="change-title">$title</h1>
+  <p><time datetime="$date">$time</time></p>
+  <section class="card change-section">
+    <h2>何が変わったか</h2>
+    $explanation
+  </section>
+  <section class="card change-section">
+    <h2>変更箇所のツリー</h2>
+    <p>$summary</p>
+    <pre class="tree">$tree</pre>
+  </section>
+  <p class="change-links"><a href="$commit">GitHub で差分を見る</a>$pr_link</p>
+</main>
+</body>
+</html>
