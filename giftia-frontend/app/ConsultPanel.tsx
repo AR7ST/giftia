@@ -64,14 +64,29 @@ export default function ConsultPanel({ candidates, recommendedId, reason }: Cons
           aria-label="相談文のプレビュー"
         />
       )}
-      <button
-        type="button"
-        className={styles.copyButton}
-        onClick={handleCopy}
-        disabled={text === null || status === "copying"}
-      >
-        コピー
-      </button>
+      <div className={styles.actions}>
+        <button
+          type="button"
+          className={styles.copyButton}
+          onClick={handleCopy}
+          disabled={text === null || status === "copying"}
+        >
+          コピー
+        </button>
+        {text !== null && (
+          <a
+            className={styles.lineLink}
+            href={`https://line.me/R/msg/text/?${encodeURIComponent(text)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            LINEで開く
+          </a>
+        )}
+      </div>
+      {text !== null && (
+        <p className={styles.shareHint}>LINEが開かない場合は、コピーしてトークに貼り付けてください。</p>
+      )}
       <p className={styles.status} aria-live="polite">
         {status === "success" && <span className={styles.success}>コピーしました</span>}
         {status === "error" && (
