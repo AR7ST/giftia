@@ -9,15 +9,18 @@
 #   DB_SSL_CA   = 配布された SSL証明書のパス（任意。入れると Workbench の「Verify CA」と同じく相手を確かめる）
 
 import os
+from threading import Lock
 
 import pymysql
+from dbutils.pooled_db import PooledDB
 from dotenv import load_dotenv
 
 load_dotenv()  # 同じフォルダの .env を読み、os.environ に入れる
+_pool = None
+_pool_lock = Lock()
 
 
-def get_connection():
-    """班のDBへの接続を1つ作って返す。使い終わったら close() する（fetch_all が面倒を見る）"""
+def _create_pool():
     required = ["DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME"]
     missing = [k for k in required if not os.environ.get(k)]
     if missing:
@@ -26,7 +29,13 @@ def get_connection():
     # Azure は暗号化（SSL/TLS）しない接続を断る。証明書のパスがあれば、相手が Azure のサーバーかも確かめる
     ssl = {"ca": os.environ["DB_SSL_CA"]} if os.environ.get("DB_SSL_CA") else {"ssl_disabled": False}
 
-    return pymysql.connect(
+    return PooledDB(
+        pymysql,
+        mincached=0,
+        maxcached=5,
+        maxconnections=10,
+        blocking=False,
+        ping=1,
         host=os.environ["DB_HOST"],
         port=int(os.environ.get("DB_PORT", "3306")),
         user=os.environ["DB_USER"],
@@ -37,6 +46,16 @@ def get_connection():
         connect_timeout=10,
         ssl=ssl,
     )
+
+
+def get_connection():
+    """プールから専用接続を借りる。close() でプールへ返す。"""
+    global _pool
+    with _pool_lock:
+        if _pool is None:
+            _pool = _create_pool()
+        pool = _pool
+    return pool.connection(shareable=False)
 
 
 def fetch_all(query: str, params: tuple = ()) -> list[dict]:
