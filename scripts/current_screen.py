@@ -12,7 +12,7 @@ GUIDE_PAGES = ('index.html', 'map.html', 'screen.html', 'overview.html')
 APP = 'giftia-frontend/app/'
 API = 'giftia-frontend/lib/api.ts'
 PAGE = APP + 'page.tsx'
-CARD = APP + 'ResultCard.tsx'
+RATING = 'giftia-frontend/lib/rating.ts'
 PANEL = APP + 'ConsultPanel.tsx'
 BACKEND = 'backend/farewell.py'
 
@@ -32,7 +32,7 @@ def render_current_screen(root, repository_url):
     sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
     sources = {
         path: (root / path).read_text(encoding='utf-8')
-        for path in (PAGE, CARD, PANEL, API, BACKEND, 'backend/main.py')
+        for path in (PAGE, RATING, PANEL, API, BACKEND, 'backend/main.py')
     }
 
     def link(path, line, label):
@@ -61,7 +61,7 @@ def render_current_screen(root, repository_url):
     budget = text(r'<label\b[^>]*>\s*([^<]+)\s*<input\b[^>]*value=\{budget\}')
     wrapping = text(r'<input\b[^<]*checked=\{indivWrap\}[^<]*?/>\s*([^<]+)</label>')
     submit = text(r'<button\b[^>]*type="submit"[^>]*>\s*([^<]+)</button>')
-    rating = text(r'if \(n === null\) return "([^"]+)";', CARD)
+    rating = text(r'if \(n === null\) return "([^"]+)";', RATING)
     consult = text(r'<h2\b[^>]*>\s*([^<]+)</h2>', PANEL)
     candidate_limit = int(text(r'^const MAX_SELECT\s*=\s*(\d+)\s*;'))
     limits = {
@@ -97,7 +97,7 @@ def render_current_screen(root, repository_url):
         code_link(API, r'^export async function searchFarewellGifts\(', '送別検索の通信'),
         code_link('backend/main.py', r'^@app\.get\("/api/search"\)', '検索APIの入口'),
         code_link(BACKEND, r'^def select_diverse\(', '検索結果の上限'),
-        code_link(CARD, r'^function ratingText\(', '評価の表示'),
+        code_link(RATING, r'^export function formatRating\(', '評価の表示'),
         code_link(PANEL, r'^export default function ConsultPanel\(', '相談文の画面'),
     ]
     rows_html = '\n'.join(rows)

@@ -1,5 +1,6 @@
 // app/ResultCard.tsx — 結果カード（部品）。送別ギフトのときだけ farewell を渡すと、スタンプ・評価の状態などを追加で表示する
 import type { FarewellGift, ResultCardGift } from "@/lib/api";
+import { formatRating } from "../lib/rating";
 
 type Props = {
   gift: ResultCardGift;
@@ -9,16 +10,6 @@ type Props = {
   selectDisabled?: boolean;     // 3件選択済みで、未選択のカードは押せない
   onToggleSelect?: () => void;  // 渡したときだけ「相談候補に選ぶ」ボタンを出す
 };
-
-function ratingText(g: FarewellGift): string {
-  const n = g.reviewCount;
-  // 件数が不明（null）なら、評価の状態より先に「件数不明」を出す（相談文の formatRating と同じ考え方。#38）
-  if (n === null) return "評価不明（件数不明）";
-  if (g.ratingStatus === "valid") return `★${g.rating}（${n}件）`;
-  if (g.ratingStatus === "no_reviews") return "評価なし（0件）";
-  if (g.ratingStatus === "unknown") return `評価不明（${n}件）`;
-  return "評価不明（要確認）";
-}
 
 function triText(v: boolean | null): string {
   return v === null ? "不明" : v ? "対応" : "非対応";
@@ -37,7 +28,7 @@ export default function ResultCard({ gift, rank, farewell, selected, selectDisab
       <p className="price">{gift.price.toLocaleString()}円</p>
       {farewell ? (
         <>
-          <p className="meta">{ratingText(farewell)}</p>
+          <p className="meta">{formatRating(farewell)}</p>
           {farewell.stamps.length > 0 && (
             <p className="stamps">
               {farewell.stamps.map((s) => (
