@@ -8,6 +8,8 @@ RESULT_LIMIT = 10  # 返す最大件数
 
 # 並びの「有効な評価」。rating_status() の valid と同じ条件
 VALID_RATING_SQL = "rating BETWEEN 1 AND 5 AND review_count >= 1"
+RATING_PRIOR = 3.5
+RATING_PRIOR_COUNT = 10
 
 DETAIL_COLUMNS = (
     "product_id, category, brand, product_name, price, rating, review_count, "
@@ -48,7 +50,9 @@ def build_candidate_query(condition: str) -> str:
     """上位の商品IDを並び順どおりに取る。最後の %s は件数"""
     return (
         f"SELECT product_id FROM products WHERE {condition} "
-        f"ORDER BY sales_count DESC, CASE WHEN {VALID_RATING_SQL} THEN rating END DESC, product_id "
+        f"ORDER BY sales_count DESC, CASE WHEN {VALID_RATING_SQL} THEN "
+        f"(rating * review_count + {RATING_PRIOR} * {RATING_PRIOR_COUNT}) / "
+        f"(review_count + {RATING_PRIOR_COUNT}) END DESC, product_id "
         "LIMIT %s"
     )
 

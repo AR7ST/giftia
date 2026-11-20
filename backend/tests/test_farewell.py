@@ -106,7 +106,7 @@ class BudgetTest(unittest.TestCase):
 
 
 class OrderAndLimitTest(unittest.TestCase):
-    def test_order_sales_then_valid_rating_then_id(self):
+    def test_order_sales_then_weighted_rating_then_id(self):
         fetch = make_fetch([
             {"product_id": "A", "category": "a", "sales_count": 10, "rating": 4.0, "review_count": 3},
             {"product_id": "B", "category": "b", "sales_count": 10, "rating": 4.5, "review_count": 3},
@@ -115,7 +115,18 @@ class OrderAndLimitTest(unittest.TestCase):
             {"product_id": "E", "category": "e", "sales_count": 50},
             {"product_id": "F", "category": "f", "sales_count": 10, "rating": 4.5, "review_count": 9},
         ])
-        self.assertEqual(ids(farewell.farewell_search(fetch, "", 5000)), ["E", "B", "F", "A", "C", "D"])
+        self.assertEqual(ids(farewell.farewell_search(fetch, "", 5000)), ["E", "F", "B", "A", "C", "D"])
+
+    def test_more_reviews_can_outweigh_a_higher_average(self):
+        fetch = make_fetch([
+            {"product_id": "A", "rating": 5, "review_count": 1},
+            {"product_id": "B", "rating": 4.5, "review_count": 100},
+            {"product_id": "C", "rating": 4.5, "review_count": 100},
+            {"product_id": "D", "rating": 5.5, "review_count": 100},
+        ])
+        result = farewell.farewell_search(fetch, "", 5000)
+        self.assertEqual(ids(result), ["B", "C", "A", "D"])
+        self.assertEqual(result["results"][0]["rating"], 4.5)
 
     def test_more_than_three_results_from_one_category(self):
         products = [
