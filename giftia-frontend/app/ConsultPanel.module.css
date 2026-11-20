@@ -35,7 +35,14 @@
   margin-bottom: 8px;
 }
 
-.copyButton {
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.copyButton,
+.lineLink {
   padding: 8px 22px;
   font: inherit;
   font-weight: 700;
@@ -44,6 +51,18 @@
   background: #06c755;
   color: #ffffff;
   cursor: pointer;
+}
+
+.lineLink {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.shareHint {
+  color: var(--sub);
+  font-size: 14px;
+  margin: 8px 0 0;
 }
 
 .copyButton:disabled {
