@@ -71,14 +71,13 @@ def render_current_screen(root, repository_url):
         and isinstance(node.targets[0], ast.Name) and isinstance(node.value, ast.Constant)
     }
     result_limit = int(limits['RESULT_LIMIT'])
-    category_limit = int(limits['PER_CATEGORY_LIMIT'])
 
     guides = {
         'standard': f'{placeholder("keyword")}とカテゴリーを指定します。初期値は「{first_option("category")}」です。',
         'business': f'「{wrapping}」と価格帯で絞り込みます。価格帯の初期値は「{first_option("priceBand")}」です。',
         'farewell': (
             f'「{budget}」（初期値 {default_budget:,}円）と{placeholder("fKeyword")}で絞り込みます。'
-            f'全体で最大{result_limit}件、同じカテゴリーは最大{category_limit}件を表示します。'
+            f'全体で最大{result_limit}件を表示します。'
             f'レビュー件数が不明な場合は「{rating}」と表示します。'
             f'最大{candidate_limit}件を選ぶと「{consult}」に候補が入り、文面をコピーできます。'
         ),
@@ -96,7 +95,7 @@ def render_current_screen(root, repository_url):
         code_link(PAGE, r'^\s*async function onSearch\(', '検索ボタン'),
         code_link(API, r'^export async function searchFarewellGifts\(', '送別検索の通信'),
         code_link('backend/main.py', r'^@app\.get\("/api/search"\)', '検索APIの入口'),
-        code_link(BACKEND, r'^def select_diverse\(', '検索結果の上限'),
+        code_link(BACKEND, r'^def build_candidate_query\(', '検索結果の上限'),
         code_link(RATING, r'^export function formatRating\(', '評価の表示'),
         code_link(PANEL, r'^export default function ConsultPanel\(', '相談文の画面'),
     ]
