@@ -29,6 +29,7 @@ export default function Home() {
   const [category, setCategory] = useState("");                           // 選んだカテゴリー
   const [indivWrap, setIndivWrap] = useState(false); // 個包装だけ（取引先へのお礼）
   const [priceBand, setPriceBand] = useState("");                         // 価格帯（取引先へのお礼）
+  const [minPieces, setMinPieces] = useState("");                         // ○個以上（取引先へのお礼。#67）
   const [results, setResults] = useState<Gift[] | null>(null);            // 検索結果
   const [error, setError] = useState("");                                 // つながらないときの文言
 
@@ -81,7 +82,7 @@ export default function Home() {
     // いま開いているタブの条件だけを送る（もう一方のタブの入力は送らない）
     const condition = mode === "standard"
       ? { keyword, category, indivWrap: false, priceBand: "" }
-      : { keyword: "", category: "", indivWrap, priceBand };
+      : { keyword: "", category: "", indivWrap, priceBand, minPieces };
     try {
       const found = await searchGifts(condition);
       if (myGen !== generation.current) return;
@@ -177,6 +178,12 @@ export default function Home() {
               <option value="">すべての価格帯</option>
               <option value="3000">3,000〜5,000円</option>
               <option value="5000">5,000〜10,000円</option>
+            </select>
+            <select value={minPieces} onChange={(e) => setMinPieces(e.target.value)}>
+              <option value="">個数を問わない</option>
+              <option value="5">5個以上</option>
+              <option value="10">10個以上</option>
+              <option value="20">20個以上</option>
             </select>
           </>
         ) : (

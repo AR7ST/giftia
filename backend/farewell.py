@@ -3,6 +3,8 @@
 
 import re
 
+from search_sql import BRAND_NAME, CATEGORY_NAME, EXTRA_COLUMNS, MASTER_JOIN, extra_fields, keyword_condition
+
 PRICE_MAX_LIMIT = 1_000_000
 RESULT_LIMIT = 10  # 返す最大件数
 
@@ -12,15 +14,19 @@ RATING_PRIOR = 3.5
 RATING_PRIOR_COUNT = 10
 
 DETAIL_COLUMNS = (
-    "product_id, category, brand, product_name, price, rating, review_count, "
-    "sales_count, description, size, gift_wrap, message_card, delivery_days, is_individually_wrapped"
+    f"p.product_id, {CATEGORY_NAME} AS category, {BRAND_NAME} AS brand, p.product_name, p.price, p.rating, "
+    "p.review_count, p.sales_count, p.description, p.size, p.gift_wrap, p.message_card, p.delivery_days, "
+    f"p.is_individually_wrapped, {EXTRA_COLUMNS}"
 )
 
 GIFT_WRAP_STAMP = {"label": "ギフト包装可", "type": "positive"}
 # 個包装は説明文の文字ではなく、#65 の列 is_individually_wrapped（1＝あり）で決める（#66）
 INDIV_WRAP_STAMP = {"label": "個包装の記載あり", "type": "info"}
+# 保存方法は説明文の文字ではなく、#65 の列 storage_method で決める（PC での試しの分け方）
+FROZEN_STAMP = {"label": "要冷凍", "type": "caution"}
+CHILLED_STAMP = {"label": "要冷蔵", "type": "caution"}
+ROOM_TEMP_STAMP = {"label": "常温保存", "type": "info"}
 KEYWORD_STAMPS = (
-    ("常温", {"label": "常温保存の記載あり", "type": "info"}),
     ("香り", {"label": "香りあり（好み確認）", "type": "caution"}),
     ("甘い", {"label": "甘いもの（好み確認）", "type": "caution"}),
 )
@@ -42,8 +48,9 @@ def build_condition(q: str, price_max: int) -> tuple[str, list]:
     """WHERE の中身と params。値は %s で渡し、SQL の文字列に直接つなげない"""
     where, params = ["stock > 0", "price <= %s"], [price_max]
     for word in (q or "").split():
-        where.append("(product_name LIKE %s OR brand LIKE %s OR description LIKE %s)")
-        params += [f"%{word}%"] * 3
+        sql, word_params = keyword_condition(word)  # 2文字以上は全文検索、1文字・英字は LIKE（#68）
+        where.append(sql)
+        params += word_params
     return " AND ".join(where), params
 
 
@@ -60,7 +67,7 @@ def build_candidate_query(condition: str) -> str:
 
 def build_detail_query(count: int) -> str:
     placeholders = ", ".join(["%s"] * count)
-    return f"SELECT {DETAIL_COLUMNS} FROM products WHERE product_id IN ({placeholders})"
+    return f"SELECT {DETAIL_COLUMNS} FROM products p {MASTER_JOIN} WHERE p.product_id IN ({placeholders})"
 
 
 def rating_status(rating, review_count) -> str:
@@ -91,13 +98,28 @@ def _keyword_state(text: str, word: str) -> str:
     return "yes" if found else "no"
 
 
-def make_stamps(gift_wrap, description, individually_wrapped=None) -> list[dict]:
-    """gift_wrap=1、個包装の列、説明文の語からスタンプを作る。否定文・迷うときは付けない"""
+def storage_stamp(storage_method):
+    """保存方法の列 → スタンプ。値がなければ付けない。
+    「冷凍」→ 要冷凍、「冷蔵」（「冷蔵不要」は除く）→ 要冷蔵、それ以外の書き方 → 常温保存"""
+    if not isinstance(storage_method, str) or not storage_method.strip():
+        return None
+    if "冷凍" in storage_method:
+        return FROZEN_STAMP
+    if "冷蔵" in storage_method and "冷蔵不要" not in storage_method:
+        return CHILLED_STAMP
+    return ROOM_TEMP_STAMP
+
+
+def make_stamps(gift_wrap, description, individually_wrapped=None, storage_method=None) -> list[dict]:
+    """gift_wrap=1、個包装と保存方法の列、説明文の語からスタンプを作る。否定文・迷うときは付けない"""
     stamps = []
     if gift_wrap == 1:
         stamps.append(dict(GIFT_WRAP_STAMP))
     if individually_wrapped == 1:  # 0 と NULL（わからない）は付けない
         stamps.append(dict(INDIV_WRAP_STAMP))
+    storage = storage_stamp(storage_method)
+    if storage:
+        stamps.append(dict(storage))
     if isinstance(description, str):
         for word, stamp in KEYWORD_STAMPS:
             if _keyword_state(description, word) == "yes":
@@ -133,7 +155,8 @@ def to_farewell_gift(r: dict) -> dict:
         "messageCard": to_flag(r["message_card"]),
         "deliveryDays": r["delivery_days"],
         "ratingStatus": rating_status(r["rating"], r["review_count"]),
-        "stamps": make_stamps(r["gift_wrap"], r["description"], r["is_individually_wrapped"]),
+        "stamps": make_stamps(r["gift_wrap"], r["description"], r["is_individually_wrapped"], r["storage_method"]),
+        **extra_fields(r),  # 税区分・数量・単位・保存方法（#70・#67・#65）
     }
 
 

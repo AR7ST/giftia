@@ -12,6 +12,16 @@ export type Gift = {
   price: number;       // 価格（円）
   rating: number | null; // レビューの平均（評価なしは null）
   reviewCount: number; // レビュー件数
+} & ProductExtras;
+
+// DB 改善で足した項目（PC での試し）。値がなければ null
+export type TaxCategory = "standard_10" | "reduced_8";
+export type QuantityUnit = "piece" | "g" | "ml";
+export type ProductExtras = {
+  taxCategory?: TaxCategory | null;    // 税区分（#70。カテゴリから決めた仮の値）
+  quantityValue?: number | null;       // 数量（#67）
+  quantityUnit?: QuantityUnit | null;  // 数量の単位（#67）
+  storageMethod?: string | null;       // 保存方法（#65）
 };
 
 // 画面から渡す検索条件（2つのタブの分をまとめて持つ）
@@ -20,6 +30,7 @@ export type SearchCondition = {
   category: string;   // いまの検索：カテゴリー（空ならすべて）
   indivWrap: boolean; // 取引先へのお礼：個包装だけ
   priceBand: string;  // 取引先へのお礼："" | "3000" | "5000"
+  minPieces?: string; // 取引先へのお礼："" | "5" | "10" | "20"（○個以上。#67）
 };
 
 // API の場所。NEXT_PUBLIC_ の値はブラウザに配られる＝秘密は置かない（.env.local に書く）
@@ -34,6 +45,7 @@ export async function searchGifts(c: SearchCondition): Promise<Gift[]> {
   if (c.indivWrap) params.set("indiv_wrap", "true");
   if (c.priceBand === "3000") { params.set("price_min", "3000"); params.set("price_max", "4999"); } // 3,000以上 5,000未満
   if (c.priceBand === "5000") { params.set("price_min", "5000"); params.set("price_max", "9999"); } // 5,000以上 10,000未満
+  if (c.minPieces) params.set("min_pieces", c.minPieces); // ○個以上（#67）
 
   // ② fetch で API を呼ぶ（通信が終わるまで待つ＝await）
   const res = await fetch(`${API}/api/search?${params.toString()}`);
@@ -55,7 +67,7 @@ export type ResultCardGift = {
   price: number;
   rating: number | null;
   reviewCount: number | null;
-};
+} & ProductExtras;
 
 export type RatingStatus = "valid" | "no_reviews" | "unknown" | "inconsistent";
 
