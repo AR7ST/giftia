@@ -13,12 +13,13 @@ RATING_PRIOR_COUNT = 10
 
 DETAIL_COLUMNS = (
     "product_id, category, brand, product_name, price, rating, review_count, "
-    "sales_count, description, size, gift_wrap, message_card, delivery_days"
+    "sales_count, description, size, gift_wrap, message_card, delivery_days, is_individually_wrapped"
 )
 
 GIFT_WRAP_STAMP = {"label": "ギフト包装可", "type": "positive"}
+# 個包装は説明文の文字ではなく、#65 の列 is_individually_wrapped（1＝あり）で決める（#66）
+INDIV_WRAP_STAMP = {"label": "個包装の記載あり", "type": "info"}
 KEYWORD_STAMPS = (
-    ("個包装", {"label": "個包装の記載あり", "type": "info"}),
     ("常温", {"label": "常温保存の記載あり", "type": "info"}),
     ("香り", {"label": "香りあり（好み確認）", "type": "caution"}),
     ("甘い", {"label": "甘いもの（好み確認）", "type": "caution"}),
@@ -90,11 +91,13 @@ def _keyword_state(text: str, word: str) -> str:
     return "yes" if found else "no"
 
 
-def make_stamps(gift_wrap, description) -> list[dict]:
-    """gift_wrap=1 と説明文の語からスタンプを作る。否定文・迷うときは付けない"""
+def make_stamps(gift_wrap, description, individually_wrapped=None) -> list[dict]:
+    """gift_wrap=1、個包装の列、説明文の語からスタンプを作る。否定文・迷うときは付けない"""
     stamps = []
     if gift_wrap == 1:
         stamps.append(dict(GIFT_WRAP_STAMP))
+    if individually_wrapped == 1:  # 0 と NULL（わからない）は付けない
+        stamps.append(dict(INDIV_WRAP_STAMP))
     if isinstance(description, str):
         for word, stamp in KEYWORD_STAMPS:
             if _keyword_state(description, word) == "yes":
@@ -130,7 +133,7 @@ def to_farewell_gift(r: dict) -> dict:
         "messageCard": to_flag(r["message_card"]),
         "deliveryDays": r["delivery_days"],
         "ratingStatus": rating_status(r["rating"], r["review_count"]),
-        "stamps": make_stamps(r["gift_wrap"], r["description"]),
+        "stamps": make_stamps(r["gift_wrap"], r["description"], r["is_individually_wrapped"]),
     }
 
 

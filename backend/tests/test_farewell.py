@@ -19,18 +19,19 @@ def make_fetch(products):
     con.execute(
         "CREATE TABLE products (product_id TEXT, category TEXT, brand TEXT, product_name TEXT, price INTEGER, "
         "rating REAL, review_count INTEGER, stock INTEGER, sales_count INTEGER, description TEXT, size TEXT, "
-        "gift_wrap INTEGER, message_card INTEGER, delivery_days INTEGER)"
+        "gift_wrap INTEGER, message_card INTEGER, delivery_days INTEGER, is_individually_wrapped INTEGER)"
     )
     for p in products:
         row = {
             "category": "c1", "brand": "b", "product_name": "n", "price": 1000, "rating": None,
             "review_count": 0, "stock": 5, "sales_count": 0, "description": None, "size": None,
-            "gift_wrap": None, "message_card": None, "delivery_days": None,
+            "gift_wrap": None, "message_card": None, "delivery_days": None, "is_individually_wrapped": None,
         }
         row.update(p)
         con.execute(
             "INSERT INTO products VALUES (:product_id, :category, :brand, :product_name, :price, :rating, "
-            ":review_count, :stock, :sales_count, :description, :size, :gift_wrap, :message_card, :delivery_days)",
+            ":review_count, :stock, :sales_count, :description, :size, :gift_wrap, :message_card, :delivery_days, "
+            ":is_individually_wrapped)",
             row,
         )
     calls = []
@@ -197,7 +198,7 @@ class StampTest(unittest.TestCase):
 
     def test_keywords(self):
         self.assertEqual(
-            farewell.make_stamps(None, "個包装で配りやすい。常温で保存できます。香りが良い。甘い味わい。"),
+            farewell.make_stamps(None, "個包装で配りやすい。常温で保存できます。香りが良い。甘い味わい。", 1),
             [
                 {"label": "個包装の記載あり", "type": "info"},
                 {"label": "常温保存の記載あり", "type": "info"},
@@ -235,10 +236,19 @@ class StampTest(unittest.TestCase):
     def test_non_string_description(self):
         self.assertEqual(farewell.make_stamps(None, None), [])
 
+    def test_indiv_wrap_comes_from_column_not_text(self):
+        # 列が 1 なら、説明文に「個包装」の文字がなくても付く（「1個ずつ小袋入り」など。#66）
+        self.assertEqual(labels(farewell.make_stamps(None, "【包装】1個ずつ小袋入り", 1)), ["個包装の記載あり"])
+        # 説明文に「個包装」とあっても、列が 0・NULL なら付けない
+        for value in (0, None):
+            with self.subTest(value=value):
+                self.assertEqual(farewell.make_stamps(None, "個包装で配りやすい", value), [])
+
 
 class ResponseShapeTest(unittest.TestCase):
     def test_fields_and_nulls_kept(self):
-        fetch = make_fetch([{"product_id": "A", "description": "個包装です", "gift_wrap": 1}])
+        fetch = make_fetch([{"product_id": "A", "description": "個包装です", "gift_wrap": 1,
+                             "is_individually_wrapped": 1}])
         result = farewell.farewell_search(fetch, "", 5000)
         item = result["results"][0]
         self.assertEqual(
