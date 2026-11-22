@@ -4,7 +4,7 @@
 // 1週目との違い：①searchGifts が FastAPI を呼ぶ（async/await）②入力した条件を渡す ③つながらないときの表示
 "use client"; // ← ブラウザで動く合図。useState や onClick を使う画面に必要
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ResultCard from "./ResultCard";
 import ConsultPanel from "./ConsultPanel";
 import Skyline from "./Skyline";
@@ -48,6 +48,21 @@ export default function Home() {
   // 検索ごとの世代番号。最新の番号の結果だけを画面に反映する（古い応答の上書き防止）
   const generation = useRef(0);
   const controller = useRef<AbortController | null>(null);
+
+  // スマホ：相談の箱（結果の下）が画面に見えているか。見えている間は「LINE相談文へ」のバーを隠す
+  const sideRef = useRef<HTMLElement | null>(null);
+  const [sideVisible, setSideVisible] = useState(false);
+  useEffect(() => {
+    const el = sideRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([entry]) => setSideVisible(entry.isIntersecting), { threshold: 0.1 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [fStatus]);
+
+  function scrollToConsult() {
+    sideRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   function startRequest(): number {
     controller.current?.abort();
@@ -189,7 +204,7 @@ export default function Home() {
         ) : (
           <>
             <label className="chk">
-              予算の上限（合計・円）
+              予算の上限（1つあたり・円）
               <input className="budget" inputMode="numeric" value={budget} onChange={(e) => setBudget(e.target.value)} />
             </label>
             <input className="q" value={fKeyword} onChange={(e) => setFKeyword(e.target.value)} placeholder="キーワード（任意）" />
@@ -241,7 +256,7 @@ export default function Home() {
                   ))}
                 </div>
 
-                <aside className="side">
+                <aside className="side" ref={sideRef}>
                   {selected.length > 0 && (
                     <div className="consult">
                       <h2>相談候補（{selected.length}/{MAX_SELECT}件）</h2>
@@ -272,6 +287,13 @@ export default function Home() {
                   <ConsultPanel candidates={selected} recommendedId={recommendedId} reason={reason} />
                 </aside>
               </div>
+
+              {/* スマホだけ：候補を選ぶと画面の下にバーを出し、押すと相談の箱へ移る（PC では CSS で隠す） */}
+              {selected.length > 0 && !sideVisible && (
+                <button type="button" className="consult-bar" onClick={scrollToConsult}>
+                  相談候補 {selected.length}/{MAX_SELECT}件　LINE相談文へ ↓
+                </button>
+              )}
             </>
           )}
         </section>

@@ -86,6 +86,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
 /* ── 送別ギフトタブ：結果は左、相談候補と LINE 相談文は右（スクロールしてもついてくる） ── */
 .farewell-layout { display:grid; grid-template-columns:minmax(0, 1fr) 320px; gap:16px; align-items:start; }
 .side { position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; }
+.consult-bar { display:none; } /* スマホだけ出す（下の @media） */
 .consult { border:1px solid var(--line); border-radius:12px; padding:12px 14px; background:var(--card); margin:0 0 12px; }
 .consult h2 { font-size:16px; margin:0 0 8px; }
 .consult ul { margin:4px 0; padding-left:0; list-style:none; }
@@ -103,5 +104,11 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-
   .header .sun { width:32px; height:32px; right:16px; top:14px; }
   .skyline { margin-top:4px; } /* 狭い画面では、街並みを文字と重ねない */
   .farewell-layout { grid-template-columns:1fr; }
-  .side { position:static; max-height:none; overflow:visible; }
+  .side { position:static; max-height:none; overflow:visible; scroll-margin-top:12px; }
+  .farewell-layout { padding-bottom:72px; } /* 下のバーが最後のカードに重ならないように */
+  .consult-bar {
+    display:block; position:fixed; left:12px; right:12px; bottom:calc(12px + env(safe-area-inset-bottom)); z-index:10;
+    padding:12px 16px; border:none; border-radius:999px; background:var(--accent); color:#fff;
+    font-size:15px; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,.18);
+  }
 }
