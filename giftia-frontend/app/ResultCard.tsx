@@ -1,6 +1,7 @@
 // app/ResultCard.tsx — 結果カード（部品）。送別ギフトのときだけ farewell を渡すと、スタンプ・評価の状態などを追加で表示する
 import type { FarewellGift, ResultCardGift } from "@/lib/api";
 import { formatRating } from "../lib/rating";
+import { formatQuantity, formatTax } from "../lib/display";
 
 type Props = {
   gift: ResultCardGift;
@@ -26,6 +27,9 @@ export default function ResultCard({ gift, rank, farewell, selected, selectDisab
       <p className="meta"><span className="rank">{rank}位</span>{gift.category}・{gift.brand}</p>
       <h3 className="name">{gift.name}</h3>
       <p className="price">{gift.price.toLocaleString()}円</p>
+      {formatTax(gift.price, gift) && <p className="meta">{formatTax(gift.price, gift)}</p>}
+      {formatQuantity(gift) && <p className="meta">数量：{formatQuantity(gift)}</p>}
+      {!farewell && gift.storageMethod && <p className="meta">保存方法：{gift.storageMethod}</p>}
       {farewell ? (
         <>
           <p className="meta">{formatRating(farewell)}</p>

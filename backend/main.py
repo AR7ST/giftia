@@ -16,6 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from database import fetch_all
 from fastapi import HTTPException
 from farewell import farewell_search
+from search_sql import BRAND_NAME, CATEGORY_NAME, EXTRA_COLUMNS, MASTER_JOIN, extra_fields, keyword_condition
 
 load_dotenv()  # .env を読む（DB の接続情報・CORS の許可）
 
@@ -43,6 +44,7 @@ def search(
     indiv_wrap: bool = Query(default=False, description="true なら、個包装ありの商品だけ（is_individually_wrapped が 1）"),
     price_min: int | None = Query(default=None, ge=0, description="価格の下限（以上）"),
     price_max: int | None = Query(default=None, ge=0, description="価格の上限（以下）"),
+    min_pieces: int | None = Query(default=None, ge=1, description="個数の下限（○個以上。数量の単位が「個」の商品だけ。#67）"),
     limit: int = Query(default=20, ge=1, le=100, description="返す件数"),
     mode: str = Query(default="", description="farewell なら送別ギフト検索（price_max 必須・10件固定）"),
 ):
@@ -53,32 +55,39 @@ def search(
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
     # ① 条件を WHERE に1つずつ足す（値は %s で渡し、SQL の文字列に直接つなげない）
-    where, params = ["stock > 0"], []  # 在庫切れは出さない
+    # 在庫切れは出さない。販売中（status が active）の商品だけ（#71）
+    where, params = ["p.stock > 0", "p.status = %s"], ["active"]
     for word in q.split():  # 【穴1】q を空白で区切って1語ずつにする（文字列のメソッド）
-        where.append("(product_name LIKE %s OR brand LIKE %s OR description LIKE %s)")
-        params += [f"%{word}%"] * 3
+        sql, word_params = keyword_condition(word, "p.")  # 2文字以上は全文検索、1文字・英字は LIKE（#68）
+        where.append(sql)
+        params += word_params
     if category:
-        where.append("category = %s")
+        where.append(f"{CATEGORY_NAME} = %s")  # カテゴリのマスタ名で絞る（#63）
         params.append(category)  # 【穴2】%s に入れる値（受け取ったカテゴリー）
     if indiv_wrap:
         # 説明文の「個包装」の文字では探さない（「【個包装】なし」にも当たるため。#88）。
         # #65 で足した列 is_individually_wrapped が 1（個包装あり）の商品だけにする。0 と NULL は出さない（#66）
-        where.append("is_individually_wrapped = %s")
+        where.append("p.is_individually_wrapped = %s")
         params.append(1)
     if price_min is not None:
-        where.append("price >= %s")
+        where.append("p.price >= %s")
         params.append(price_min)
     if price_max is not None:
-        where.append("price <= %s")
+        where.append("p.price <= %s")
         params.append(price_max)
+    if min_pieces is not None:
+        # 単位が「個（piece）」の商品だけを比べる。g・ml や数量不明の商品は出さない（#67）
+        where.append("p.quantity_unit = %s AND p.quantity_value >= %s")
+        params += ["piece", min_pieces]
     condition = " AND ".join(where)
 
     # ② 件数と、人気順の上位 limit 件を取る
-    total = fetch_all(f"SELECT COUNT(*) AS n FROM products WHERE {condition}", tuple(params))[0]["n"]
+    total = fetch_all(f"SELECT COUNT(*) AS n FROM products p {MASTER_JOIN} WHERE {condition}", tuple(params))[0]["n"]
     rows = fetch_all(
-        f"""SELECT product_id, category, brand, product_name, price, rating, review_count
-            FROM products WHERE {condition}
-            ORDER BY sales_count DESC, product_id
+        f"""SELECT p.product_id, {CATEGORY_NAME} AS category, {BRAND_NAME} AS brand, p.product_name, p.price,
+                   p.rating, p.review_count, {EXTRA_COLUMNS}
+            FROM products p {MASTER_JOIN} WHERE {condition}
+            ORDER BY p.sales_count DESC, p.product_id
             LIMIT %s""",
         (*params, limit),
     )
@@ -96,4 +105,5 @@ def to_gift(r: dict) -> dict:
         "price": r["price"],
         "rating": float(r["rating"]) if r["rating"] is not None else None,  # 評価なしは null（画面で「不明」・0点にしない）
         "reviewCount": r["review_count"],
+        **extra_fields(r),  # 税区分・数量・単位・保存方法（#70・#67・#65）
     }

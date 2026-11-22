@@ -10,6 +10,9 @@ import unittest
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
 import farewell  # noqa: E402
+import search_sql  # noqa: E402
+
+search_sql.FULLTEXT_ENABLED = False  # sqlite には全文検索（MATCH）がないので LIKE で確かめる
 
 
 def make_fetch(products):
@@ -19,19 +22,26 @@ def make_fetch(products):
     con.execute(
         "CREATE TABLE products (product_id TEXT, category TEXT, brand TEXT, product_name TEXT, price INTEGER, "
         "rating REAL, review_count INTEGER, stock INTEGER, sales_count INTEGER, description TEXT, size TEXT, "
-        "gift_wrap INTEGER, message_card INTEGER, delivery_days INTEGER, is_individually_wrapped INTEGER)"
+        "gift_wrap INTEGER, message_card INTEGER, delivery_days INTEGER, is_individually_wrapped INTEGER, "
+        "category_id INTEGER, brand_id INTEGER, tax_category TEXT, quantity_value REAL, quantity_unit TEXT, "
+        "storage_method TEXT)"
     )
+    con.execute("CREATE TABLE categories (id INTEGER, name TEXT)")  # マスタ（#63）。空なら旧列の名前を返す
+    con.execute("CREATE TABLE brands (id INTEGER, name TEXT)")
     for p in products:
         row = {
             "category": "c1", "brand": "b", "product_name": "n", "price": 1000, "rating": None,
             "review_count": 0, "stock": 5, "sales_count": 0, "description": None, "size": None,
             "gift_wrap": None, "message_card": None, "delivery_days": None, "is_individually_wrapped": None,
+            "category_id": None, "brand_id": None,
+            "tax_category": None, "quantity_value": None, "quantity_unit": None, "storage_method": None,
         }
         row.update(p)
         con.execute(
             "INSERT INTO products VALUES (:product_id, :category, :brand, :product_name, :price, :rating, "
             ":review_count, :stock, :sales_count, :description, :size, :gift_wrap, :message_card, :delivery_days, "
-            ":is_individually_wrapped)",
+            ":is_individually_wrapped, :category_id, :brand_id, :tax_category, :quantity_value, :quantity_unit, "
+            ":storage_method)",
             row,
         )
     calls = []
@@ -198,10 +208,10 @@ class StampTest(unittest.TestCase):
 
     def test_keywords(self):
         self.assertEqual(
-            farewell.make_stamps(None, "個包装で配りやすい。常温で保存できます。香りが良い。甘い味わい。", 1),
+            farewell.make_stamps(None, "個包装で配りやすい。常温で保存できます。香りが良い。甘い味わい。", 1, "常温"),
             [
                 {"label": "個包装の記載あり", "type": "info"},
-                {"label": "常温保存の記載あり", "type": "info"},
+                {"label": "常温保存", "type": "info"},
                 {"label": "香りあり（好み確認）", "type": "caution"},
                 {"label": "甘いもの（好み確認）", "type": "caution"},
             ],
@@ -236,6 +246,16 @@ class StampTest(unittest.TestCase):
     def test_non_string_description(self):
         self.assertEqual(farewell.make_stamps(None, None), [])
 
+    def test_storage_comes_from_column(self):
+        # 保存方法の列から付ける。説明文の「常温」の文字では付けない（PC での試しの分け方）
+        cases = {"要冷凍（-18℃以下）": "要冷凍", "冷凍庫で保存": "要冷凍", "要冷蔵": "要冷蔵",
+                 "お届け後は冷蔵庫で保存": "要冷蔵", "冷蔵不要": "常温保存", "常温": "常温保存",
+                 "直射日光を避けて保存してください": "常温保存"}
+        for method, label in cases.items():
+            with self.subTest(method=method):
+                self.assertEqual(labels(farewell.make_stamps(None, None, None, method)), [label])
+        self.assertEqual(farewell.make_stamps(None, "常温で保存できます", None, None), [])
+
     def test_indiv_wrap_comes_from_column_not_text(self):
         # 列が 1 なら、説明文に「個包装」の文字がなくても付く（「1個ずつ小袋入り」など。#66）
         self.assertEqual(labels(farewell.make_stamps(None, "【包装】1個ずつ小袋入り", 1)), ["個包装の記載あり"])
@@ -256,6 +276,7 @@ class ResponseShapeTest(unittest.TestCase):
             {
                 "id", "category", "brand", "name", "price", "rating", "reviewCount", "salesCount", "description",
                 "size", "giftWrap", "messageCard", "deliveryDays", "ratingStatus", "stamps",
+                "taxCategory", "quantityValue", "quantityUnit", "storageMethod",
             },
         )
         self.assertIsNone(item["rating"])
