@@ -1,6 +1,6 @@
 // app/ResultCard.tsx — 結果カード（部品）。送別ギフトのときだけ farewell を渡すと、スタンプ・評価の状態などを追加で表示する
 import type { FarewellGift, ResultCardGift } from "@/lib/api";
-import { formatRating } from "../lib/rating";
+import { formatRating, ratingStatusOf } from "../lib/rating";
 
 type Props = {
   gift: ResultCardGift;
@@ -44,7 +44,10 @@ export default function ResultCard({ gift, rank, farewell, selected, selectDisab
           {farewell.description && <p className="meta">{excerpt(farewell.description)}</p>}
         </>
       ) : (
-        <p className="meta">評価{gift.rating ?? " 不明"}（{gift.reviewCount === null ? "件数不明" : `${gift.reviewCount}件`}）</p>
+        // 送別以外も、送別・LINE 相談文と同じ形（★4.0（5件））で出す（#92）
+        <p className="meta">
+          {formatRating({ ...gift, ratingStatus: ratingStatusOf(gift.rating, gift.reviewCount) })}
+        </p>
       )}
       {onToggleSelect && (
         <button
