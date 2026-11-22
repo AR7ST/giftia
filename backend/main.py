@@ -40,7 +40,7 @@ def health():
 def search(
     q: str = Query(default="", description="キーワード（空白区切りで複数。すべてを含む商品）"),
     category: str = Query(default="", description="カテゴリー（空ならすべて）"),
-    indiv_wrap: bool = Query(default=False, description="true なら、説明文に「個包装」とある商品だけ"),
+    indiv_wrap: bool = Query(default=False, description="true なら、個包装ありの商品だけ（product_facts の indiv_wrap が 1）"),
     price_min: int | None = Query(default=None, ge=0, description="価格の下限（以上）"),
     price_max: int | None = Query(default=None, ge=0, description="価格の上限（以下）"),
     limit: int = Query(default=20, ge=1, le=100, description="返す件数"),
@@ -61,8 +61,13 @@ def search(
         where.append("category = %s")
         params.append(category)  # 【穴2】%s に入れる値（受け取ったカテゴリー）
     if indiv_wrap:
-        where.append("description LIKE %s")  # 「個包装」は列がないので、説明文に書いてあるかで見る
-        params.append("%個包装%")  # 【穴3】「個包装」をどこかに含む、という LIKE のパターン
+        # 説明文の「個包装」の文字では探さない（「【個包装】なし」にも当たるため。#88）。
+        # product_facts の indiv_wrap が 1（個包装あり）の商品だけにする。値がない商品は出さない
+        where.append(
+            "EXISTS (SELECT 1 FROM product_facts f "
+            "WHERE f.product_id = products.product_id AND f.fact = %s AND f.value = %s)"
+        )
+        params += ["indiv_wrap", 1]
     if price_min is not None:
         where.append("price >= %s")
         params.append(price_min)
